@@ -134,15 +134,19 @@ final class DisplayScreenTest {
   }
 
   /**
-   * Returns the texts of the lines of the display, cell by cell.
+   * Returns the texts of the lines of the display, cell by cell, read on the JavaFX thread: the display is refreshed
+   * every second, and a read from the thread of the test could see the grid between its clearing and its filling.
    *
    * @param robot the TestFX robot.
    *
    * @return the texts.
+   *
+   * @throws Exception if the texts cannot be read.
    */
-  private static List<String> cells(final FxRobot robot) {
-    return robot.lookup("#grid").queryAs(GridPane.class).getChildren().stream()
-                .map(node -> ((Label) node).getText()).toList();
+  private static List<String> cells(final FxRobot robot) throws Exception {
+    final GridPane grid = robot.lookup("#grid").queryAs(GridPane.class);
+    return WaitForAsyncUtils.asyncFx(() -> grid.getChildren().stream().map(node -> ((Label) node).getText()).toList())
+                            .get();
   }
 
   /**
