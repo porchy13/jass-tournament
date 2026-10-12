@@ -1,3 +1,7 @@
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/porchy13)
+
+---
+
 # Jass Tournament
 
 Desktop application organising a Swiss _Jass_ (_Chibre_) card tournament — the _match aux cartes des vétérans du
