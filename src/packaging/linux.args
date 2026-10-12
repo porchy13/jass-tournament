@@ -1,0 +1,9 @@
+--name "Jass Tournament"
+--app-image "target/installer/image/Jass Tournament"
+--dest target/installer/dist
+--license-file LICENSE
+--linux-package-name jass-tournament
+--linux-menu-group Office
+--linux-app-category misc
+--linux-shortcut
+--icon src/packaging/icons/jass-tournament.png

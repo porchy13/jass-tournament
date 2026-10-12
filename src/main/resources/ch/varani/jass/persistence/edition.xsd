@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Schema of edition.xml, the main entry of an edition file (.jass), format version 1.
+
+  The settings come first, so that the list of the editions can read them alone. The deals give the content of every
+  game (the domain checks that their number is a multiple of 4). The registrations are teams in team
+  mode and players in individual mode; the schedule, absent while the registration is open, has the games of the same
+  mode. The numbers of the teams and of the players are their position in the registrations, starting at 1. A player
+  may refer to a person of the directory by its identifier; the contact details of the person are never stored here.
+  The results, absent until the first one is entered, hold the raw input only: the score sheets (one score per deal,
+  the typed columns only, an empty score for a deal not played), the excluded participants and the drawing of lots;
+  the totals and the ranking are always recomputed. The ledger, absent until a fee or an entry is entered, holds the
+  registration fee of a player and the entries of the accounting with the references of their supporting documents,
+  whose contents are the entries attachments/<sha256>.<ext> of the archive. A player records whether its fee is paid.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:e="urn:ch:varani:jass:edition"
+           targetNamespace="urn:ch:varani:jass:edition"
+           elementFormDefault="qualified">
+
+  <xs:element name="edition">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="settings" type="e:settings"/>
+        <xs:element name="deals" type="e:deals"/>
+        <xs:element name="registrations" type="e:registrations"/>
+        <xs:element name="schedule" type="e:schedule" minOccurs="0"/>
+        <xs:element name="results" type="e:results" minOccurs="0"/>
+        <xs:element name="ledger" type="e:ledger" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute name="formatVersion" type="xs:int" use="required" fixed="1"/>
+      <xs:attribute name="id" type="e:uuid" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="settings">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="date" type="xs:date"/>
+      <xs:element name="mode" type="e:mode"/>
+      <xs:element name="games" type="e:number"/>
+      <!-- The time given to play a game, in minutes (60 when absent). -->
+      <xs:element name="gameMinutes" type="e:gameMinutes" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="gameMinutes">
+    <xs:restriction base="xs:int">
+      <xs:minInclusive value="1"/>
+      <xs:maxInclusive value="300"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="deals">
+    <xs:sequence>
+      <xs:element name="deal" type="e:deal" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="deal">
+    <xs:attribute name="type" type="e:dealType" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="registrations">
+    <xs:choice>
+      <xs:element name="team" type="e:team" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="player" type="e:player" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="team">
+    <xs:sequence>
+      <xs:element name="player" type="e:player" minOccurs="2" maxOccurs="2"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="player">
+    <xs:attribute name="firstName" type="xs:string" use="required"/>
+    <xs:attribute name="lastName" type="xs:string" use="required"/>
+    <xs:attribute name="person" type="e:uuid"/>
+    <xs:attribute name="paid" type="xs:boolean"/>
+  </xs:complexType>
+
+  <xs:complexType name="schedule">
+    <xs:sequence>
+      <xs:element name="round" type="e:round" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="round">
+    <xs:choice>
+      <xs:element name="teamGame" type="e:teamGame" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="individualGame" type="e:individualGame" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:choice>
+    <xs:attribute name="number" type="e:number" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="teamGame">
+    <xs:attribute name="table" type="e:number" use="required"/>
+    <xs:attribute name="giver" type="e:number" use="required"/>
+    <xs:attribute name="receiver" type="e:number" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="individualGame">
+    <xs:sequence>
+      <xs:element name="giver" type="e:partners"/>
+      <xs:element name="receiver" type="e:partners"/>
+    </xs:sequence>
+    <xs:attribute name="table" type="e:number" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="partners">
+    <xs:attribute name="first" type="e:number" use="required"/>
+    <xs:attribute name="second" type="e:number" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="results">
+    <xs:sequence>
+      <xs:element name="sheet" type="e:sheet" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="excluded" type="e:participant" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="tieBreak" type="e:tieBreak" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="sheet">
+    <xs:sequence>
+      <xs:element name="score" type="e:score" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="round" type="e:number" use="required"/>
+    <xs:attribute name="table" type="e:number" use="required"/>
+    <xs:attribute name="absence" type="e:absence"/>
+  </xs:complexType>
+
+  <xs:complexType name="score">
+    <xs:attribute name="giver" type="e:points"/>
+    <xs:attribute name="receiver" type="e:points"/>
+  </xs:complexType>
+
+  <xs:complexType name="participant">
+    <xs:attribute name="number" type="e:number" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="tieBreak">
+    <xs:sequence>
+      <xs:element name="lot" type="e:participant" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="seed" type="xs:long" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="ledger">
+    <xs:sequence>
+      <xs:element name="entry" type="e:entry" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="fee" type="e:amount" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="entry">
+    <xs:sequence>
+      <xs:element name="attachment" type="e:attachment" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="e:uuid" use="required"/>
+    <xs:attribute name="date" type="e:calendarDate" use="required"/>
+    <xs:attribute name="type" type="e:entryType" use="required"/>
+    <xs:attribute name="category" type="xs:string" use="required"/>
+    <xs:attribute name="description" type="xs:string"/>
+    <xs:attribute name="amount" type="e:amount" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="attachment">
+    <xs:attribute name="sha256" type="e:sha256" use="required"/>
+    <xs:attribute name="type" type="e:attachmentType" use="required"/>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="size" type="e:number" use="required"/>
+  </xs:complexType>
+
+  <xs:simpleType name="entryType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="INCOME"/>
+      <xs:enumeration value="EXPENSE"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attachmentType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="PDF"/>
+      <xs:enumeration value="PNG"/>
+      <xs:enumeration value="JPEG"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="amount">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9]{1,6}\.[0-9]{2}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="sha256">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9a-f]{64}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="calendarDate">
+    <xs:restriction base="xs:date">
+      <xs:pattern value="[0-9]{4}-[0-9]{2}-[0-9]{2}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="absence">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="GIVER"/>
+      <xs:enumeration value="RECEIVER"/>
+      <xs:enumeration value="BOTH"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="points">
+    <xs:restriction base="xs:int">
+      <xs:minInclusive value="0"/>
+      <xs:maxInclusive value="157"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="mode">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="TEAM"/>
+      <xs:enumeration value="INDIVIDUAL"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="dealType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="IMPOSED_HEARTS"/>
+      <xs:enumeration value="IMPOSED_CLUBS"/>
+      <xs:enumeration value="IMPOSED_DIAMONDS"/>
+      <xs:enumeration value="IMPOSED_SPADES"/>
+      <xs:enumeration value="SCHIEBER"/>
+      <xs:enumeration value="KREUZ"/>
+      <xs:enumeration value="FORCED_TRUMP"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="number">
+    <xs:restriction base="xs:int">
+      <xs:minInclusive value="1"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="uuid">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

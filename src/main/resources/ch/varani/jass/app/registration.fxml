@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<!--
+  The registration of an edition (RegistrationController): the registered participants at the left, the entry of the
+  players in the detail panel, the closing of the registration in the toolbar.
+-->
+<VBox styleClass="view" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+  <HBox styleClass="toolbar">
+    <Button fx:id="solveButton" minWidth="-Infinity" styleClass="primary" text="%registration.solve" onAction="#solve"/>
+    <Button fx:id="reopenButton" minWidth="-Infinity" styleClass="danger" text="%registration.reopen"
+            onAction="#reopen"/>
+    <ProgressBar fx:id="progress" styleClass="progress" minWidth="-Infinity"/>
+    <Label fx:id="solveStatus"/>
+    <Button fx:id="cancelButton" minWidth="-Infinity" text="%registration.cancel.solving" onAction="#cancelSolving"/>
+    <Separator orientation="VERTICAL"/>
+    <Button fx:id="newButton" styleClass="icon-button" onAction="#clear"/>
+  </HBox>
+  <StackPane fx:id="body" VBox.vgrow="ALWAYS">
+    <SplitPane fx:id="split">
+      <VBox styleClass="view-body, panel">
+        <Label fx:id="title" styleClass="title-view"/>
+        <Label fx:id="settings" styleClass="caption"/>
+        <Label fx:id="count" styleClass="section-head"/>
+        <TableView fx:id="table" VBox.vgrow="ALWAYS">
+          <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/></columnResizePolicy>
+        </TableView>
+      </VBox>
+      <ScrollPane fx:id="detail" styleClass="detail, panel" fitToWidth="true">
+        <VBox styleClass="panel-body">
+          <HBox styleClass="view-head">
+            <Label styleClass="title-panel" text="%registration.entry"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="closeDetail" styleClass="icon-button"/>
+          </HBox>
+          <VBox styleClass="slot">
+            <Label styleClass="section-head" text="%registration.player1"/>
+            <GridPane styleClass="form">
+              <Label styleClass="field-label" text="%registration.first.name" labelFor="$first1"
+                     GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+              <TextField fx:id="first1" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+              <Label styleClass="field-label" text="%registration.last.name" labelFor="$last1"
+                     GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+              <TextField fx:id="last1" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+            </GridPane>
+            <Label fx:id="link1" styleClass="caption"/>
+            <ListView fx:id="proposals1" styleClass="proposals"/>
+          </VBox>
+          <VBox fx:id="slot2" styleClass="slot">
+            <Label styleClass="section-head" text="%registration.player2"/>
+            <GridPane styleClass="form">
+              <Label styleClass="field-label" text="%registration.first.name" labelFor="$first2"
+                     GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+              <TextField fx:id="first2" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+              <Label styleClass="field-label" text="%registration.last.name" labelFor="$last2"
+                     GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+              <TextField fx:id="last2" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+            </GridPane>
+            <Label fx:id="link2" styleClass="caption"/>
+            <ListView fx:id="proposals2" styleClass="proposals"/>
+          </VBox>
+          <Button fx:id="previousButton" styleClass="multiline" wrapText="true" maxWidth="Infinity"
+                  minHeight="-Infinity" onAction="#previousTeam"/>
+          <Label fx:id="outdated" styleClass="warning" text="%registration.outdated.hint" wrapText="true"
+                 visible="false" managed="false"/>
+          <Label fx:id="problem" styleClass="error" wrapText="true"/>
+          <ButtonBar>
+            <buttons>
+              <Button fx:id="removeButton" styleClass="danger" text="%registration.remove" onAction="#remove"
+                      ButtonBar.buttonData="LEFT" ButtonBar.buttonUniformSize="false"/>
+              <Button fx:id="modifyButton" text="%registration.modify" onAction="#modify"
+                      ButtonBar.buttonData="OTHER" ButtonBar.buttonUniformSize="false"/>
+              <Button fx:id="addButton" text="%registration.add" onAction="#add" defaultButton="true"
+                      ButtonBar.buttonData="OK_DONE" ButtonBar.buttonUniformSize="false"/>
+            </buttons>
+          </ButtonBar>
+        </VBox>
+      </ScrollPane>
+    </SplitPane>
+  </StackPane>
+</VBox>

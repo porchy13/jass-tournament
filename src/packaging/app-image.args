@@ -1,0 +1,12 @@
+--name "Jass Tournament"
+--vendor "Jérôme Varani"
+--description "Organises the Jass card tournament of the veterans of FC Bevaix"
+--copyright "Copyright 2023-2026 Jérôme Varani - Apache License 2.0"
+--dest target/installer/image
+--runtime-image target/installer/runtime
+--module-path target/installer/mods
+--module ch.varani.jass/ch.varani.jass.app.Launcher
+--app-content target/installer/native
+--java-options "--enable-native-access=ALL-UNNAMED,javafx.graphics,ortools.java"
+--java-options "--add-modules=ALL-MODULE-PATH"
+--java-options "-Djava.library.path=$APPDIR/../native"

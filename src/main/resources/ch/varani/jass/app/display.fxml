@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<!--
+  The external display (DisplayWindow, F18): the logo, the edition and the round or the final ranking at the top, the
+  countdown at the right; the places of the participants or the lines of the ranking below, by pages.
+-->
+<BorderPane styleClass="display" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+  <top>
+    <HBox styleClass="display-head">
+      <ImageView fx:id="logo" fitHeight="96" fitWidth="192" preserveRatio="true"/>
+      <VBox styleClass="display-titles" HBox.hgrow="ALWAYS">
+        <Label fx:id="edition" styleClass="display-edition"/>
+        <Label fx:id="heading" styleClass="display-heading" wrapText="true"/>
+      </VBox>
+      <VBox fx:id="clockBox" styleClass="display-clock">
+        <Label fx:id="timer" styleClass="display-timer"/>
+        <Label fx:id="status" styleClass="display-status"/>
+      </VBox>
+    </HBox>
+  </top>
+  <center>
+    <StackPane fx:id="area" styleClass="display-area" minHeight="0">
+      <GridPane fx:id="grid" styleClass="display-grid" StackPane.alignment="TOP_LEFT"/>
+    </StackPane>
+  </center>
+  <bottom>
+    <Label fx:id="pageLabel" styleClass="display-page"/>
+  </bottom>
+</BorderPane>

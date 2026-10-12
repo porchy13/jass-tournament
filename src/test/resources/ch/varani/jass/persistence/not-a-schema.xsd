@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Not a schema: used to test that an invalid schema is rejected. -->
+<notASchema/>

@@ -1,0 +1,427 @@
+/*
+ * Styles of the parts of the window (DESIGN.md §6, §7, §8): menu bar, toolbar, side navigation, views, detail panel,
+ * status bar, icons and dialogs. No colour value here: only the tokens.
+ */
+.menu-bar {
+    -fx-background-color: -c-surface;
+    -fx-border-color: transparent transparent -c-border transparent;
+}
+
+/* Toolbar: 48 px, one primary action at the left, the search at the right. */
+.toolbar {
+    -fx-min-height: 48;
+    -fx-pref-height: 48;
+    -fx-padding: 0 16 0 16;
+    -fx-spacing: 8;
+    -fx-alignment: center-left;
+    -fx-background-color: -c-surface;
+    -fx-border-color: transparent transparent -c-border transparent;
+}
+
+.toolbar .separator:vertical {
+    -fx-padding: 8 4 8 4;
+}
+
+.toolbar .search {
+    -fx-pref-width: 260;
+}
+
+/* Side navigation: 224 px, items of 30 px with an icon of 16 px and a count. */
+.sidebar {
+    -fx-background-color: -c-sidebar;
+    -fx-padding: 12 8 12 8;
+    -fx-spacing: 2;
+    -fx-min-width: 180;
+    -fx-pref-width: 224;
+    -fx-max-width: 320;
+}
+
+.sidebar .group-head {
+    -fx-font-size: 0.85em;
+    -fx-font-weight: 600;
+    -fx-text-fill: -c-text-3;
+    -fx-padding: 16 8 4 8;
+}
+
+.nav-item {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 4;
+    -fx-min-height: 30;
+    -fx-pref-height: 30;
+    -fx-padding: 0 8 0 8;
+    -fx-alignment: center-left;
+    -fx-font-weight: normal;
+}
+
+.nav-item:hover {
+    -fx-background-color: -c-bg;
+}
+
+.nav-item:selected {
+    -fx-background-color: -c-selection;
+}
+
+.nav-item:selected .nav-name {
+    -fx-font-weight: 600;
+}
+
+.nav-item:selected .icon {
+    -fx-stroke: -c-accent;
+}
+
+.nav-item:focused {
+    -fx-background-color: -c-accent, -c-bg;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 4, 3;
+}
+
+.nav-item:selected:focused {
+    -fx-background-color: -c-accent, -c-selection;
+}
+
+.nav-item .nav-line {
+    -fx-spacing: 10;
+    -fx-alignment: center-left;
+}
+
+.nav-item .nav-count {
+    -fx-font-size: 0.85em;
+    -fx-text-fill: -c-text-3;
+}
+
+/* Views: the content column, the title of the view with its count, the panels. */
+.content {
+    -fx-background-color: -c-surface;
+}
+
+.view {
+    -fx-background-color: -c-surface;
+}
+
+.view-body {
+    -fx-padding: 20 24 0 24;
+    -fx-spacing: 12;
+}
+
+.view-head {
+    -fx-spacing: 12;
+    -fx-alignment: baseline-left;
+}
+
+.view-actions {
+    -fx-spacing: 8;
+    -fx-alignment: center-left;
+    -fx-padding: 12 0 16 0;
+}
+
+.panel-body {
+    -fx-padding: 20;
+    -fx-spacing: 12;
+}
+
+.form {
+    -fx-hgap: 12;
+    -fx-vgap: 8;
+    -fx-alignment: top-left;
+}
+
+.buttons {
+    -fx-spacing: 8;
+    -fx-alignment: center-left;
+}
+
+.buttons-end {
+    -fx-spacing: 8;
+    -fx-alignment: center-right;
+}
+
+/* Detail panel: 340 px, at the right, in the background colour; floating when the window is narrow. */
+.detail {
+    -fx-background-color: -c-bg;
+    -fx-min-width: 280;
+    -fx-pref-width: 340;
+    -fx-max-width: 480;
+}
+
+.detail.floating {
+    -fx-max-width: 340;
+    -fx-border-color: transparent transparent transparent -c-border;
+    -fx-effect: dropshadow(gaussian, -c-shadow, 12, 0, 0, 4);
+}
+
+/* Empty states (§7): a sentence telling what to do, and the matching button. */
+.empty-state {
+    -fx-spacing: 12;
+    -fx-alignment: center;
+    -fx-padding: 24;
+}
+
+.empty-state .label {
+    -fx-text-fill: -c-text-2;
+    -fx-wrap-text: true;
+    -fx-text-alignment: center;
+}
+
+/* Status bar: 24 px, state of the saves at the left, notices at the right. */
+.status-bar {
+    -fx-min-height: 24;
+    -fx-pref-height: 24;
+    -fx-padding: 0 12 0 12;
+    -fx-spacing: 16;
+    -fx-alignment: center-left;
+    -fx-background-color: -c-bg;
+    -fx-border-color: -c-border transparent transparent transparent;
+}
+
+.status-bar .label {
+    -fx-font-size: 0.85em;
+    -fx-text-fill: -c-text-2;
+}
+
+.status-dot {
+    -fx-fill: -c-accent;
+}
+
+.status-dot.busy {
+    -fx-fill: -c-warning;
+}
+
+/* Icons (§8): strokes of 1.6 px, round caps, in the text colour. */
+.icon {
+    -fx-fill: transparent;
+    -fx-stroke: -c-text;
+    -fx-stroke-width: 1.6;
+    -fx-stroke-line-cap: round;
+    -fx-stroke-line-join: round;
+}
+
+.button:default .icon, .button.primary .icon {
+    -fx-stroke: -c-on-accent;
+}
+
+/* Contents of the views. */
+.slots {
+    -fx-spacing: 16;
+}
+
+.slot {
+    -fx-spacing: 6;
+}
+
+.proposals {
+    -fx-pref-height: 132;
+}
+
+/* The progress of the computation of the schedule: a bar filled as the time limit of the solver passes. */
+.progress {
+    -fx-pref-width: 160;
+    -fx-accent: -c-accent;
+}
+
+/* The rows of a table that need the attention of the user: the warning colour and a warning icon (Views.warnings). */
+.table-row-cell.warned .table-cell {
+    -fx-text-fill: -c-warning;
+}
+
+.table-row-cell.warned .icon {
+    -fx-stroke: -c-warning;
+}
+
+/* A button whose text takes several lines, e.g. the previous team mate of the registration: its height follows its
+   text instead of the one line of the other buttons. */
+.button.multiline {
+    -fx-alignment: center-left;
+    -fx-text-alignment: left;
+    -fx-pref-height: -1;
+    -fx-padding: 6 12 6 12;
+}
+
+.rounds {
+    -fx-spacing: 20;
+    -fx-padding: 0 0 20 0;
+}
+
+.round {
+    -fx-spacing: 8;
+}
+
+.deal {
+    -fx-spacing: 12;
+    -fx-alignment: center-left;
+}
+
+.logo-preview {
+    -fx-border-color: -c-border;
+    -fx-border-radius: 4;
+    -fx-padding: 8;
+    -fx-min-height: 64;
+    -fx-alignment: center;
+}
+
+/* Dialogs (§7): the question as header, the consequence as text. */
+.dialog-pane {
+    -fx-background-color: -c-bg;
+}
+
+.dialog-pane > .header-panel {
+    -fx-background-color: -c-bg;
+    -fx-padding: 20 20 0 20;
+}
+
+.dialog-pane > .header-panel .label {
+    -fx-font-size: 1.15em;
+    -fx-font-weight: 600;
+    -fx-text-fill: -c-text;
+}
+
+.dialog-pane > .content {
+    -fx-background-color: transparent;
+}
+
+.dialog-pane > .content.label {
+    -fx-padding: 12 20 12 20;
+    -fx-text-fill: -c-text-2;
+}
+
+.dialog-pane > .button-bar > .container {
+    -fx-padding: 12 20 20 20;
+}
+
+/* Score sheet (F9): one line per deal, the fields of the points aligned to the right, the derived column in the
+   tertiary colour, the inconsistent deals with a border in the warning colour (and listed under the sheet). */
+.sheet {
+    -fx-hgap: 8;
+    -fx-vgap: 4;
+    -fx-alignment: top-left;
+}
+
+.sheet .points {
+    -fx-pref-width: 60;
+    -fx-max-width: 60;
+    -fx-alignment: center-right;
+}
+
+.sheet .points.derived {
+    -fx-text-fill: -c-text-3;
+}
+
+.sheet .points.inconsistent {
+    -fx-background-color: -c-warning, -c-surface;
+}
+
+.sheet .sum {
+    -fx-alignment: center-right;
+    -fx-padding: 0 8 0 0;
+    -fx-font-weight: 600;
+}
+
+.excluded {
+    -fx-min-height: 88;
+}
+
+/* External display (F18): large texts readable from afar, on the background of the window; lines of 56 px
+   (DisplayWindow.LINE_HEIGHT); the countdown turns to the danger colour once the time is over (and says so). */
+.display {
+    -fx-background-color: -c-bg;
+    -fx-padding: 32;
+}
+
+.display-head {
+    -fx-spacing: 32;
+    -fx-alignment: center-left;
+    -fx-padding: 0 0 24 0;
+}
+
+.display-titles {
+    -fx-spacing: 4;
+}
+
+.display-edition {
+    -fx-font-size: 1.85em;
+    -fx-text-fill: -c-text-2;
+}
+
+.display-heading {
+    -fx-font-size: 3.1em;
+    -fx-font-weight: 600;
+}
+
+.display-clock {
+    -fx-alignment: center-right;
+}
+
+.display-timer {
+    -fx-font-size: 6.15em;
+    -fx-font-weight: 600;
+}
+
+.display-timer.over {
+    -fx-text-fill: -c-danger;
+}
+
+.display-status {
+    -fx-font-size: 1.54em;
+    -fx-text-fill: -c-text-2;
+}
+
+.display-grid {
+    -fx-hgap: 32;
+}
+
+.display-grid .label {
+    -fx-font-size: 2.15em;
+    -fx-min-height: 56;
+    -fx-pref-height: 56;
+    -fx-max-height: 56;
+}
+
+.display-grid .display-column {
+    -fx-font-size: 1.54em;
+    -fx-text-fill: -c-text-2;
+}
+
+.display-page {
+    -fx-font-size: 1.23em;
+    -fx-text-fill: -c-text-3;
+    -fx-padding: 12 0 0 0;
+}
+
+/* Accounting (F8): the summary as two columns, the amounts at the right, the totals in semi-bold. */
+.summary {
+    -fx-hgap: 32;
+    -fx-vgap: 6;
+}
+
+.summary .total {
+    -fx-font-weight: 600;
+}
+
+.amount {
+    -fx-pref-width: 120;
+    -fx-alignment: center-right;
+}
+
+.accounting {
+    -fx-spacing: 20;
+    -fx-padding: 20 24 24 24;
+}
+
+/* Automatic update (F17): the consequence and the notes of a release, the progress of the download. */
+.offer {
+    -fx-pref-width: 520;
+}
+
+.offer .consequence {
+    -fx-text-fill: -c-text-2;
+}
+
+.download {
+    -fx-padding: 12 20 12 20;
+    -fx-spacing: 8;
+    -fx-pref-width: 400;
+}
+
+.download .caption {
+    -fx-text-fill: -c-text-2;
+}

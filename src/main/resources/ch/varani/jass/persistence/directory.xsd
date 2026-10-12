@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Schema of the directory file (directory.jassdir, GZIP-compressed XML), format version 1.
+
+  One element per person, with its names, its optional contact details and notes, its contact status and the date of
+  its last change, and its participations in the editions (identifier of the edition file, copy of its name and date,
+  identifier of the team mate in team mode). The dates are ISO 8601 calendar dates without time zone.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:d="urn:ch:varani:jass:directory"
+           targetNamespace="urn:ch:varani:jass:directory"
+           elementFormDefault="qualified">
+
+  <xs:element name="directory">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="person" type="d:person" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attribute name="formatVersion" type="xs:int" use="required" fixed="1"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="person">
+    <xs:sequence>
+      <xs:element name="participation" type="d:participation" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="d:uuid" use="required"/>
+    <xs:attribute name="firstName" type="xs:string" use="required"/>
+    <xs:attribute name="lastName" type="xs:string" use="required"/>
+    <xs:attribute name="email" type="xs:string"/>
+    <xs:attribute name="phone" type="xs:string"/>
+    <xs:attribute name="notes" type="xs:string"/>
+    <xs:attribute name="status" type="d:status" use="required"/>
+    <xs:attribute name="statusDate" type="d:date"/>
+  </xs:complexType>
+
+  <xs:complexType name="participation">
+    <xs:attribute name="edition" type="d:uuid" use="required"/>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="date" type="d:date" use="required"/>
+    <xs:attribute name="teamMate" type="d:uuid"/>
+  </xs:complexType>
+
+  <xs:simpleType name="status">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="CONTACTABLE"/>
+      <xs:enumeration value="DO_NOT_CONTACT"/>
+      <xs:enumeration value="DECEASED"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="date">
+    <xs:restriction base="xs:date">
+      <xs:pattern value="[0-9]{4}-[0-9]{2}-[0-9]{2}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="uuid">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

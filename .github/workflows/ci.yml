@@ -1,0 +1,68 @@
+# Quality gate of Jass Tournament on GitHub: the same gate as the reference repository, `mvn clean verify`
+# (Checkstyle, unit and headless UI tests, 100 % Jacoco coverage, Javadoc), on every push and pull request;
+# the slow solver tests (tagged `slow`) run in a separate job.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  MAVEN_CLI_OPTS: --batch-mode --errors --show-version --no-transfer-progress
+  # The headless JavaFX tests (Monocle, software rendering) need the font rasterizer of JavaFX on Linux: Pango,
+  # FreeType, Fontconfig and a font; libglass links against libX11. The runner image has them today; installing them
+  # explicitly keeps the gate independent of its content (same list as the GitLab pipeline).
+  JAVAFX_LIBRARIES: libpangoft2-1.0-0 libfreetype6 libfontconfig1 fonts-dejavu-core libx11-6
+
+jobs:
+  quality-gate:
+    name: Quality gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - name: Install the libraries of JavaFX (fonts)
+        run: sudo apt-get update && sudo apt-get install --yes --no-install-recommends $JAVAFX_LIBRARIES
+      - name: Build, test and check
+        run: mvn $MAVEN_CLI_OPTS clean verify
+      - name: Keep the test and coverage reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: reports
+          path: |
+            target/surefire-reports/
+            target/site/jacoco/
+          if-no-files-found: ignore
+
+  slow-tests:
+    name: Slow solver tests
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - name: Install the libraries of JavaFX (fonts)
+        run: sudo apt-get update && sudo apt-get install --yes --no-install-recommends $JAVAFX_LIBRARIES
+      - name: Run every test, the slow ones included
+        run: mvn $MAVEN_CLI_OPTS clean verify -Dtest.excludedGroups=none

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<!--
+  The accounting of an edition (AccountingController): the summary, the registration fees paid per player and the
+  entries at the left; the selected entry with its supporting documents in the detail panel.
+-->
+<VBox styleClass="view" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+  <HBox styleClass="toolbar">
+    <Button fx:id="newButton" minWidth="-Infinity" styleClass="primary" text="%accounting.new" onAction="#newEntry"/>
+  </HBox>
+  <StackPane fx:id="body" VBox.vgrow="ALWAYS">
+    <SplitPane fx:id="split">
+      <ScrollPane styleClass="panel" fitToWidth="true">
+        <VBox styleClass="view-body, accounting">
+          <HBox styleClass="view-head">
+            <Label fx:id="title" styleClass="title-view"/>
+            <Label fx:id="settings" styleClass="caption"/>
+          </HBox>
+          <VBox styleClass="round">
+            <Label styleClass="section-head" text="%accounting.summary"/>
+            <GridPane fx:id="summary" styleClass="summary"/>
+          </VBox>
+          <VBox styleClass="round">
+            <Label styleClass="section-head" text="%accounting.entries"/>
+            <TableView fx:id="entries">
+              <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/></columnResizePolicy>
+            </TableView>
+          </VBox>
+          <VBox styleClass="round">
+            <Label styleClass="section-head" text="%accounting.fees"/>
+            <GridPane styleClass="form">
+              <Label styleClass="field-label" text="%accounting.fee" labelFor="$fee"
+                     GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+              <TextField fx:id="fee" styleClass="amount" onAction="#changeFee"
+                         GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+              <Label fx:id="feeStatus" styleClass="caption" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+            </GridPane>
+            <Label fx:id="feeProblem" styleClass="error" wrapText="true"/>
+            <TableView fx:id="payments">
+              <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/></columnResizePolicy>
+            </TableView>
+          </VBox>
+        </VBox>
+      </ScrollPane>
+      <ScrollPane fx:id="detail" styleClass="detail, panel" fitToWidth="true">
+        <VBox styleClass="panel-body">
+          <HBox styleClass="view-head">
+            <Label fx:id="entryTitle" styleClass="title-panel"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="closeDetail" styleClass="icon-button"/>
+          </HBox>
+          <GridPane styleClass="form">
+            <Label styleClass="field-label" text="%accounting.date" labelFor="$datePicker"
+                   GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <DatePicker fx:id="datePicker" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+            <Label styleClass="field-label" text="%accounting.type" labelFor="$typeBox"
+                   GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <ComboBox fx:id="typeBox" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+            <Label styleClass="field-label" text="%accounting.category" labelFor="$categoryBox"
+                   GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <ComboBox fx:id="categoryBox" editable="true" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+            <Label styleClass="field-label" text="%accounting.description" labelFor="$description"
+                   GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            <TextField fx:id="description" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+            <Label styleClass="field-label" text="%accounting.amount" labelFor="$amount"
+                   GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+            <TextField fx:id="amount" styleClass="amount" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+          </GridPane>
+          <Label fx:id="problem" styleClass="error" wrapText="true"/>
+          <ButtonBar>
+            <buttons>
+              <Button fx:id="deleteButton" minWidth="-Infinity" styleClass="danger" text="%accounting.delete" onAction="#deleteEntry"
+                      ButtonBar.buttonData="LEFT" ButtonBar.buttonUniformSize="false"/>
+              <Button fx:id="saveButton" minWidth="-Infinity" text="%accounting.save" onAction="#saveEntry" defaultButton="true"
+                      ButtonBar.buttonData="OK_DONE" ButtonBar.buttonUniformSize="false"/>
+            </buttons>
+          </ButtonBar>
+          <VBox fx:id="documents" styleClass="slot">
+            <Label styleClass="section-head" text="%accounting.documents"/>
+            <Label fx:id="documentsHint" styleClass="caption" wrapText="true"/>
+            <ListView fx:id="attachments" styleClass="proposals"/>
+            <HBox styleClass="buttons">
+              <Button fx:id="addDocumentButton" text="%accounting.document.add" onAction="#addDocument"/>
+              <Button fx:id="openDocumentButton" text="%accounting.document.open" onAction="#openDocument"/>
+              <Button fx:id="removeDocumentButton" styleClass="danger" text="%accounting.document.remove"
+                      onAction="#removeDocument"/>
+            </HBox>
+          </VBox>
+        </VBox>
+      </ScrollPane>
+    </SplitPane>
+  </StackPane>
+</VBox>

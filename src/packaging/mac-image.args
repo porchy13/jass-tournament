@@ -1,0 +1,3 @@
+--mac-package-identifier ch.varani.jass
+--mac-package-name "Jass Tournament"
+--icon src/packaging/icons/jass-tournament.icns

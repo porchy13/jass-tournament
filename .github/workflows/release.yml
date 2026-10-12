@@ -1,0 +1,167 @@
+# Release of Jass Tournament on GitHub, only when a version tag vX.Y.Z is pushed (the tags come from the reference
+# repository, published with the snapshot they mark). The version of pom.xml must be the one of the tag, and
+# changelog.md must have its section "## [X.Y.Z]", whose text becomes the notes of the release.
+#
+# Each installer is built on its own system (jpackage cannot cross-compile) by `mvn -P installer clean verify`, the
+# quality gate included; the packaged application is then smoke-tested (`--smoke-test`: OR-Tools, PDF, JavaFX). The
+# release publishes the installers, its notes (release-notes.md) and their SHA-256 checksums (SHA256SUMS): the
+# automatic update of the application (F17) reads SHA256SUMS and release-notes.md of the latest release, so their
+# names and the names of the installers must not change.
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  MAVEN_CLI_OPTS: --batch-mode --errors --show-version --no-transfer-progress
+
+jobs:
+  version:
+    name: Version and notes
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - name: Check that the version of pom.xml is the one of the tag
+        id: version
+        run: |
+          VERSION=$(mvn --batch-mode --quiet -DforceStdout \
+            org.apache.maven.plugins:maven-help-plugin:3.5.2:evaluate -Dexpression=project.version)
+          TAG="${GITHUB_REF_NAME#v}"
+          if [ "$VERSION" != "$TAG" ]; then
+            echo "::error::The version of pom.xml ($VERSION) is not the one of the tag ($TAG)."
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Extract the notes of the release from changelog.md
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          awk -v head="## [$VERSION]" 'index($0, head) == 1 {found = 1; next} found && /^## / {exit} found {print}' \
+            changelog.md > notes.md
+          if ! grep -q '[^[:space:]]' notes.md; then
+            echo "::error::changelog.md has no section \"## [$VERSION]\"."
+            exit 1
+          fi
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: notes
+          path: notes.md
+
+  package:
+    name: Installer ${{ matrix.platform }}
+    needs: version
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - os: macos-latest
+            platform: macos-aarch64
+            extension: dmg
+          - os: macos-15-intel
+            platform: macos-x64
+            extension: dmg
+          - os: windows-latest
+            platform: windows-x64
+            extension: msi
+          - os: ubuntu-latest
+            platform: linux-x64
+            extension: deb
+    steps:
+      - name: Keep the line endings of the repository (Checkstyle, resources)
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - name: Install WiX 5 (MSI installers)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          dotnet tool install --global wix --version 5.0.2
+          "$env:USERPROFILE\.dotnet\tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          & "$env:USERPROFILE\.dotnet\tools\wix.exe" extension add --global WixToolset.Util.wixext/5.0.2
+          & "$env:USERPROFILE\.dotnet\tools\wix.exe" extension add --global WixToolset.UI.wixext/5.0.2
+      # The headless JavaFX tests (Monocle, software rendering) need the font rasterizer of JavaFX on Linux: Pango,
+      # FreeType, Fontconfig and a font; libglass links against libX11 (same list as the CI and the GitLab pipeline).
+      - name: Install fakeroot (DEB packages), Xvfb (smoke test) and the libraries of JavaFX (tests)
+        if: runner.os == 'Linux'
+        run: >-
+          sudo apt-get update && sudo apt-get install --yes fakeroot xvfb
+          libpangoft2-1.0-0 libfreetype6 libfontconfig1 fonts-dejavu-core libx11-6
+      - name: Build, test and package
+        run: mvn ${{ env.MAVEN_CLI_OPTS }} -P installer clean verify
+      - name: Smoke test (macOS)
+        if: runner.os == 'macOS'
+        run: '"target/installer/image/Jass Tournament.app/Contents/MacOS/Jass Tournament" --smoke-test'
+      - name: Smoke test (Linux)
+        if: runner.os == 'Linux'
+        run: xvfb-run --auto-servernum "target/installer/image/Jass Tournament/bin/Jass Tournament" --smoke-test
+      - name: Smoke test (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $process = Start-Process -FilePath "target\installer\image\Jass Tournament\Jass Tournament.exe" `
+                                   -ArgumentList '--smoke-test' -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw "Smoke test failed: exit code $($process.ExitCode)" }
+      - name: Name the installer after the version and the platform
+        shell: bash
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          mkdir -p release
+          mv target/installer/dist/*.${{ matrix.extension }} \
+             "release/jass-tournament-$VERSION-${{ matrix.platform }}.${{ matrix.extension }}"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: installer-${{ matrix.platform }}
+          path: release/
+          if-no-files-found: error
+
+  release:
+    name: GitHub release
+    needs: [version, package]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: installer-*
+          path: release
+          merge-multiple: true
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: notes
+      - name: Notes of the release, offered by the automatic update
+        run: cp notes.md release/release-notes.md
+      - name: Checksums of the installers and of the notes
+        working-directory: release
+        run: sha256sum -- * > SHA256SUMS
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --verify-tag \
+            --title "Jass Tournament $VERSION" --notes-file notes.md release/*

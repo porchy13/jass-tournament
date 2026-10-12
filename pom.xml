@@ -1,0 +1,746 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>ch.varani.jass</groupId>
+    <artifactId>jass-tournament</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <organization>
+        <name>Varani</name>
+        <url>https://www.varani.ch</url>
+    </organization>
+    <url>https://www.varani.ch</url>
+
+    <!-- The public repository: the SCM goals (scm:check-local-modification, release:prepare without push) only work
+         on the local copy, whatever the remote. -->
+    <scm>
+        <url>https://github.com/porchy13/jass-tournament</url>
+        <connection>scm:git:https://github.com/porchy13/jass-tournament.git</connection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <properties>
+        <java.version>25</java.version>
+        <maven.compiler.release>${java.version}</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jupiter.version>6.1.3</jupiter.version>
+        <jupiter.platform.version>6.1.3</jupiter.platform.version>
+        <checkstyle.version>14.3.0</checkstyle.version>
+        <jacoco.version>0.8.15</jacoco.version>
+        <test.excludedGroups>slow,screenshots</test.excludedGroups>
+        <!-- Folder of the screenshots of the user guide, set by the profile guide-screenshots only. -->
+        <guide.screenshots/>
+        <javafx.version>25.0.4</javafx.version>
+        <testfx.version>4.0.18</testfx.version>
+        <monocle.version>21.0.2</monocle.version>
+        <app.mainClass>ch.varani.jass.app.Launcher</app.mainClass>
+        <ortools.version>9.15.6755</ortools.version>
+        <libphonenumber.version>9.0.41</libphonenumber.version>
+        <pdfbox.version>3.0.8</pdfbox.version>
+        <!-- JVM option pointing to unpacked OR-Tools native libraries; set by the OS profiles below. -->
+        <test.libraryPath/>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.ortools</groupId>
+            <artifactId>ortools-java</artifactId>
+            <version>${ortools.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>${pdfbox.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.googlecode.libphonenumber</groupId>
+            <artifactId>libphonenumber</artifactId>
+            <version>${libphonenumber.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>${jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-commons</artifactId>
+            <version>${jupiter.platform.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testfx</groupId>
+            <artifactId>testfx-junit5</artifactId>
+            <version>${testfx.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testfx</groupId>
+            <artifactId>openjfx-monocle</artifactId>
+            <version>${monocle.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <!-- The resources holding values of pom.xml, e.g. the version of the application compared with the
+                     latest release (ch.varani.jass.update.Version). -->
+                <directory>src/main/resources-filtered</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.6.0</version>
+                <configuration>
+                    <!-- Monocle must share the class loader of JavaFX: the tests run on the class path
+                         (doc/phase-1-spikes.md, 2.3). -->
+                    <useModulePath>false</useModulePath>
+                    <!-- One JVM per test class: Application.launch() can only be called once per JVM. -->
+                    <reuseForks>false</reuseForks>
+                    <!-- @{argLine} carries the Jacoco agent; OR-Tools loads native libraries through JNI;
+                         the JavaFX tests run headless with Monocle. -->
+                    <argLine>@{argLine} ${test.libraryPath} --enable-native-access=ALL-UNNAMED -Dtestfx.robot=glass -Dtestfx.headless=true
+                        -Dglass.platform=Monocle -Dmonocle.platform=Headless -Dprism.order=sw -Dprism.text=t2k
+                        -Djava.awt.headless=true</argLine>
+                    <!-- The tests never touch the data folder of the user. -->
+                    <systemPropertyVariables>
+                        <ch.varani.jass.dataFolder>${project.build.directory}/test-data</ch.varani.jass.dataFolder>
+                        <ch.varani.jass.screenshots>${guide.screenshots}</ch.varani.jass.screenshots>
+                    </systemPropertyVariables>
+                    <!-- Long-running tests are excluded by default; run them with -Dtest.excludedGroups=none. The
+                         generator of the screenshots of the guide (tag screenshots) runs only with its profile. -->
+                    <excludedGroups>${test.excludedGroups}</excludedGroups>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.junit.jupiter</groupId>
+                        <artifactId>junit-jupiter</artifactId>
+                        <version>${jupiter.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.6.3</version>
+                <executions>
+                    <execution>
+                        <id>enforce-maven</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <fail>true</fail>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>3.9.0</version>
+                                </requireMavenVersion>
+                                <requireJavaVersion>
+                                    <version>${java.version}</version>
+                                </requireJavaVersion>
+                                <requirePluginVersions>
+                                    <message>Best Practice is to always define plugin versions!</message>
+                                    <banLatest>true</banLatest>
+                                    <banRelease>true</banRelease>
+                                    <banSnapshots>true</banSnapshots>
+                                </requirePluginVersions>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.6.0</version>
+                <configuration>
+                    <configLocation>${basedir}/jass_java_checks.xml</configLocation>
+                    <consoleOutput>true</consoleOutput>
+                    <failOnViolation>true</failOnViolation>
+                    <violationSeverity>warning</violationSeverity>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <includeResources>true</includeResources>
+                    <includeTestResources>true</includeTestResources>
+                    <linkXRef>false</linkXRef>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>${checkstyle.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <!-- Every build checks the style of the main and test sources (AGENTS.md, 4.1). -->
+                        <id>checkstyle-check</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <!-- 100 % coverage on every counter, no exclusion (AGENTS.md, 4.3). -->
+                        <id>check-coverage</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>1.00</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>BRANCH</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>1.00</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>1.00</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>COMPLEXITY</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>1.00</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>METHOD</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>1.00</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>CLASS</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>1.00</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.12.0</version>
+                <configuration>
+                    <!-- Every member is documented, private ones included (AGENTS.md, 11.2). -->
+                    <show>private</show>
+                    <failOnWarnings>true</failOnWarnings>
+                    <failOnError>true</failOnError>
+                    <quiet>true</quiet>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>javadoc-check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>javadoc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <!-- Runs the application: mvn javafx:run -->
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.8</version>
+                <configuration>
+                    <mainClass>ch.varani.jass/${app.mainClass}</mainClass>
+                    <!-- The OR-Tools native jars of the x86-64 platforms have no valid automatic module name
+                         ("64" is not a valid identifier): they go on the class path, where the OR-Tools Loader finds
+                         them too. -->
+                    <includePathExceptionsInClasspath>true</includePathExceptionsInClasspath>
+                    <options>
+                        <option>--enable-native-access=ALL-UNNAMED,javafx.graphics</option>
+                        <option>--add-modules=ALL-MODULE-PATH</option>
+                    </options>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>2.23.0</version>
+                <configuration>
+                    <generateBackupPoms>false</generateBackupPoms>
+                    <allowSnapshots>false</allowSnapshots>
+                    <rulesUri>file://${basedir}/versions_rules.xml</rulesUri>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.5.0</version>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.16.0</version>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>3.2.0</version>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>3.2.0</version>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.5.1</version>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.5.0</version>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>4.0.0-M16</version>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>3.3.1</version>
+                <configuration>
+                    <arguments>-Dmaven.deploy.skip=true -Dmaven.test.skip=true</arguments>
+                    <pushChanges>false</pushChanges>
+                    <localCheckout>true</localCheckout>
+                    <!-- vX.Y.Z: the tags that the pipeline publishes on GitHub and that start its release workflow. -->
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>5.8.0.7211</version>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <!-- Screenshots of the user guide (AGENTS.md, 11.5): mvn -P guide-screenshots clean verify. Runs the
+                 whole quality gate and the generator GuideScreenshotsTest, which starts the application headless on
+                 fictitious data in every language and writes the images into guide/images/<language>/. -->
+            <id>guide-screenshots</id>
+            <properties>
+                <guide.screenshots>${project.basedir}/guide/images</guide.screenshots>
+                <test.excludedGroups>slow</test.excludedGroups>
+            </properties>
+        </profile>
+        <profile>
+            <!-- Installer of the application (AGENTS.md, 7; doc/phase-1-spikes.md, 2.2): mvn -Pinstaller clean verify.
+                 1. the application jar and its automatic modules go to target/installer/mods, without JavaFX and
+                    without the OR-Tools native jars;
+                 2. the native libraries of OR-Tools and of JavaFX of the platform are unpacked, flat, into
+                    target/installer/native, shipped in the application and loaded through java.library.path
+                    (never extracted at run time);
+                 3. jlink links the runtime from the JDK and the JavaFX modular jars of the platform, without the
+                    JavaFX native libraries kept as resources;
+                 4. jpackage makes the application image, then the installer of the platform (installer.type) into
+                    target/installer/dist; the options are in src/packaging/*.args.
+                 jpackage cannot cross-compile: each installer is built on its own system. -->
+            <id>installer</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>3.6.2</version>
+                        <executions>
+                            <execution>
+                                <!-- The version of the installer: major.minor.incremental, without qualifier. -->
+                                <id>parse-version</id>
+                                <goals>
+                                    <goal>parse-version</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-clean-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <!-- jlink and jpackage refuse an existing output directory; not earlier than
+                                     prepare-package, as the Javadoc forks the lifecycle up to generate-sources. -->
+                                <id>clean-installer</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>clean</goal>
+                                </goals>
+                                <configuration>
+                                    <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                                    <filesets>
+                                        <fileset>
+                                            <directory>${project.build.directory}/installer</directory>
+                                        </fileset>
+                                    </filesets>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/installer/mods</outputDirectory>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>3.11.0</version>
+                        <executions>
+                            <execution>
+                                <id>installer-modules</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <includeScope>runtime</includeScope>
+                                    <excludeGroupIds>org.openjfx</excludeGroupIds>
+                                    <excludeArtifactIds>ortools-darwin-aarch64,ortools-darwin-x86-64,ortools-linux-aarch64,ortools-linux-x86-64,ortools-win32-x86-64</excludeArtifactIds>
+                                    <outputDirectory>${project.build.directory}/installer/mods</outputDirectory>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>installer-javafx</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <includeScope>runtime</includeScope>
+                                    <includeGroupIds>org.openjfx</includeGroupIds>
+                                    <classifier>${installer.javafx}</classifier>
+                                    <outputDirectory>${project.build.directory}/installer/javafx</outputDirectory>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>installer-native</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>com.google.ortools</groupId>
+                                            <artifactId>ortools-${installer.ortools}</artifactId>
+                                            <version>${ortools.version}</version>
+                                            <includes>ortools-${installer.ortools}/**</includes>
+                                            <fileMappers>
+                                                <org.codehaus.plexus.components.io.filemappers.FlattenFileMapper/>
+                                            </fileMappers>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.openjfx</groupId>
+                                            <artifactId>javafx-graphics</artifactId>
+                                            <version>${javafx.version}</version>
+                                            <classifier>${installer.javafx}</classifier>
+                                            <includes>*.dylib,*.so,*.dll</includes>
+                                            <fileMappers>
+                                                <org.codehaus.plexus.components.io.filemappers.FlattenFileMapper/>
+                                            </fileMappers>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <outputDirectory>${project.build.directory}/installer/native</outputDirectory>
+                                    <markersDirectory>${project.build.directory}/installer/markers</markersDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.6.4</version>
+                        <configuration>
+                            <workingDirectory>${project.basedir}</workingDirectory>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>jlink</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>${java.home}/bin/jlink${installer.exe}</executable>
+                                    <arguments>
+                                        <argument>--module-path</argument>
+                                        <argument>${project.build.directory}/installer/javafx</argument>
+                                        <argument>--add-modules</argument>
+                                        <argument>java.base,java.desktop,java.logging,java.management,java.naming,java.net.http,java.prefs,java.xml,jdk.localedata,jdk.unsupported,javafx.controls,javafx.fxml</argument>
+                                        <argument>--include-locales=fr,de,it,en</argument>
+                                        <argument>--exclude-resources=glob:/javafx.graphics/**.dylib,glob:/javafx.graphics/**.so,glob:/javafx.graphics/**.dll</argument>
+                                        <argument>--strip-debug</argument>
+                                        <argument>--no-header-files</argument>
+                                        <argument>--no-man-pages</argument>
+                                        <argument>--output</argument>
+                                        <argument>${project.build.directory}/installer/runtime</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>jpackage-image</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>${java.home}/bin/jpackage${installer.exe}</executable>
+                                    <arguments>
+                                        <argument>--type</argument>
+                                        <argument>app-image</argument>
+                                        <argument>--app-version</argument>
+                                        <argument>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</argument>
+                                        <argument>@src/packaging/app-image.args</argument>
+                                        <argument>@src/packaging/${installer.os}-image.args</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>jpackage-installer</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>${java.home}/bin/jpackage${installer.exe}</executable>
+                                    <arguments>
+                                        <argument>--type</argument>
+                                        <argument>${installer.type}</argument>
+                                        <argument>--app-version</argument>
+                                        <argument>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</argument>
+                                        <argument>@src/packaging/${installer.os}.args</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <!-- Platform of the installer (AGENTS.md, 7): OR-Tools and JavaFX native artifacts, type of installer. -->
+            <id>installer-mac-aarch64</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                    <arch>aarch64</arch>
+                </os>
+            </activation>
+            <properties>
+                <installer.ortools>darwin-aarch64</installer.ortools>
+                <installer.javafx>mac-aarch64</installer.javafx>
+                <installer.type>dmg</installer.type>
+                <installer.os>mac</installer.os>
+                <installer.exe></installer.exe>
+            </properties>
+        </profile>
+        <profile>
+            <!-- Platform of the installer (AGENTS.md, 7): OR-Tools and JavaFX native artifacts, type of installer. -->
+            <id>installer-mac-x64</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                    <arch>x86_64</arch>
+                </os>
+            </activation>
+            <properties>
+                <installer.ortools>darwin-x86-64</installer.ortools>
+                <installer.javafx>mac</installer.javafx>
+                <installer.type>dmg</installer.type>
+                <installer.os>mac</installer.os>
+                <installer.exe></installer.exe>
+            </properties>
+        </profile>
+        <profile>
+            <!-- Platform of the installer (AGENTS.md, 7): OR-Tools and JavaFX native artifacts, type of installer. -->
+            <id>installer-linux-x64</id>
+            <activation>
+                <os>
+                    <name>Linux</name>
+                    <arch>amd64</arch>
+                </os>
+            </activation>
+            <properties>
+                <installer.ortools>linux-x86-64</installer.ortools>
+                <installer.javafx>linux</installer.javafx>
+                <installer.type>deb</installer.type>
+                <installer.os>linux</installer.os>
+                <installer.exe></installer.exe>
+            </properties>
+        </profile>
+        <profile>
+            <!-- Platform of the installer (AGENTS.md, 7): OR-Tools and JavaFX native artifacts, type of installer. -->
+            <id>installer-linux-aarch64</id>
+            <activation>
+                <os>
+                    <name>Linux</name>
+                    <arch>aarch64</arch>
+                </os>
+            </activation>
+            <properties>
+                <installer.ortools>linux-aarch64</installer.ortools>
+                <installer.javafx>linux-aarch64</installer.javafx>
+                <installer.type>deb</installer.type>
+                <installer.os>linux</installer.os>
+                <installer.exe></installer.exe>
+            </properties>
+        </profile>
+        <profile>
+            <!-- Platform of the installer (AGENTS.md, 7): OR-Tools and JavaFX native artifacts, type of installer. -->
+            <id>installer-windows-x64</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                    <arch>amd64</arch>
+                </os>
+            </activation>
+            <properties>
+                <installer.ortools>win32-x86-64</installer.ortools>
+                <installer.javafx>win</installer.javafx>
+                <installer.type>msi</installer.type>
+                <installer.os>windows</installer.os>
+                <installer.exe>.exe</installer.exe>
+            </properties>
+        </profile>
+        <profile>
+            <!-- On macOS, the OR-Tools Loader extracts its native libraries into a new temporary directory at each
+                 run, and the system scans every new library before loading it (about 15 s). The libraries are
+                 unpacked once into .native/ (kept by mvn clean, git-ignored) and loaded from there through
+                 java.library.path (doc/phase-1-spikes.md, 2.1). -->
+            <id>macos-aarch64-native</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                    <arch>aarch64</arch>
+                </os>
+            </activation>
+            <properties>
+                <ortools.native.dir>${project.basedir}/.native/ortools-${ortools.version}</ortools.native.dir>
+                <test.libraryPath>-Djava.library.path=${ortools.native.dir}/ortools-darwin-aarch64</test.libraryPath>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>3.11.0</version>
+                        <executions>
+                            <execution>
+                                <id>unpack-ortools-native</id>
+                                <phase>process-test-resources</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>com.google.ortools</groupId>
+                                            <artifactId>ortools-darwin-aarch64</artifactId>
+                                            <version>${ortools.version}</version>
+                                            <includes>ortools-darwin-aarch64/**</includes>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <outputDirectory>${ortools.native.dir}</outputDirectory>
+                                    <!-- The marker lives next to the libraries: they are unpacked only once. -->
+                                    <markersDirectory>${ortools.native.dir}/.markers</markersDirectory>
+                                    <overWriteReleases>false</overWriteReleases>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>

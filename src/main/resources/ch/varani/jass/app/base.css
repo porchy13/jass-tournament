@@ -1,0 +1,307 @@
+/*
+ * Base styles (DESIGN.md §4, §5, §7): system font, sizes in em, the tokens plugged into Modena, buttons, fields,
+ * focus, lists and tables. No colour value here: only the tokens of tokens-light.css and tokens-dark.css.
+ */
+.root, .dialog-pane {
+    -fx-font-family: "System";
+
+    /* The tokens plugged into Modena, which keeps the native behaviour of the controls. */
+    -fx-base: -c-surface;
+    -fx-background: -c-bg;
+    -fx-control-inner-background: -c-surface;
+    -fx-control-inner-background-alt: -c-surface;
+    -fx-accent: -c-accent;
+    -fx-default-button: -c-accent;
+    -fx-focus-color: -c-accent;
+    -fx-faint-focus-color: -c-accent-subtle;
+    -fx-selection-bar: -c-selection;
+    -fx-selection-bar-non-focused: -c-selection;
+    -fx-selection-bar-text: -c-text;
+    -fx-text-base-color: -c-text;
+    -fx-text-background-color: -c-text;
+    -fx-text-inner-color: -c-text;
+    -fx-mark-color: -c-text;
+    -fx-prompt-text-fill: -c-text-3;
+    -fx-box-border: -c-border;
+    -fx-text-box-border: -c-border-strong;
+    -fx-outer-border: -c-border-strong;
+}
+
+.root {
+    -fx-background-color: -c-bg;
+}
+
+.label {
+    -fx-text-fill: -c-text;
+}
+
+/* Typography (§4): two weights, sentence case. */
+.title-view {
+    -fx-font-size: 1.54em;
+    -fx-font-weight: 600;
+}
+
+.title-panel {
+    -fx-font-size: 1.15em;
+    -fx-font-weight: 600;
+}
+
+.section-head {
+    -fx-font-size: 0.92em;
+    -fx-font-weight: 600;
+    -fx-text-fill: -c-text-2;
+}
+
+.field-label {
+    -fx-font-size: 0.92em;
+    -fx-text-fill: -c-text-2;
+}
+
+.caption {
+    -fx-font-size: 0.85em;
+    -fx-text-fill: -c-text-3;
+}
+
+.error {
+    -fx-text-fill: -c-danger;
+}
+
+.warning {
+    -fx-text-fill: -c-warning;
+}
+
+.red-suit {
+    -fx-text-fill: -c-red-suit;
+}
+
+/* Buttons (§7): secondary by default, one primary per zone, destructive in red. */
+.button, .toggle-button {
+    -fx-background-color: -c-border-strong, -c-surface;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 4, 3;
+    -fx-padding: 0 12 0 12;
+    -fx-min-height: 30;
+    -fx-pref-height: 30;
+    -fx-text-fill: -c-text;
+    -fx-font-weight: 500;
+}
+
+.button:hover {
+    -fx-background-color: -c-border-strong, -c-bg;
+}
+
+.button:default, .button.primary {
+    -fx-background-color: -c-accent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 4;
+    -fx-text-fill: -c-on-accent;
+}
+
+.button.danger:hover, .dialog-pane .button.danger {
+    -fx-text-fill: -c-danger;
+}
+
+.button.icon-button {
+    -fx-padding: 0;
+    -fx-min-width: 30;
+    -fx-pref-width: 30;
+    -fx-max-width: 30;
+}
+
+.button:disabled, .toggle-button:disabled {
+    -fx-opacity: 0.45;
+}
+
+/* The same focus ring for every control (§7): accent border and a halo of 2 px. */
+.button:focused, .toggle-button:focused {
+    -fx-background-color: -c-accent-subtle, -c-accent, -c-surface;
+    -fx-background-insets: -2, 0, 1;
+    -fx-background-radius: 6, 4, 3;
+}
+
+.button:default:focused, .button.primary:focused {
+    -fx-background-color: -c-accent-subtle, -c-accent;
+    -fx-background-insets: -2, 0;
+    -fx-background-radius: 6, 4;
+}
+
+/* Fields (§7). */
+.text-field, .text-area, .combo-box, .choice-box, .date-picker > .text-field, .spinner {
+    -fx-background-color: -c-border-strong, -c-surface;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 4, 3;
+    -fx-pref-height: 28;
+    -fx-text-fill: -c-text;
+}
+
+.text-area {
+    -fx-pref-height: -1;
+}
+
+.text-area .content {
+    -fx-background-color: -c-surface;
+    -fx-background-radius: 3;
+}
+
+.text-field:focused, .text-area:focused, .combo-box:focused, .choice-box:focused, .spinner:focused,
+.date-picker:focused > .text-field {
+    -fx-background-color: -c-accent-subtle, -c-accent, -c-surface;
+    -fx-background-insets: -2, 0, 1;
+    -fx-background-radius: 6, 4, 3;
+}
+
+.text-field.invalid, .text-area.invalid {
+    -fx-background-color: -c-danger, -c-surface;
+}
+
+.check-box > .box {
+    -fx-background-color: -c-border-strong, -c-surface;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 3, 2;
+}
+
+.check-box:selected > .box {
+    -fx-background-color: -c-accent;
+}
+
+.check-box:selected > .box > .mark {
+    -fx-background-color: -c-on-accent;
+}
+
+.check-box:focused > .box {
+    -fx-background-color: -c-accent-subtle, -c-accent, -c-surface;
+    -fx-background-insets: -2, 0, 1;
+    -fx-background-radius: 5, 3, 2;
+}
+
+/* A selected box keeps its fill when it has the focus, so that its mark stays visible. */
+.check-box:selected:focused > .box {
+    -fx-background-color: -c-accent-subtle, -c-accent;
+    -fx-background-insets: -2, 0;
+    -fx-background-radius: 5, 3;
+}
+
+/* Lists and tables (§7): rows of 44 px, hairlines, no stripes, selection in the selection colour. */
+.table-view, .list-view, .tree-view {
+    -fx-background-color: -c-surface;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+}
+
+.table-view:focused, .list-view:focused {
+    -fx-background-color: -c-surface;
+    -fx-background-insets: 0;
+}
+
+.table-view .column-header-background, .table-view .column-header, .table-view .filler {
+    -fx-background-color: -c-surface;
+    -fx-border-color: transparent transparent -c-border transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.table-view .column-header .label {
+    -fx-font-size: 0.92em;
+    -fx-font-weight: 600;
+    -fx-text-fill: -c-text-2;
+    -fx-alignment: center-left;
+    -fx-padding: 0 0 0 8;
+}
+
+.table-row-cell, .list-cell {
+    -fx-cell-size: 3.385em;
+    -fx-background-color: -c-border, -c-surface;
+    -fx-background-insets: 0, 0 0 1 0;
+    -fx-text-fill: -c-text;
+    -fx-padding: 0;
+}
+
+.list-cell {
+    -fx-padding: 0 8 0 8;
+}
+
+.table-row-cell:hover, .list-cell:filled:hover {
+    -fx-background-color: -c-border, -c-bg;
+}
+
+.table-row-cell:selected, .list-cell:filled:selected {
+    -fx-background-color: -c-selection;
+    -fx-background-insets: 0;
+    -fx-background-radius: 4;
+}
+
+.table-row-cell:selected:focused, .list-view:focused .list-cell:filled:focused:selected {
+    -fx-background-color: -c-accent, -c-selection;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 4, 3;
+}
+
+.table-row-cell:empty, .list-cell:empty {
+    -fx-background-color: -c-surface;
+}
+
+.table-cell {
+    -fx-padding: 0 8 0 8;
+    -fx-alignment: center-left;
+    -fx-border-color: transparent;
+    -fx-text-fill: -c-text;
+}
+
+.table-row-cell:selected .table-cell, .list-cell:selected {
+    -fx-text-fill: -c-text;
+}
+
+.table-cell.number {
+    -fx-alignment: center-right;
+}
+
+.scroll-pane, .scroll-pane > .viewport {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+/* Floating elements (§5): the only ones with a shadow. */
+.context-menu, .combo-box-popup > .list-view, .tooltip, .menu-bar .context-menu {
+    -fx-background-color: -c-border, -c-surface;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 6;
+    -fx-effect: dropshadow(gaussian, -c-shadow, 12, 0, 0, 4);
+}
+
+.tooltip {
+    -fx-text-fill: -c-text;
+    -fx-font-size: 0.92em;
+    -fx-show-delay: 600ms;
+    -fx-show-duration: indefinite;
+    -fx-hide-delay: 200ms;
+}
+
+.menu-item:focused {
+    -fx-background-color: -c-selection;
+    -fx-background-radius: 4;
+}
+
+.menu-item:focused > .label {
+    -fx-text-fill: -c-text;
+}
+
+.split-pane {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+}
+
+.split-pane > .split-pane-divider {
+    -fx-background-color: -c-border;
+    -fx-padding: 0 0.5 0 0.5;
+}
+
+/* The cell shown in a closed list of choices is not a row of a list. */
+.combo-box .list-cell, .combo-box .list-cell:hover, .combo-box .list-cell:filled:selected {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-cell-size: 1.9em;
+    -fx-padding: 0 8 0 8;
+    -fx-text-fill: -c-text;
+}

@@ -1,0 +1,19 @@
+/* Colour tokens of the light theme (DESIGN.md §3): the only place, with tokens-dark.css, holding colour values. */
+.root, .dialog-pane {
+    -c-bg: #F6F7F9;
+    -c-surface: #FFFFFF;
+    -c-sidebar: #EEF0F3;
+    -c-border: #DADDE3;
+    -c-border-strong: #C4C9D1;
+    -c-text: #1D2128;
+    -c-text-2: #5B6270;
+    -c-text-3: #8A909C;
+    -c-accent: #2D6A57;
+    -c-accent-subtle: #E3EFEA;
+    -c-selection: #DCE9E3;
+    -c-on-accent: #FFFFFF;
+    -c-danger: #B4363A;
+    -c-warning: #A86A12;
+    -c-red-suit: #B4363A;
+    -c-shadow: rgba(0, 0, 0, 0.16);
+}

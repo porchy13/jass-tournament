@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<!-- The form of a new or duplicated edition (EditionFormController). -->
+<VBox styleClass="view" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+  <VBox styleClass="view-body, panel" VBox.vgrow="ALWAYS">
+    <Label fx:id="title" styleClass="title-view"/>
+    <GridPane styleClass="form">
+      <Label styleClass="field-label" text="%form.name" labelFor="$nameField"
+             GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+      <TextField fx:id="nameField" prefColumnCount="30" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+      <Label styleClass="field-label" text="%form.date" labelFor="$datePicker"
+             GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+      <DatePicker fx:id="datePicker" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+      <Label styleClass="field-label" text="%form.mode" labelFor="$modeBox"
+             GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+      <ChoiceBox fx:id="modeBox" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+      <Label styleClass="field-label" text="%form.games" labelFor="$gamesSpinner"
+             GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+      <Spinner fx:id="gamesSpinner" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+    </GridPane>
+    <HBox styleClass="view-head">
+      <Label styleClass="section-head" text="%form.deals"/>
+      <Label fx:id="summary" styleClass="caption"/>
+    </HBox>
+    <ListView fx:id="dealList" VBox.vgrow="ALWAYS"/>
+    <HBox styleClass="buttons">
+      <Button fx:id="regulationButton" text="%button.regulation" onAction="#useRegulation"/>
+      <Button fx:id="addBlockButton" text="%button.add.block" onAction="#addBlock"/>
+      <Button fx:id="removeBlockButton" text="%button.remove.block" onAction="#removeBlock"/>
+    </HBox>
+    <Label fx:id="problem" styleClass="error"/>
+    <ButtonBar styleClass="view-actions">
+      <buttons>
+        <Button fx:id="cancelButton" text="%button.cancel" onAction="#cancel" cancelButton="true"
+                ButtonBar.buttonData="CANCEL_CLOSE"/>
+        <Button fx:id="createButton" text="%button.create" onAction="#create" defaultButton="true"
+                ButtonBar.buttonData="OK_DONE"/>
+      </buttons>
+    </ButtonBar>
+  </VBox>
+</VBox>

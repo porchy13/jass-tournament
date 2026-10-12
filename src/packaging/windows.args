@@ -1,0 +1,9 @@
+--name "Jass Tournament"
+--app-image "target/installer/image/Jass Tournament"
+--dest target/installer/dist
+--license-file LICENSE
+--win-upgrade-uuid 3af49d57-7d38-4d49-a303-e69c105f0e8b
+--win-menu
+--win-menu-group "Jass Tournament"
+--win-shortcut
+--win-dir-chooser

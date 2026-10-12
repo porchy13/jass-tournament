@@ -1,0 +1,10 @@
+Jass Tournament
+Copyright 2023-2026 Jérôme Varani
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product includes the font DejaVu Sans 2.37 (https://dejavu-fonts.github.io/),
+in src/main/resources/ch/varani/jass/report/fonts/: Bitstream Vera fonts copyright
+(c) 2003 by Bitstream, Inc.; glyphs imported from Arev fonts copyright (c) Tavmjong Bah;
+DejaVu changes are in the public domain. Its licence is
+in src/main/resources/ch/varani/jass/report/fonts/DejaVu-LICENSE.txt.

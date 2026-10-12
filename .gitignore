@@ -1,0 +1,12 @@
+/.idea/
+/target/
+/*.mps
+/*.iml
+# Real tournament data: never committed (AGENTS.md, 5)
+/rounds.md
+/positions_per_team.*
+/doc/Equipes.numbers
+*.jass
+*.jass.bak
+*.jassdir
+/.native/

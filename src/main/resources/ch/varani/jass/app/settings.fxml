@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<!-- The settings (SettingsController): appearance of the window and logo of the documents. -->
+<VBox styleClass="panel-body" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+  <Label styleClass="section-head" text="%settings.appearance"/>
+  <GridPane styleClass="form">
+    <Label styleClass="field-label" text="%settings.theme" labelFor="$themeBox"
+           GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+    <ChoiceBox fx:id="themeBox" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+  </GridPane>
+  <CheckBox fx:id="accentBox" text="%settings.accent"/>
+  <CheckBox fx:id="motionBox" text="%settings.motion"/>
+  <Label styleClass="section-head" text="%settings.logo"/>
+  <Label styleClass="caption" text="%settings.logo.hint" wrapText="true" maxWidth="420" minHeight="-Infinity"/>
+  <StackPane styleClass="logo-preview">
+    <ImageView fx:id="logoView" fitWidth="200" fitHeight="64" preserveRatio="true"/>
+    <Label fx:id="noLogo" styleClass="caption" text="%settings.logo.none"/>
+  </StackPane>
+  <HBox styleClass="buttons">
+    <Button fx:id="logoButton" text="%settings.logo.choose" onAction="#chooseLogo"/>
+    <Button fx:id="removeLogoButton" styleClass="danger" text="%settings.logo.remove" onAction="#removeLogo"/>
+  </HBox>
+</VBox>

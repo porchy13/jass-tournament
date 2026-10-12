@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A view that cannot be loaded: its element is unknown (tests of MainController). -->
+<Unknown xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"/>

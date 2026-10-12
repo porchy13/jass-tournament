@@ -1,0 +1,3 @@
+--name "Jass Tournament"
+--app-image "target/installer/image/Jass Tournament.app"
+--dest target/installer/dist
