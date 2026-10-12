@@ -4,7 +4,7 @@
 
     <groupId>ch.varani.jass</groupId>
     <artifactId>jass-tournament</artifactId>
-    <version>1.0.5-SNAPSHOT</version>
+    <version>1.0.4</version>
 
     <organization>
         <name>Varani</name>
@@ -17,7 +17,7 @@
     <scm>
         <url>https://github.com/porchy13/jass-tournament</url>
         <connection>scm:git:https://github.com/porchy13/jass-tournament.git</connection>
-        <tag>HEAD</tag>
+        <tag>v1.0.4</tag>
     </scm>
 
     <properties>
