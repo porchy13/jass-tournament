@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ch.varani.jass</groupId>
     <artifactId>jass-tournament</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <organization>
         <name>Varani</name>
@@ -32,7 +30,7 @@
         <jacoco.version>0.8.15</jacoco.version>
         <test.excludedGroups>slow,screenshots</test.excludedGroups>
         <!-- Folder of the screenshots of the user guide, set by the profile guide-screenshots only. -->
-        <guide.screenshots/>
+        <guide.screenshots />
         <javafx.version>25.0.4</javafx.version>
         <testfx.version>4.0.18</testfx.version>
         <monocle.version>21.0.2</monocle.version>
@@ -41,7 +39,7 @@
         <libphonenumber.version>9.0.41</libphonenumber.version>
         <pdfbox.version>3.0.8</pdfbox.version>
         <!-- JVM option pointing to unpacked OR-Tools native libraries; set by the OS profiles below. -->
-        <test.libraryPath/>
+        <test.libraryPath />
     </properties>
 
     <dependencies>
@@ -516,7 +514,7 @@
                                             <version>${ortools.version}</version>
                                             <includes>ortools-${installer.ortools}/**</includes>
                                             <fileMappers>
-                                                <org.codehaus.plexus.components.io.filemappers.FlattenFileMapper/>
+                                                <org.codehaus.plexus.components.io.filemappers.FlattenFileMapper />
                                             </fileMappers>
                                         </artifactItem>
                                         <artifactItem>
@@ -526,7 +524,7 @@
                                             <classifier>${installer.javafx}</classifier>
                                             <includes>*.dylib,*.so,*.dll</includes>
                                             <fileMappers>
-                                                <org.codehaus.plexus.components.io.filemappers.FlattenFileMapper/>
+                                                <org.codehaus.plexus.components.io.filemappers.FlattenFileMapper />
                                             </fileMappers>
                                         </artifactItem>
                                     </artifactItems>
@@ -621,7 +619,7 @@
                 <installer.javafx>mac-aarch64</installer.javafx>
                 <installer.type>dmg</installer.type>
                 <installer.os>mac</installer.os>
-                <installer.exe></installer.exe>
+                <installer.exe />
             </properties>
         </profile>
         <profile>
@@ -638,7 +636,7 @@
                 <installer.javafx>mac</installer.javafx>
                 <installer.type>dmg</installer.type>
                 <installer.os>mac</installer.os>
-                <installer.exe></installer.exe>
+                <installer.exe />
             </properties>
         </profile>
         <profile>
@@ -655,7 +653,7 @@
                 <installer.javafx>linux</installer.javafx>
                 <installer.type>deb</installer.type>
                 <installer.os>linux</installer.os>
-                <installer.exe></installer.exe>
+                <installer.exe />
             </properties>
         </profile>
         <profile>
@@ -672,7 +670,7 @@
                 <installer.javafx>linux-aarch64</installer.javafx>
                 <installer.type>deb</installer.type>
                 <installer.os>linux</installer.os>
-                <installer.exe></installer.exe>
+                <installer.exe />
             </properties>
         </profile>
         <profile>

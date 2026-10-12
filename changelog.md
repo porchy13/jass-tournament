@@ -2,7 +2,7 @@
 
 All notable changes of the project are documented in this file.
 
-## [Unreleased]
+## [1.0.0] – 2026-10-12
 
 First release of Jass Tournament, the desktop application of the _match aux cartes des vétérans du FC Bevaix_.
 
