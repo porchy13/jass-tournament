@@ -282,8 +282,9 @@ final class GitHubUpdaterTest {
   }
 
   /**
-   * The update of the running application uses its version and the data folder; a development version asks
-   * nothing to the network.
+   * The update of the running application uses its version and the public repository. The check itself is not run:
+   * with the version of a release, it would reach GitHub, which a test must never do (see {@link #upToDateTest()} for a
+   * development version).
    */
   @Test
   @DisplayName("F17: the update of the application uses its version and the public repository")
@@ -291,8 +292,7 @@ final class GitHubUpdaterTest {
     final GitHubUpdater updater = GitHubUpdater.of(folder);
     assertAll(
         () -> assertEquals(Version.current(), updater.current()),
-        () -> assertEquals("https", GitHubUpdater.REPOSITORY_URI.getScheme()),
-        () -> assertEquals(Version.current().development(), updater.check().isEmpty()));
+        () -> assertEquals("https", GitHubUpdater.REPOSITORY_URI.getScheme()));
   }
 
   /**
