@@ -11,7 +11,8 @@ import java.util.List;
  * title, edition); the table may be split into sections, each with a heading; the row of the column titles is
  * repeated after each heading and at the top of each page. A section, its column titles and its first row are kept on
  * the same page. A document may start a new page itself ({@link #newPage()}), e.g. one per section, knowing how many
- * rows a page holds ({@link #capacity(int)}).
+ * rows a page holds ({@link #capacity(int)}). Each column has its alignment, the same for its title and its cells:
+ * the numbers at the right, the texts at the left.
  *
  * <p>Not thread-safe: an instance lays out one document, from one thread.</p>
  */
@@ -47,6 +48,20 @@ final class PagedTable {
   private static final float LINE = 0.5f;
 
   // *******************************************************************************************************************
+  // Inner types
+  // *******************************************************************************************************************
+
+  /**
+   * A column of the table.
+   *
+   * @param title the title of the column.
+   * @param width the width of the column; 0 shares the remaining width with the other columns of 0.
+   * @param align the alignment of the title and of the cells: {@link PdfCanvas.Align#RIGHT} for numbers.
+   */
+  record Column(String title, float width, PdfCanvas.Align align) {
+  }
+
+  // *******************************************************************************************************************
   // Attributes
   // *******************************************************************************************************************
 
@@ -60,10 +75,10 @@ final class PagedTable {
   private final String title;
   /** The edition. */
   private final Edition edition;
-  /** The widths of the columns, the last one taking the remaining width when it is 0. */
+  /** The columns. */
+  private final List<Column> columns;
+  /** The widths of the columns, the remaining width shared among the columns of width 0. */
   private final float[] widths;
-  /** The titles of the columns. */
-  private final List<String> columns;
   /** The top of the next element on the current page. */
   private float y;
   /** The top of the first element of a page, under its header. */
@@ -81,20 +96,23 @@ final class PagedTable {
    * @param texts the texts of the documents.
    * @param title the title of the document.
    * @param edition the edition.
-   * @param widths the widths of the columns; a width of 0 shares the remaining width with the other ones of 0.
-   * @param columns the titles of the columns.
+   * @param columns the columns.
    *
    * @throws IOException if the page cannot be written.
    */
   PagedTable(final PdfCanvas canvas, final PDRectangle page, final Texts texts, final String title,
-             final Edition edition, final float[] widths, final List<String> columns) throws IOException {
+             final Edition edition, final List<Column> columns) throws IOException {
     this.canvas = canvas;
     this.page = page;
     this.texts = texts;
     this.title = title;
     this.edition = edition;
     this.columns = List.copyOf(columns);
-    this.widths = share(widths, page.getWidth() - 2 * MARGIN);
+    final float[] given = new float[columns.size()];
+    for (int i = 0; i < given.length; i++) {
+      given[i] = columns.get(i).width();
+    }
+    this.widths = share(given, page.getWidth() - 2 * MARGIN);
     newPage();
   }
 
@@ -182,7 +200,7 @@ final class PagedTable {
   void titles() throws IOException {
     ensure(2 * ROW_HEIGHT);
     canvas.shade(MARGIN, y - ROW_HEIGHT, page.getWidth() - 2 * MARGIN, ROW_HEIGHT);
-    cells(columns, PdfCanvas.Style.BOLD);
+    cells(columns.stream().map(Column::title).toList(), PdfCanvas.Style.BOLD);
   }
 
   /**
@@ -242,7 +260,7 @@ final class PagedTable {
     float x = MARGIN;
     for (int i = 0; i < widths.length; i++) {
       canvas.box(x, y, widths[i], ROW_HEIGHT, LINE);
-      canvas.text(cells.get(i), x + PADDING, y + BASELINE, TEXT, style, PdfCanvas.Align.LEFT,
+      canvas.text(cells.get(i), x + PADDING, y + BASELINE, TEXT, style, columns.get(i).align(),
                   widths[i] - 2 * PADDING);
       x += widths[i];
     }

@@ -44,6 +44,10 @@ final class DisplayModelTest {
   private static final int PAGE = 3;
   /** The number of lines of the paged list in the tests. */
   private static final int LINES = 7;
+  /** The time left before the next page in the middle of a page. */
+  private static final double HALF = 0.5;
+  /** The precision of the comparison of the time left before the next page. */
+  private static final double PRECISION = 1e-9;
   /** Half a minute, in seconds. */
   private static final int HALF_MINUTE = 30;
 
@@ -122,7 +126,7 @@ final class DisplayModelTest {
   }
 
   /**
-   * Q22: the lines that do not fit are cut into pages that alternate every ten seconds.
+   * Q22: the lines that do not fit are cut into pages that alternate every ten seconds from their origin.
    */
   @Test
   @DisplayName("Q22: the pages alternate every ten seconds")
@@ -131,15 +135,52 @@ final class DisplayModelTest {
     final Instant epoch = Instant.EPOCH;
     final long step = DisplayModel.PAGE_SECONDS;
     assertAll(
-        () -> assertEquals(new DisplayModel.Page<>(lines, 1, 1), DisplayModel.page(lines, LINES, epoch)),
-        () -> assertEquals(new DisplayModel.Page<>(lines.subList(0, PAGE), 1, PAGE),
-                           DisplayModel.page(lines, PAGE, epoch.plusSeconds(step - 1))),
-        () -> assertEquals(new DisplayModel.Page<>(lines.subList(PAGE, 2 * PAGE), 2, PAGE),
-                           DisplayModel.page(lines, PAGE, epoch.plusSeconds(step))),
-        () -> assertEquals(new DisplayModel.Page<>(lines.subList(2 * PAGE, LINES), PAGE, PAGE),
-                           DisplayModel.page(lines, PAGE, epoch.plusSeconds(2 * step))),
-        () -> assertEquals(new DisplayModel.Page<>(lines.subList(0, PAGE), 1, PAGE),
-                           DisplayModel.page(lines, PAGE, epoch.plusSeconds(PAGE * step))));
+        () -> assertEquals(new DisplayModel.Page<>(lines, 1, 1, false), DisplayModel.page(lines, LINES, epoch, epoch)),
+        () -> assertEquals(new DisplayModel.Page<>(lines.subList(0, PAGE), 1, PAGE, true),
+                           DisplayModel.page(lines, PAGE, epoch, epoch.plusSeconds(step - 1))),
+        () -> assertEquals(new DisplayModel.Page<>(lines.subList(PAGE, 2 * PAGE), 2, PAGE, true),
+                           DisplayModel.page(lines, PAGE, epoch, epoch.plusSeconds(step))),
+        () -> assertEquals(new DisplayModel.Page<>(lines.subList(2 * PAGE, LINES), PAGE, PAGE, true),
+                           DisplayModel.page(lines, PAGE, epoch, epoch.plusSeconds(2 * step))),
+        () -> assertEquals(new DisplayModel.Page<>(lines.subList(0, PAGE), 1, PAGE, true),
+                           DisplayModel.page(lines, PAGE, epoch, epoch.plusSeconds(PAGE * step))),
+        () -> assertEquals(new DisplayModel.Page<>(lines.subList(0, PAGE), 1, PAGE, true),
+                           DisplayModel.page(lines, PAGE, START, START.plusSeconds(step - 1))),
+        () -> assertEquals(new DisplayModel.Page<>(lines.subList(PAGE, 2 * PAGE), 2, PAGE, true),
+                           DisplayModel.page(lines, PAGE, START.plusSeconds(1), START.plusSeconds(step + 1))));
+  }
+
+  /**
+   * The bar of the page is full right after a change of page, half empty in its middle, almost empty just before the
+   * next page, and full again at the next page; it follows the origin of the pages.
+   */
+  @Test
+  @DisplayName("Q22: the time left before the next page empties over the ten seconds of a page")
+  void leftTest() {
+    final long page = Duration.ofSeconds(DisplayModel.PAGE_SECONDS).toMillis();
+    final Instant origin = START.plusMillis(page / 2);
+    assertAll(
+        () -> assertEquals(1.0, DisplayModel.left(Instant.EPOCH, START)),
+        () -> assertEquals(HALF, DisplayModel.left(Instant.EPOCH, START.plusMillis(page / 2))),
+        () -> assertEquals(1.0 / page, DisplayModel.left(Instant.EPOCH, START.plusMillis(page - 1)), PRECISION),
+        () -> assertEquals(1.0, DisplayModel.left(Instant.EPOCH, START.plusMillis(page))),
+        () -> assertEquals(1.0, DisplayModel.left(origin, origin)),
+        () -> assertEquals(HALF, DisplayModel.left(origin, START.plusMillis(page))));
+  }
+
+  /**
+   * F18: while the ranking is being revealed, its first page is held, whatever the time elapsed, with the number of
+   * pages; without line, the only page is empty.
+   */
+  @Test
+  @DisplayName("F18: the first page of the ranking is held during the reveal")
+  void firstPageTest() {
+    final List<Integer> lines = IntStream.rangeClosed(1, LINES).boxed().toList();
+    assertAll(
+        () -> assertEquals(new DisplayModel.Page<>(lines.subList(0, PAGE), 1, PAGE, false),
+                           DisplayModel.firstPage(lines, PAGE)),
+        () -> assertEquals(new DisplayModel.Page<>(lines, 1, 1, false), DisplayModel.firstPage(lines, LINES)),
+        () -> assertEquals(new DisplayModel.Page<>(List.of(), 1, 1, false), DisplayModel.firstPage(List.of(), PAGE)));
   }
 
   /**

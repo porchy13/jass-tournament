@@ -61,16 +61,14 @@ public final class PlacesDocument {
     final Texts texts = new Texts(options.locale());
     final Participants participants = new Participants(edition, texts);
     final String title = texts.get("places.title");
-    final float[] widths = new float[2 + rounds.size()];
-    widths[0] = NUMBER;
-    final List<String> columns = new ArrayList<>(List.of(texts.get("column.number"), texts.get("column.names")));
-    for (int i = 0; i < rounds.size(); i++) {
-      widths[2 + i] = ROUND;
-      columns.add(texts.get("round", rounds.get(i)));
+    final List<PagedTable.Column> columns = new ArrayList<>(List.of(
+        new PagedTable.Column(texts.get("column.number"), NUMBER, PdfCanvas.Align.RIGHT),
+        new PagedTable.Column(texts.get("column.names"), 0, PdfCanvas.Align.LEFT)));
+    for (final int round : rounds) {
+      columns.add(new PagedTable.Column(texts.get("round", round), ROUND, PdfCanvas.Align.RIGHT));
     }
     try (PdfCanvas canvas = new PdfCanvas(options)) {
-      final PagedTable table = new PagedTable(canvas, PdfCanvas.PORTRAIT, texts, title, edition, widths,
-                                              columns);
+      final PagedTable table = new PagedTable(canvas, PdfCanvas.PORTRAIT, texts, title, edition, columns);
       table.titles();
       for (int number = 1; number <= participants.count(); number++) {
         final List<String> cells = new ArrayList<>(List.of(Integer.toString(number),

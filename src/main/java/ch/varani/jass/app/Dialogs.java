@@ -346,9 +346,9 @@ final class Dialogs {
   }
 
   /**
-   * Shows a panel with a main action, e.g. the window about the application and its donation, and waits until the user
-   * closes it: the action ({@code actionKey}) is the default button, in the accent colour, and closes the panel; Close
-   * closes it without the action.
+   * Shows a panel with an action, e.g. the window about the application and its donation, and waits until the user
+   * closes it: Close is the default button, in the accent colour, at the right (Enter and Escape close the panel); the
+   * action ({@code actionKey}) is at the left, and closes the panel too.
    *
    * @param titleKey the key of the title of the panel.
    * @param content the content of the panel.
@@ -360,10 +360,11 @@ final class Dialogs {
     final Alert alert = alert(Alert.AlertType.NONE, null);
     alert.setHeaderText(messages.get(titleKey));
     alert.getDialogPane().setContent(content);
-    alert.getButtonTypes().setAll(new ButtonType(messages.get(actionKey), ButtonBar.ButtonData.OK_DONE),
-                                  new ButtonType(messages.get("button.close"), ButtonBar.ButtonData.CANCEL_CLOSE));
-    return natives.question().ask(alert).map(ButtonType::getButtonData)
-                  .filter(ButtonBar.ButtonData.OK_DONE::equals).isPresent();
+    final ButtonType action = new ButtonType(messages.get(actionKey), ButtonBar.ButtonData.LEFT);
+    final ButtonType close = new ButtonType(messages.get("button.close"), ButtonBar.ButtonData.CANCEL_CLOSE);
+    alert.getButtonTypes().setAll(action, close);
+    ((Button) alert.getDialogPane().lookupButton(close)).setDefaultButton(true);
+    return natives.question().ask(alert).filter(action::equals).isPresent();
   }
 
   /**

@@ -67,10 +67,11 @@ public final class ScheduleDocument {
     final Map<Integer, List<Pairing>> rounds = pairings.stream().collect(
         Collectors.groupingBy(Pairing::round, TreeMap::new, Collectors.toList()));
     try (PdfCanvas canvas = new PdfCanvas(options)) {
-      final PagedTable table = new PagedTable(canvas, PdfCanvas.LANDSCAPE, texts, title, edition,
-                                              new float[] {TABLE, PLACES, 0, 0},
-                                              List.of(texts.get("column.table"), texts.get("column.places"),
-                                                      texts.get("column.giver"), texts.get("column.receiver")));
+      final PagedTable table = new PagedTable(canvas, PdfCanvas.LANDSCAPE, texts, title, edition, List.of(
+          new PagedTable.Column(texts.get("column.table"), TABLE, PdfCanvas.Align.RIGHT),
+          new PagedTable.Column(texts.get("column.places"), PLACES, PdfCanvas.Align.RIGHT),
+          new PagedTable.Column(texts.get("column.giver"), 0, PdfCanvas.Align.LEFT),
+          new PagedTable.Column(texts.get("column.receiver"), 0, PdfCanvas.Align.LEFT)));
       final int most = rounds.values().stream().mapToInt(List::size).max().orElse(0);
       final int parts = Math.max(1, Math.ceilDiv(most, table.capacity(1)));
       final int perPage = Math.max(1, Math.ceilDiv(most, parts));

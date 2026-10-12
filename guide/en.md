@@ -55,7 +55,7 @@ At each start, the application checks whether a newer version is published. If s
 saves everything, opens the installer and closes; follow the steps of the installation as above. **Not now** postpones
 the update to the next start. Without Internet, the application starts normally and shows nothing.
 
-![The offer of a new version](images/en/update.png)
+<img src="images/en/update.png" alt="The offer of a new version" width="325">
 
 ## 2. Get to know the window
 
@@ -72,12 +72,12 @@ the update to the next start. Without Internet, the application starts normally 
 **There is nothing to save by hand**: every change is saved at once. The actions that delete something always ask for
 a confirmation.
 
-![The list of the editions](images/en/editions.png)
+<img src="images/en/editions.png" alt="The list of the editions" width="800">
 
 **Help › About** shows the version of the application, its author, its licence and the link to its source code;
 **Make a donation** opens the page of the donations in the browser.
 
-![The About window](images/en/about.png)
+<img src="images/en/about.png" alt="The About window" width="225">
 
 ## 3. Choose the logo of the documents
 
@@ -100,7 +100,7 @@ includes it in the backup.
 These settings also hold the appearance of the application: **Theme** (as the system, light or dark), **Use the accent
 colour of the system** and **Reduce the animations**.
 
-![The options, with the logo of the documents](images/en/settings.png)
+<img src="images/en/settings.png" alt="The options, with the logo of the documents" width="288">
 
 ## 4. Keep the directory
 
@@ -124,7 +124,7 @@ can be contacted again for the next tournament.
 
 The directory starts empty; it can also be filled during the registrations.
 
-![The directory, a person selected](images/en/directory.png)
+<img src="images/en/directory.png" alt="The directory, a person selected" width="800">
 
 ## 5. Create an edition
 
@@ -147,7 +147,7 @@ the games, the content of the games and the registration fee, but not the regist
 
 Open an edition with a double click or the Enter key.
 
-![A new edition](images/en/edition-form.png)
+<img src="images/en/edition-form.png" alt="A new edition" width="800">
 
 ## 6. Register the participants
 
@@ -163,12 +163,17 @@ In **Registration**, the panel on the right receives the players (two per team, 
 Select a registration to **Correct** or **Remove** it. If the names of a player have been corrected in the directory
 since, the registration is marked _Names corrected in the directory_: **Correct** takes the new names.
 
+A person marked as deceased in the directory cannot be registered. If you type their first and last names, the
+application asks whether it is another person with the same names: **Another person** adds them to the directory and
+registers them, otherwise nothing is registered. A registration whose player has been marked as deceased since is
+marked _Person deceased in the directory_: to correct it, replace this person (it can still be removed).
+
 The number of registrations is shown, with the minimum needed to compute the schedule (for instance 5 teams for 4
 games).
 
-![The registration: the persons of the directory proposed while typing](images/en/registration.png)
+<img src="images/en/registration.png" alt="The registration: the persons of the directory proposed while typing" width="800">
 
-![A person of the directory chosen, its previous team proposed](images/en/registration-previous.png)
+<img src="images/en/registration-previous.png" alt="A person of the directory chosen, its previous team proposed" width="800">
 
 ## 7. Compute the schedule and print the documents
 
@@ -193,7 +198,7 @@ receives, and the participants sitting out. It exports the following documents a
 A late registration or a withdrawal? **Reopen the registration** (as long as no score is entered) deletes the schedule,
 which is computed again at the next closing. Print the documents again then.
 
-![The schedule](images/en/schedule.png)
+<img src="images/en/schedule.png" alt="The schedule" width="800">
 
 <table>
 <tr><td align="center" valign="top"><img src="images/en/document-schedule.png" alt="Schedule" width="380"><br>Schedule</td><td align="center" valign="top"><img src="images/en/document-places.png" alt="Places to post" width="380"><br>Places to post</td></tr>
@@ -210,17 +215,21 @@ The part **Display** controls a second window, to move to a projector or a telev
    **Cancel the start signal** after a mistake.
 
 The display shows the logo of the documents, the edition, the round in progress and the place and table of every
-participant; the lists that do not fit alternate by pages every 10 seconds. The round shown is the one in progress;
+participant; the lists that do not fit alternate by pages every 10 seconds, a bar next to the number of the page
+emptying until the next page. The round shown is the one in progress;
 **Show the round** chooses another one.
 
 At the end of the tournament, **Show the ranking**, then **Reveal rank** one by one, from the last to the first.
-**Hide everything** starts the reveal again.
+During the reveal, the display stays on the first page: the rank revealed last is always at the top, and when there is
+no room left, the lower ranks leave the screen. Once everything is revealed, the same button becomes **Turn the
+pages**: click it when you wish, and the pages of the whole ranking alternate every 10 seconds. **Hide everything**
+starts the reveal again, on the first page.
 
-![The control of the display](images/en/display-control.png)
+<img src="images/en/display-control.png" alt="The control of the display" width="800">
 
-![The display during a round](images/en/display-round.png)
+<img src="images/en/display-round.png" alt="The display during a round" width="800">
 
-![The display of the final ranking, being revealed](images/en/display-ranking.png)
+<img src="images/en/display-ranking.png" alt="The display of the final ranking, being revealed" width="800">
 
 ## 9. Enter the scores
 
@@ -237,7 +246,7 @@ sheet appears on the right, like the paper sheet.
 - **Absent (rule 19)**: the opposing team receives 1,256 points.
 - **Clear the sheet** starts the entry of a game again.
 
-![The score sheet of a game](images/en/scores.png)
+<img src="images/en/scores.png" alt="The score sheet of a game" width="800">
 
 ## 10. Establish the ranking
 
@@ -249,7 +258,7 @@ the rank, the points of each game and the total.
 - **Exclude for cheating** (rule 17): every game of the participant is lost, its opponents receive 1,256 points and it
   is removed from the ranking. **Cancel the exclusion** brings it back.
 
-![The final ranking](images/en/ranking.png)
+<img src="images/en/ranking.png" alt="The final ranking" width="800">
 
 ## 11. Keep the accounts
 
@@ -262,7 +271,7 @@ The part **Accounting** holds the accounts of the edition:
   They are kept in the edition; **Open** shows them with the application of the system;
 - the **Summary**: fees paid and outstanding, incomes and expenses per category, balance (in red when negative).
 
-![The accounting, an entry selected](images/en/accounting.png)
+<img src="images/en/accounting.png" alt="The accounting, an entry selected" width="800">
 
 ## 12. Back up, export, find an edition
 

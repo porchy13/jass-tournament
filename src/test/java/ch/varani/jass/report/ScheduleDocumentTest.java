@@ -149,4 +149,22 @@ final class ScheduleDocumentTest {
                  () -> ScheduleDocument.write(edition, Samples.OPTIONS, new ByteArrayOutputStream()));
   }
 
+
+  /**
+   * The numbers of the tables and of the places, and their column titles, are aligned to the right of their column.
+   *
+   * @throws Exception never.
+   */
+  @Test
+  @DisplayName("The tables and the places are aligned to the right, as their titles")
+  void alignTest() throws Exception {
+    final List<Samples.Word> words = Samples.words(Samples.pdf(
+        out -> ScheduleDocument.write(Samples.teamEdition(), Samples.OPTIONS, out)));
+    final Samples.Word table = Samples.first(words, "Table");
+    final Samples.Word places = Samples.first(words, "Places");
+    assertAll(
+        () -> assertEquals(table.end(), Samples.below(words, "1", table).end(), Samples.TOLERANCE),
+        () -> assertEquals(places.end(), Samples.below(words, "1 – 2", places).end(), Samples.TOLERANCE));
+  }
+
 }

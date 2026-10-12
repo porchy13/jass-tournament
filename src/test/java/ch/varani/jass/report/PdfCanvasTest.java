@@ -23,6 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 final class PdfCanvasTest {
 
+  /** The size of the texts of the test of the alignments. */
+  private static final float TEXT = 10;
+
   /** A name too long for a cell. */
   private static final String LONG_NAME = "Maximilien-Alexandre-Constantin de la Tour d'Auvergne-Lauraguais";
 
@@ -129,6 +132,34 @@ final class PdfCanvasTest {
       canvas.save("Narrow", out);
     }
     assertEquals("…", Samples.text(out.toByteArray()).strip());
+  }
+
+
+  /**
+   * A text starts at the left of its box, is centred in it, or ends at its right, e.g. a number.
+   *
+   * @throws Exception never.
+   */
+  @Test
+  @DisplayName("A text is aligned to the left, the centre or the right of its box")
+  void alignTest() throws Exception {
+    final float left = 10 * PdfCanvas.MM;
+    final float width = 50 * PdfCanvas.MM;
+    final float top = 100 * PdfCanvas.MM;
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    try (PdfCanvas canvas = new PdfCanvas(Samples.OPTIONS)) {
+      canvas.newPage(PdfCanvas.PORTRAIT);
+      canvas.text("Gauche", left, top, TEXT, PdfCanvas.Style.REGULAR, PdfCanvas.Align.LEFT, width);
+      canvas.text("Milieu", left, top - left, TEXT, PdfCanvas.Style.REGULAR, PdfCanvas.Align.CENTER, width);
+      canvas.text("Droite", left, top - 2 * left, TEXT, PdfCanvas.Style.REGULAR, PdfCanvas.Align.RIGHT, width);
+      canvas.save("Align", out);
+    }
+    final List<Samples.Word> words = Samples.words(out.toByteArray());
+    final Samples.Word centred = Samples.first(words, "Milieu");
+    assertAll(
+        () -> assertEquals(left, Samples.first(words, "Gauche").start(), Samples.TOLERANCE),
+        () -> assertEquals(centred.start() - left, left + width - centred.end(), Samples.TOLERANCE),
+        () -> assertEquals(left + width, Samples.first(words, "Droite").end(), Samples.TOLERANCE));
   }
 
 }

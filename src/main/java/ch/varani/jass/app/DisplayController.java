@@ -16,6 +16,7 @@ import javafx.stage.Screen;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 /**
@@ -31,8 +32,9 @@ import java.util.List;
  * cancellation; choosing another round cancels the signal.</p>
  *
  * <p><b>Final ranking</b>: once every game has a result and the ties are broken by drawing lots (rule 15), the
- * ranking is shown on the display and revealed one line at a time, from the last to the first; the lines can be
- * hidden again, and the display can go back to the round.</p>
+ * ranking is shown on the display and revealed one line at a time, from the last to the first, its first page held;
+ * once every line is revealed, the same button starts the rotation of its pages. The lines can be hidden again, which
+ * holds the first page again, and the display can go back to the round.</p>
  *
  * <p>The state of the display ({@link DisplayState}) belongs to the session: it is kept when the user goes to another
  * view.</p>
@@ -184,10 +186,27 @@ final class DisplayController {
     rankingStatus.setText(ready ? messages.get("display.revealed", shown, size)
                                 : messages.get("display.ranking.unavailable"));
     rankingButton.setDisable(!ready || rankingShown);
-    revealButton.setDisable(!ready || shown == size);
-    revealButton.setText(shown == size ? messages.get("display.reveal.done")
-                                       : messages.get("display.reveal", size - shown));
+    final boolean rotating = state.rotation().get() != null;
+    revealButton.setDisable(!ready || rotating);
+    revealButton.setText(revealText(messages, size - shown, rotating));
     hideButton.setDisable(!ready || shown == 0);
+  }
+
+  /**
+   * Chooses the text of the button revealing the ranking: the next rank, then the start of the rotation of the pages,
+   * then the end.
+   *
+   * @param messages the texts.
+   * @param hidden the number of lines still hidden.
+   * @param rotating {@code true} once the rotation of the pages is started.
+   *
+   * @return the text.
+   */
+  private static String revealText(final Messages messages, final int hidden, final boolean rotating) {
+    if (hidden > 0) {
+      return messages.get("display.reveal", hidden);
+    }
+    return rotating ? messages.get("display.reveal.done") : messages.get("display.rotate");
   }
 
   // *******************************************************************************************************************
@@ -296,21 +315,28 @@ final class DisplayController {
   }
 
   /**
-   * Reveals the next line of the final ranking, from the last one, and shows the ranking.
+   * Reveals the next line of the final ranking, from the last one, or starts the rotation of its pages once every
+   * line is revealed, from the start of the second (the display changes its pages on whole seconds), and shows the
+   * ranking.
    */
   @FXML
   void reveal() {
-    state.revealed().set(state.revealed().get() + 1);
+    if (state.revealed().get() < new Scoring(open.edition()).ranking().entries().size()) {
+      state.revealed().set(state.revealed().get() + 1);
+    } else {
+      state.rotation().set(main.now().truncatedTo(ChronoUnit.SECONDS));
+    }
     state.mode().set(DisplayState.Mode.RANKING);
     refresh();
   }
 
   /**
-   * Hides the lines revealed, to reveal them again.
+   * Hides the lines revealed, to reveal them again, the first page held.
    */
   @FXML
   void hideAll() {
     state.revealed().set(0);
+    state.rotation().set(null);
     refresh();
   }
 

@@ -77,7 +77,10 @@ final class PdfCanvas implements Closeable {
     LEFT,
 
     /** The text is centred in the box. */
-    CENTER
+    CENTER,
+
+    /** The text ends at the right of the box, e.g. a number. */
+    RIGHT
 
   }
 
@@ -262,7 +265,11 @@ final class PdfCanvas implements Closeable {
     if (width(shown, fitted, font) > width) {
       shown = cut(shown, fitted, font, width);
     }
-    final float shift = align == Align.CENTER ? (width - width(shown, fitted, font)) / 2 : 0;
+    final float shift = switch (align) {
+      case LEFT -> 0;
+      case CENTER -> (width - width(shown, fitted, font)) / 2;
+      case RIGHT -> width - width(shown, fitted, font);
+    };
     content.beginText();
     content.setFont(font, fitted);
     if (style == Style.RED) {

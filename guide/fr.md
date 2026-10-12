@@ -59,7 +59,7 @@ l’interrompt), puis l’application enregistre tout, ouvre l’installateur et
 l’installation comme ci-dessus. **Plus tard** reporte la mise à jour au prochain démarrage. Sans Internet,
 l’application démarre normalement et n’affiche rien.
 
-![La proposition d’une nouvelle version](images/fr/update.png)
+<img src="images/fr/update.png" alt="La proposition d’une nouvelle version" width="325">
 
 ## 2. Découvrir la fenêtre
 
@@ -77,12 +77,12 @@ l’application démarre normalement et n’affiche rien.
 **Il n’y a rien à enregistrer à la main** : chaque changement est enregistré aussitôt. Les actions qui suppriment
 quelque chose demandent toujours une confirmation.
 
-![La liste des éditions](images/fr/editions.png)
+<img src="images/fr/editions.png" alt="La liste des éditions" width="800">
 
 **Aide › À propos** affiche la version de l’application, son auteur, sa licence et le lien vers son code source ;
 **Faire un don** ouvre la page des dons dans le navigateur.
 
-![La fenêtre À propos](images/fr/about.png)
+<img src="images/fr/about.png" alt="La fenêtre À propos" width="225">
 
 ## 3. Choisir le logo des documents
 
@@ -106,7 +106,7 @@ ordinateur. **Tout sauvegarder…** l’inclut dans la sauvegarde.
 Ces réglages comprennent aussi l’apparence de l’application : **Thème** (comme le système, clair ou sombre), **Utiliser
 la couleur d’accent du système** et **Réduire les animations**.
 
-![Les options, avec le logo des documents](images/fr/settings.png)
+<img src="images/fr/settings.png" alt="Les options, avec le logo des documents" width="288">
 
 ## 4. Tenir l’annuaire
 
@@ -130,7 +130,7 @@ recontacter pour le tournoi suivant.
 
 L’annuaire commence vide ; on peut aussi le remplir au fil des inscriptions.
 
-![L’annuaire, une personne sélectionnée](images/fr/directory.png)
+<img src="images/fr/directory.png" alt="L’annuaire, une personne sélectionnée" width="800">
 
 ## 5. Créer une édition
 
@@ -153,7 +153,7 @@ le mode, les parties, le contenu des parties et la finance d’inscription, mais
 
 Ouvrez une édition par un double-clic ou la touche Entrée.
 
-![Une nouvelle édition](images/fr/edition-form.png)
+<img src="images/fr/edition-form.png" alt="Une nouvelle édition" width="800">
 
 ## 6. Inscrire les participants
 
@@ -168,12 +168,17 @@ Dans **Inscriptions**, le panneau de droite reçoit les joueurs (deux par équip
 Sélectionnez une inscription pour la **Corriger** ou la **Retirer**. Si les noms d’un joueur ont été corrigés depuis
 dans l’annuaire, l’inscription est marquée _Noms corrigés dans l’annuaire_ : **Corriger** reprend les nouveaux noms.
 
+Une personne déclarée décédée dans l’annuaire ne peut pas être inscrite. Si vous tapez ses nom et prénom, l’application
+demande s’il s’agit d’une autre personne du même nom : **Autre personne** l’ajoute à l’annuaire et l’inscrit, sinon
+rien n’est inscrit. Une inscription dont un joueur a été déclaré décédé depuis est marquée _Personne décédée dans
+l’annuaire_ : pour la corriger, remplacez cette personne (elle peut toujours être retirée).
+
 Le nombre d’inscrits est affiché, avec le minimum nécessaire pour calculer les rencontres (par exemple 5 équipes pour
 4 parties).
 
-![Les inscriptions : les personnes de l’annuaire proposées pendant la saisie](images/fr/registration.png)
+<img src="images/fr/registration.png" alt="Les inscriptions : les personnes de l’annuaire proposées pendant la saisie" width="800">
 
-![Une personne de l’annuaire choisie, son équipe précédente proposée](images/fr/registration-previous.png)
+<img src="images/fr/registration-previous.png" alt="Une personne de l’annuaire choisie, son équipe précédente proposée" width="800">
 
 ## 7. Calculer les rencontres et imprimer les documents
 
@@ -199,7 +204,7 @@ reçoit, et les participants au repos. Elle exporte en PDF les documents suivant
 Une inscription tardive ou un désistement ? **Rouvrir les inscriptions** (tant qu’aucun point n’est saisi) supprime les
 rencontres, qui sont recalculées à la clôture suivante. Réimprimez alors les documents.
 
-![Les rencontres](images/fr/schedule.png)
+<img src="images/fr/schedule.png" alt="Les rencontres" width="800">
 
 <table>
 <tr><td align="center" valign="top"><img src="images/fr/document-schedule.png" alt="Tableau des rencontres" width="380"><br>Tableau des rencontres</td><td align="center" valign="top"><img src="images/fr/document-places.png" alt="Places à afficher" width="380"><br>Places à afficher</td></tr>
@@ -216,17 +221,21 @@ La partie **Affichage** pilote une seconde fenêtre, à placer sur un projecteur
    **Annuler le départ** en cas d’erreur.
 
 L’affichage montre le logo des documents, l’édition, la partie en cours et la place et la table de chaque participant ; les listes
-trop longues défilent par pages toutes les 10 secondes. La partie montrée est celle en cours ; **Afficher la partie**
+trop longues défilent par pages toutes les 10 secondes, une barre à côté du numéro de la page se vidant jusqu’à la
+page suivante. La partie montrée est celle en cours ; **Afficher la partie**
 en choisit une autre.
 
-À la fin du tournoi, **Afficher le classement** puis **Révéler le rang** un par un, du dernier au premier. **Tout
-masquer** recommence la révélation.
+À la fin du tournoi, **Afficher le classement** puis **Révéler le rang** un par un, du dernier au premier. Pendant la
+révélation, l’affichage reste sur la première page : le rang révélé en dernier est toujours en haut, et si la place
+manque, les rangs du bas disparaissent de l’écran. Une fois tout révélé, le même bouton devient **Faire défiler les
+pages** : cliquez-le quand vous le souhaitez pour que les pages du classement complet défilent toutes les 10 secondes.
+**Tout masquer** recommence la révélation, sur la première page.
 
-![Le pilotage de l’affichage](images/fr/display-control.png)
+<img src="images/fr/display-control.png" alt="Le pilotage de l’affichage" width="800">
 
-![L’affichage pendant une partie](images/fr/display-round.png)
+<img src="images/fr/display-round.png" alt="L’affichage pendant une partie" width="800">
 
-![L’affichage du classement final, en cours de révélation](images/fr/display-ranking.png)
+<img src="images/fr/display-ranking.png" alt="L’affichage du classement final, en cours de révélation" width="800">
 
 ## 9. Saisir les points
 
@@ -244,7 +253,7 @@ suivante à saisir**) : sa feuille apparaît à droite, comme la feuille papier.
 - **Absent (règle 19)** : l’équipe adverse reçoit 1 256 points.
 - **Effacer la feuille** recommence la saisie d’une partie.
 
-![La feuille de points d’une partie](images/fr/scores.png)
+<img src="images/fr/scores.png" alt="La feuille de points d’une partie" width="800">
 
 ## 10. Établir le classement
 
@@ -257,7 +266,7 @@ définitif. Il donne le rang, les points de chaque partie et le total.
 - **Exclure pour tricherie** (règle 17) : toutes les parties du participant sont perdues, ses adversaires reçoivent
   1 256 points et il est retiré du classement. **Annuler l’exclusion** le réintègre.
 
-![Le classement définitif](images/fr/ranking.png)
+<img src="images/fr/ranking.png" alt="Le classement définitif" width="800">
 
 ## 11. Tenir la comptabilité
 
@@ -272,7 +281,7 @@ La partie **Comptabilité** réunit les comptes de l’édition :
 - le **Bilan** : finances payées et à encaisser, recettes et dépenses par catégorie, solde (en rouge s’il est
   négatif).
 
-![La comptabilité, une écriture sélectionnée](images/fr/accounting.png)
+<img src="images/fr/accounting.png" alt="La comptabilité, une écriture sélectionnée" width="800">
 
 ## 12. Sauvegarder, exporter, retrouver une édition
 

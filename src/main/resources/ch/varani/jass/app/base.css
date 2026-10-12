@@ -251,8 +251,15 @@
     -fx-text-fill: -c-text;
 }
 
+/* The columns of numbers and dates (style class number, Views.NUMBER) are aligned to the right, their head too, its
+   text above the text of the cells. */
 .table-cell.number {
     -fx-alignment: center-right;
+}
+
+.table-view .column-header.number .label {
+    -fx-alignment: center-right;
+    -fx-padding: 0 8 0 0;
 }
 
 .scroll-pane, .scroll-pane > .viewport {

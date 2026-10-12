@@ -12,9 +12,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Windows of the system replaced for the tests of the user interface: the file choosers give the files queued by the
- * test (nothing when the queue is empty, as a cancelled dialog), the questions get the answers queued by the test
- * (the button of the action or of the cancellation; nothing when the queue is empty, as a closed box) and are
- * recorded, the message boxes shown without waiting and the documents opened are recorded, never shown.
+ * test (nothing when the queue is empty, as a cancelled dialog), the questions get the answers queued by the test (the
+ * first button of an action, or the button of the cancellation; nothing when the queue is empty, as a closed box) and
+ * are recorded, the message boxes shown without waiting and the documents opened are recorded, never shown.
  *
  * <p>Confined to the test and the JavaFX Application Thread; the notices may be read from the test thread.</p>
  */
@@ -22,7 +22,7 @@ final class FakeNatives {
 
   /** The files given by the next file choosers. */
   private final Deque<File> files = new ArrayDeque<>();
-  /** The answers of the next questions: {@code true} for OK. */
+  /** The answers of the next questions: {@code true} for the action, {@code false} for the cancellation. */
   private final Deque<Boolean> answers = new ArrayDeque<>();
   /** The message boxes shown without waiting. */
   private final List<Alert> notices = new CopyOnWriteArrayList<>();
@@ -102,9 +102,10 @@ final class FakeNatives {
       if (answers.isEmpty()) {
         return Optional.empty();
       }
-      final ButtonBar.ButtonData wanted = answers.poll() ? ButtonBar.ButtonData.OK_DONE
-                                                         : ButtonBar.ButtonData.CANCEL_CLOSE;
-      return alert.getButtonTypes().stream().filter(button -> button.getButtonData() == wanted).findFirst();
+      final boolean action = answers.poll();
+      return alert.getButtonTypes().stream()
+                  .filter(button -> action != (button.getButtonData() == ButtonBar.ButtonData.CANCEL_CLOSE))
+                  .findFirst();
     }, notices::add, (services, uri) -> opened.add(uri));
   }
 

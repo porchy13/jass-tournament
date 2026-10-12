@@ -25,11 +25,15 @@ import java.util.Locale;
  * the time elapsed since the signal, never below zero.</p>
  *
  * <p><b>Pages</b> (Q22): when the lines do not fit, they are cut into pages of equal size (the last one shorter), and
- * the page shown changes every {@value #PAGE_SECONDS} seconds, computed from the clock so that every refresh shows the
- * same page during these seconds.</p>
+ * the page shown changes every {@value #PAGE_SECONDS} seconds from an origin (the epoch for the places of a round, the
+ * start of the rotation for the final ranking), computed from the clock so that every refresh shows the same page
+ * during these seconds. The part of the page left before the next one, shown by a bar that empties, is computed from
+ * the same clock and origin, in milliseconds, so that the bar and the change of page always match.</p>
  *
  * <p><b>Final ranking</b>: revealed from the last line to the first; the lines revealed are shown in the order of the
- * ranking, the best first.</p>
+ * ranking, the best first. While they are being revealed, the pages do not alternate: the first page stays, with the
+ * line revealed last at its top; the rotation of the pages starts when the user asks for it, once everything is
+ * revealed.</p>
  *
  * <p>Utility class without state, safe for concurrent use.</p>
  */
@@ -41,6 +45,8 @@ final class DisplayModel {
 
   /** How long a page of lines stays shown before the next one, in seconds. */
   static final long PAGE_SECONDS = 10;
+  /** How long a page of lines stays shown before the next one, in milliseconds. */
+  private static final long PAGE_MILLIS = PAGE_SECONDS * 1000;
   /** The seconds of a minute. */
   private static final long MINUTE = 60;
 
@@ -65,8 +71,9 @@ final class DisplayModel {
    * @param lines the lines of the page.
    * @param number the number of the page, from 1.
    * @param count the number of pages.
+   * @param turning whether the pages alternate: there are several and they are not held on the first one.
    */
-  record Page<T>(List<T> lines, int number, int count) {
+  record Page<T>(List<T> lines, int number, int count, boolean turning) {
 
     /**
      * Creates a page, copying its lines.
@@ -74,6 +81,7 @@ final class DisplayModel {
      * @param lines the lines of the page.
      * @param number the number of the page.
      * @param count the number of pages.
+     * @param turning whether the pages alternate.
      */
     Page {
       lines = List.copyOf(lines);
@@ -207,22 +215,73 @@ final class DisplayModel {
   // *******************************************************************************************************************
 
   /**
-   * Returns the page of lines shown at an instant.
+   * Returns the page of lines shown at an instant, the pages alternating from an origin.
    *
    * @param <T> the type of the lines.
    * @param lines all the lines.
    * @param size the number of lines that fit, at least 1.
+   * @param origin the instant when the first page was shown first.
    * @param now the current instant.
    *
    * @return the page: all the lines when they fit, else the page of the moment.
    */
-  static <T> Page<T> page(final List<T> lines, final int size, final Instant now) {
+  static <T> Page<T> page(final List<T> lines, final int size, final Instant origin, final Instant now) {
     if (lines.size() <= size) {
-      return new Page<>(lines, 1, 1);
+      return new Page<>(lines, 1, 1, false);
     }
-    final int count = (lines.size() + size - 1) / size;
-    final int index = (int) (now.getEpochSecond() / PAGE_SECONDS % count);
-    return new Page<>(lines.subList(index * size, Math.min(lines.size(), (index + 1) * size)), index + 1, count);
+    final int count = pages(lines, size);
+    final int index = (int) Math.floorMod(Math.floorDiv(elapsed(origin, now), PAGE_MILLIS), count);
+    return new Page<>(lines.subList(index * size, Math.min(lines.size(), (index + 1) * size)), index + 1, count,
+                      true);
+  }
+
+  /**
+   * Returns the first page of lines, held: the pages do not alternate.
+   *
+   * @param <T> the type of the lines.
+   * @param lines all the lines.
+   * @param size the number of lines that fit, at least 1.
+   *
+   * @return the first page, with the number of pages.
+   */
+  static <T> Page<T> firstPage(final List<T> lines, final int size) {
+    return new Page<>(lines.subList(0, Math.min(lines.size(), size)), 1, Math.max(1, pages(lines, size)), false);
+  }
+
+  /**
+   * Returns the part of the page shown left before the next page.
+   *
+   * @param origin the instant when the first page was shown first.
+   * @param now the current instant.
+   *
+   * @return the part left, 1 right after a change of page, close to 0 just before the next one.
+   */
+  static double left(final Instant origin, final Instant now) {
+    return 1 - (double) Math.floorMod(elapsed(origin, now), PAGE_MILLIS) / PAGE_MILLIS;
+  }
+
+  /**
+   * Counts the pages needed by lines.
+   *
+   * @param lines the lines.
+   * @param size the number of lines that fit, at least 1.
+   *
+   * @return the number of pages, rounded up, 0 without line.
+   */
+  private static int pages(final List<?> lines, final int size) {
+    return (lines.size() + size - 1) / size;
+  }
+
+  /**
+   * Returns the time elapsed from an origin.
+   *
+   * @param origin the origin.
+   * @param now the current instant.
+   *
+   * @return the time, in milliseconds.
+   */
+  private static long elapsed(final Instant origin, final Instant now) {
+    return Duration.between(origin, now).toMillis();
   }
 
   // *******************************************************************************************************************

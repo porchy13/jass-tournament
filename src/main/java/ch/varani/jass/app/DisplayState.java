@@ -15,12 +15,12 @@ import java.util.List;
 /**
  * What the external display shows (F18), set from the main window and followed by the display window: the edition,
  * the mode (round in progress or final ranking), the round, the start signal of its countdown, the number of lines
- * of the final ranking revealed, and the screen of the window.
+ * of the final ranking revealed, the start of the rotation of its pages, and the screen of the window.
  *
  * <p>The state belongs to the session of the application, not to the edition: closing and reopening the display
  * keeps it, and it is not saved. When another edition is opened, the state starts again for it: the round in
- * progress ({@link DisplayModel#currentRound}), no start signal, nothing revealed; a change of the same edition (a
- * score entered) keeps the state.</p>
+ * progress ({@link DisplayModel#currentRound}), no start signal, nothing revealed, no rotation of the pages; a change
+ * of the same edition (a score entered) keeps the state.</p>
  *
  * <p>Confined to the JavaFX Application Thread.</p>
  */
@@ -56,6 +56,8 @@ final class DisplayState {
   private final ObjectProperty<Instant> start = new SimpleObjectProperty<>();
   /** The number of lines of the final ranking revealed. */
   private final IntegerProperty revealed = new SimpleIntegerProperty();
+  /** The start of the rotation of the pages of the final ranking, or {@code null} while they are held. */
+  private final ObjectProperty<Instant> rotation = new SimpleObjectProperty<>();
   /** The screen of the window, or {@code null} for the default one. */
   private final ObjectProperty<Screen> screen = new SimpleObjectProperty<>();
   /** Whether the window covers its whole screen. */
@@ -90,6 +92,7 @@ final class DisplayState {
       round.set(DisplayModel.currentRound(open.edition()));
       start.set(null);
       revealed.set(0);
+      rotation.set(null);
     }
     edition.set(open);
   }
@@ -137,6 +140,16 @@ final class DisplayState {
    */
   IntegerProperty revealed() {
     return revealed;
+  }
+
+  /**
+   * Returns the start of the rotation of the pages of the final ranking: until the user starts it, once every line is
+   * revealed, the first page is held.
+   *
+   * @return the property of the instant of the start, {@code null} while the pages are held.
+   */
+  ObjectProperty<Instant> rotation() {
+    return rotation;
   }
 
   /**

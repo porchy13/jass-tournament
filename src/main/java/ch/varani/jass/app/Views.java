@@ -12,6 +12,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.VBox;
 
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -28,6 +29,11 @@ final class Views {
 
   /** The style class of a row of a table that needs the attention of the user. */
   static final String WARNED = "warned";
+  /**
+   * The style class of a column of numbers or dates, and of a number: aligned to the right (DESIGN.md §6), the head of
+   * the column too.
+   */
+  static final String NUMBER = "number";
 
   // *******************************************************************************************************************
   // Construction & Initialization
@@ -118,10 +124,10 @@ final class Views {
    * @param table the table.
    * @param column the column showing the warning icon.
    * @param warned tells whether a row needs the attention of the user.
-   * @param description what the icon means.
+   * @param description what the icon of a row means.
    */
   static <T> void warnings(final TableView<T> table, final TableColumn<T, String> column, final Predicate<T> warned,
-                           final String description) {
+                           final Function<T, String> description) {
     table.setRowFactory(view -> new TableRow<>() {
 
       /**
@@ -150,9 +156,10 @@ final class Views {
         super.updateItem(text, empty);
         setText(empty ? null : text);
         setGraphic(null);
-        if (!empty && warned.test(getTableView().getItems().get(getIndex()))) {
+        final T item = empty ? null : getTableView().getItems().get(getIndex());
+        if (item != null && warned.test(item)) {
           final Label icon = new Label();
-          Icon.WARNING.decorate(icon, description);
+          Icon.WARNING.decorate(icon, description.apply(item));
           setGraphic(icon);
         }
       }

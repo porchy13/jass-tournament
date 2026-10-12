@@ -83,8 +83,6 @@ final class AccountingController {
 
   /** The characters ignored in an amount: spaces and the group separators of the Swiss locales. */
   private static final Pattern SEPARATORS = Pattern.compile("[\\s'’\\u202F]");
-  /** The style class of the numbers, aligned to the right. */
-  private static final String NUMBER = "number";
   /** The style class of the totals of the summary. */
   private static final String TOTAL = "total";
   /** The height of a row of the tables, in pixels (DESIGN.md §5). */
@@ -279,7 +277,7 @@ final class AccountingController {
     final Button create = new Button(messages.get("accounting.new"));
     create.setOnAction(event -> newEntry());
     entries.setPlaceholder(Views.emptyState(messages.get("accounting.empty"), create));
-    column(entries, messages.get("column.date"), entry -> messages.date(entry.date()), false);
+    column(entries, messages.get("column.date"), entry -> messages.date(entry.date()), true);
     column(entries, messages.get("accounting.type"), entry -> messages.get("entry." + entry.type().name()), false);
     column(entries, messages.get("accounting.category"), LedgerEntry::category, false);
     column(entries, messages.get("accounting.description"), LedgerEntry::description, false);
@@ -307,7 +305,7 @@ final class AccountingController {
                                  final boolean number) {
     final TableColumn<T, String> column = new TableColumn<>(heading);
     column.setCellValueFactory(cell -> new ReadOnlyStringWrapper(text.apply(cell.getValue())));
-    Views.style(column, NUMBER, number);
+    Views.style(column, Views.NUMBER, number);
     table.getColumns().add(column);
   }
 

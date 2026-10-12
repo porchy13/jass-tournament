@@ -58,7 +58,7 @@ interrompe), poi l’applicazione salva tutto, apre il programma d’installazio
 dell’installazione come sopra. **Più tardi** rinvia l’aggiornamento al prossimo avvio. Senza Internet, l’applicazione
 si avvia normalmente e non mostra nulla.
 
-![La proposta di una nuova versione](images/it/update.png)
+<img src="images/it/update.png" alt="La proposta di una nuova versione" width="325">
 
 ## 2. Conoscere la finestra
 
@@ -75,12 +75,12 @@ si avvia normalmente e non mostra nulla.
 **Non c’è niente da salvare a mano**: ogni modifica è salvata subito. Le azioni che eliminano qualcosa chiedono sempre
 una conferma.
 
-![L’elenco delle edizioni](images/it/editions.png)
+<img src="images/it/editions.png" alt="L’elenco delle edizioni" width="800">
 
 **Aiuto › Informazioni** mostra la versione dell’applicazione, il suo autore, la sua licenza e il link al suo codice
 sorgente; **Fai una donazione** apre la pagina delle donazioni nel browser.
 
-![La finestra Informazioni](images/it/about.png)
+<img src="images/it/about.png" alt="La finestra Informazioni" width="225">
 
 ## 3. Scegliere il logo dei documenti
 
@@ -104,7 +104,7 @@ edizioni. Un’edizione esportata verso un altro computer non lo porta con sé: 
 Le stesse impostazioni regolano anche l’aspetto dell’applicazione: **Tema** (come il sistema, chiaro o scuro), **Usa
 il colore d’accento del sistema** e **Riduci le animazioni**.
 
-![Le opzioni, con il logo dei documenti](images/it/settings.png)
+<img src="images/it/settings.png" alt="Le opzioni, con il logo dei documenti" width="288">
 
 ## 4. Tenere l’elenco
 
@@ -128,7 +128,7 @@ per il torneo successivo.
 
 L’elenco parte vuoto; si può anche riempire man mano con le iscrizioni.
 
-![L’elenco delle persone, una persona selezionata](images/it/directory.png)
+<img src="images/it/directory.png" alt="L’elenco delle persone, una persona selezionata" width="800">
 
 ## 5. Creare un’edizione
 
@@ -151,7 +151,7 @@ modalità, le partite, il contenuto delle partite e la quota d’iscrizione, ma 
 
 Aprite un’edizione con un doppio clic o con il tasto Invio.
 
-![Una nuova edizione](images/it/edition-form.png)
+<img src="images/it/edition-form.png" alt="Una nuova edizione" width="800">
 
 ## 6. Iscrivere i partecipanti
 
@@ -167,12 +167,18 @@ In **Iscrizioni**, il pannello a destra accoglie i giocatori (due per squadra, u
 Selezionate un’iscrizione per **Correggerla** o **Toglierla**. Se nel frattempo i nomi di un giocatore sono stati
 corretti nell’elenco, l’iscrizione è segnata _Nomi corretti nell’elenco_: **Correggi** riprende i nuovi nomi.
 
+Una persona segnata come deceduta nell’elenco non può essere iscritta. Se digitate il suo nome e cognome,
+l’applicazione chiede se si tratta di un’altra persona con lo stesso nome: **Altra persona** la aggiunge all’elenco e
+la iscrive, altrimenti non viene iscritto nulla. Un’iscrizione il cui giocatore è stato segnato come deceduto nel
+frattempo è segnata _Persona deceduta nell’elenco_: per correggerla, sostituite questa persona (può sempre essere
+tolta).
+
 È indicato il numero di iscritti, con il minimo necessario per calcolare gli incontri (per esempio 5 squadre per
 4 partite).
 
-![Le iscrizioni: le persone dell’elenco proposte durante la digitazione](images/it/registration.png)
+<img src="images/it/registration.png" alt="Le iscrizioni: le persone dell’elenco proposte durante la digitazione" width="800">
 
-![Una persona dell’elenco scelta, la sua squadra precedente proposta](images/it/registration-previous.png)
+<img src="images/it/registration-previous.png" alt="Una persona dell’elenco scelta, la sua squadra precedente proposta" width="800">
 
 ## 7. Calcolare gli incontri e stampare i documenti
 
@@ -198,7 +204,7 @@ quella che riceve, e i partecipanti a riposo. Esporta in PDF i documenti seguent
 Un’iscrizione tardiva o un ritiro? **Riaprire le iscrizioni** (finché nessun punto è inserito) elimina gli incontri,
 che sono ricalcolati alla chiusura successiva. Ristampate poi i documenti.
 
-![Gli incontri](images/it/schedule.png)
+<img src="images/it/schedule.png" alt="Gli incontri" width="800">
 
 <table>
 <tr><td align="center" valign="top"><img src="images/it/document-schedule.png" alt="Tabellone degli incontri" width="380"><br>Tabellone degli incontri</td><td align="center" valign="top"><img src="images/it/document-places.png" alt="Posti da affiggere" width="380"><br>Posti da affiggere</td></tr>
@@ -215,17 +221,21 @@ La parte **Schermo** comanda una seconda finestra, da portare su un proiettore o
    via** in caso di errore.
 
 Lo schermo mostra il logo dei documenti, l’edizione, la partita in corso e il posto e il tavolo di ogni partecipante;
-gli elenchi troppo lunghi si alternano per pagine ogni 10 secondi. La partita mostrata è quella in corso; **Mostra la
+gli elenchi troppo lunghi si alternano per pagine ogni 10 secondi, e una barra accanto al numero della pagina si
+svuota fino alla pagina successiva. La partita mostrata è quella in corso; **Mostra la
 partita** ne sceglie un’altra.
 
-Alla fine del torneo, **Mostra la classifica**, poi **Rivela il rango** uno per uno, dall’ultimo al primo. **Nascondi
-tutto** ricomincia la rivelazione.
+Alla fine del torneo, **Mostra la classifica**, poi **Rivela il rango** uno per uno, dall’ultimo al primo. Durante la
+rivelazione, lo schermo resta sulla prima pagina: il rango rivelato per ultimo è sempre in alto e, se manca lo spazio,
+i ranghi in basso spariscono dallo schermo. Una volta rivelato tutto, lo stesso pulsante diventa **Far scorrere le
+pagine**: cliccatelo quando volete perché le pagine della classifica completa si alternino ogni 10 secondi.
+**Nascondi tutto** ricomincia la rivelazione, sulla prima pagina.
 
-![Il comando dello schermo](images/it/display-control.png)
+<img src="images/it/display-control.png" alt="Il comando dello schermo" width="800">
 
-![Lo schermo durante una partita](images/it/display-round.png)
+<img src="images/it/display-round.png" alt="Lo schermo durante una partita" width="800">
 
-![Lo schermo della classifica finale, durante la rivelazione](images/it/display-ranking.png)
+<img src="images/it/display-ranking.png" alt="Lo schermo della classifica finale, durante la rivelazione" width="800">
 
 ## 9. Inserire i punti
 
@@ -242,7 +252,7 @@ successivo da inserire**): il suo foglio appare a destra, come il foglio di cart
 - **Assente (regola 19)**: la squadra avversaria riceve 1’256 punti.
 - **Cancella il foglio** ricomincia l’inserimento di una partita.
 
-![Il foglio dei punti di una partita](images/it/scores.png)
+<img src="images/it/scores.png" alt="Il foglio dei punti di una partita" width="800">
 
 ## 10. Stabilire la classifica
 
@@ -255,7 +265,7 @@ definitiva. Indica il rango, i punti di ogni partita e il totale.
 - **Escludi per imbroglio** (regola 17): tutte le partite del partecipante sono perse, i suoi avversari ricevono
   1’256 punti ed è tolto dalla classifica. **Annulla l’esclusione** lo reintegra.
 
-![La classifica definitiva](images/it/ranking.png)
+<img src="images/it/ranking.png" alt="La classifica definitiva" width="800">
 
 ## 11. Tenere la contabilità
 
@@ -268,7 +278,7 @@ La parte **Contabilità** riunisce i conti dell’edizione:
   (al massimo 20 MB ciascuno). Sono conservati nell’edizione; **Apri** li mostra con l’applicazione del sistema;
 - il **Bilancio**: quote pagate e da incassare, entrate e uscite per categoria, saldo (in rosso se negativo).
 
-![La contabilità, una registrazione selezionata](images/it/accounting.png)
+<img src="images/it/accounting.png" alt="La contabilità, una registrazione selezionata" width="800">
 
 ## 12. Salvare, esportare, ritrovare un’edizione
 

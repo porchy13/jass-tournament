@@ -381,10 +381,35 @@
     -fx-text-fill: -c-text-2;
 }
 
+.display-pager {
+    -fx-spacing: 16;
+    -fx-alignment: center-left;
+    -fx-padding: 12 0 0 0;
+}
+
 .display-page {
     -fx-font-size: 1.23em;
     -fx-text-fill: -c-text-3;
-    -fx-padding: 12 0 0 0;
+}
+
+/* The time left before the next page: a thick bar of the accent colour on a track of the border colour, which
+   empties until the next page. */
+.display-page-bar {
+    -fx-pref-width: 240;
+}
+
+.display-page-bar > .track {
+    -fx-background-color: -c-border;
+    -fx-background-insets: 0;
+    -fx-background-radius: 6;
+    -fx-pref-height: 12;
+}
+
+.display-page-bar > .bar {
+    -fx-background-color: -c-accent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 6;
+    -fx-padding: 6;
 }
 
 /* Accounting (F8): the summary as two columns, the amounts at the right, the totals in semi-bold. */

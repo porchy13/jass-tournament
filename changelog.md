@@ -7,6 +7,26 @@ All notable changes of the project are documented in this file.
 ### Added
 - **About** (Help › About): the version of the application, its author with a link to the site of the author, its
   licence, a link to its source code, and a button to make a donation.
+- **External display**: when the lines do not fit, a bar next to the number of the page empties until the next page
+  (by steps with "Reduce animations").
+
+### Changed
+- **External display**: while the final ranking is being revealed, the display stays on its first page, the rank
+  revealed last at the top; once everything is revealed, the button of the reveal becomes "Turn the pages", which
+  starts the rotation of the pages when the user wishes. "Hide everything" holds the first page again.
+- **About**: Close is the default button, at the right; the donation is at the left.
+- **Registration**: a person declared deceased in the directory can no longer be registered. Typing their names asks
+  whether it is another person with the same names (then added to the directory); a registration whose player was
+  declared deceased since is marked, and cannot be corrected until the person is replaced.
+- **Tables**: the columns of numbers and dates are aligned to the right everywhere, their heads too (table and places
+  of the schedule, round, table and result of the scores, number of the registrations, line of the import, date of the
+  accounting).
+- **Documents**: the same alignment in the PDF documents: the numbers and their column titles at the right (table and
+  places of the schedule, number and places of the places to post, place, points and subtotal of the score cards),
+  the texts at the left; the score sheets keep the numbers of the deals centred, as the paper sheet.
+- **Ranking**: the column Participant shows the players only, the number being in the column No.
+- **User guide**: the screenshots are shown at the same scale as on a computer, so that the small windows (about,
+  update, settings) keep their real size compared with the main window.
 
 ## [1.0.0, 1.0.1, 1.0.2, 1.0.3, 1.0.4] – 2026-10-12
 

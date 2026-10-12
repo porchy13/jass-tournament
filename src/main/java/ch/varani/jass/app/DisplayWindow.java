@@ -1,7 +1,6 @@
 package ch.varani.jass.app;
 
 import ch.varani.jass.domain.Edition;
-import ch.varani.jass.domain.Player;
 import ch.varani.jass.domain.TournamentMode;
 import ch.varani.jass.scoring.Ranking;
 import ch.varani.jass.scoring.RankingEntry;
@@ -15,6 +14,7 @@ import javafx.geometry.HPos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
@@ -32,7 +32,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * The external display (F18): a window of its own, independent of the main window, to be moved to a projector or a
@@ -43,11 +42,20 @@ import java.util.stream.Collectors;
  * the place and table of every participant in the round, by number, those sitting out being marked.</p>
  *
  * <p><b>Final ranking</b>: the lines revealed from the main window, from the last to the first, shown the best first,
- * each with the rank, the participant, its points in every round and its total.</p>
+ * each with the rank, the participant, its points in every round and its total. While they are being revealed, the
+ * first page is held, so that the line revealed last always stays on the screen; its pages alternate once the user
+ * starts their rotation.</p>
  *
  * <p><b>Pages</b>: the number of lines that fit is computed from the height of the window ({@value #LINE_HEIGHT}
- * pixels a line); when more lines are needed, the pages alternate ({@link DisplayModel#page}). The window is refreshed
- * every second (countdown, pages) and on every change of the state or of the edition.</p>
+ * pixels a line); when more lines are needed, the pages alternate ({@link DisplayModel#page}) and a bar next to the
+ * number of the page empties until the next page ({@link DisplayModel#left}), computed from the same clock.</p>
+ *
+ * <p><b>Refresh</b>: every {@value #TICK_MILLIS} ms, the window is refreshed whole (countdown, pages, bar) as soon as
+ * the second of the clock changes, so that the countdown and the pages change with the clock, on the second; the
+ * pages change on a whole second (from the epoch, or from the start of the rotation, a whole second too), so that the
+ * page and the bar always change together. Between two seconds, the bar alone moves, for a continuous movement,
+ * unless the animations are reduced (it then moves by steps, once a second). The window is refreshed too on every
+ * change of the state or of the edition.</p>
  *
  * <p><b>Privacy</b>: only the names, places and points already printed on the documents are shown, never a contact
  * detail.</p>
@@ -73,6 +81,8 @@ final class DisplayWindow {
   static final double HEIGHT = 720;
   /** The distance of the window from the corner of its screen when it is not in full screen, in pixels. */
   private static final double MARGIN = 32;
+  /** The interval of the checks of the clock, and of the moves of the bar of the page, in milliseconds. */
+  static final double TICK_MILLIS = 40;
   /** The style class of the countdown once the time is over. */
   static final String OVER = "over";
 
@@ -88,8 +98,12 @@ final class DisplayWindow {
   private final Clock clock;
   /** The window. */
   private final Stage stage = new Stage();
-  /** Refreshes the window every second. */
-  private final Timeline ticks = new Timeline(new KeyFrame(Duration.seconds(1), event -> refresh()));
+  /** Checks the clock: refreshes the window at each second, moves the bar of the page between them. */
+  private final Timeline ticks = new Timeline(new KeyFrame(Duration.millis(TICK_MILLIS), event -> tick()));
+  /** The second of the clock shown, since the epoch. */
+  private long second;
+  /** The origin of the pages that alternate, or {@code null} when the bar of the page is hidden. */
+  private Instant origin;
   /** The logo of the documents. */
   @FXML
   private ImageView logo;
@@ -117,6 +131,9 @@ final class DisplayWindow {
   /** The number of the page shown. */
   @FXML
   private Label pageLabel;
+  /** The time left before the next page. */
+  @FXML
+  private ProgressBar pageBar;
 
   // *******************************************************************************************************************
   // Construction & Initialization
@@ -146,6 +163,7 @@ final class DisplayWindow {
     state.round().addListener((property, before, after) -> refresh());
     state.start().addListener((property, before, after) -> refresh());
     state.revealed().addListener((property, before, after) -> refresh());
+    state.rotation().addListener((property, before, after) -> refresh());
     area.heightProperty().addListener((property, before, after) -> refresh());
   }
 
@@ -156,6 +174,7 @@ final class DisplayWindow {
   void initialize() {
     logo.visibleProperty().bind(logo.imageProperty().isNotNull());
     logo.managedProperty().bind(logo.visibleProperty());
+    pageBar.managedProperty().bind(pageBar.visibleProperty());
   }
 
   // *******************************************************************************************************************
@@ -216,6 +235,8 @@ final class DisplayWindow {
    * an edition is open, so the state always has an edition.
    */
   void refresh() {
+    final Instant now = clock.instant();
+    second = now.getEpochSecond();
     final Edition shown = state.edition().get().edition();
     final Messages messages = main.messages();
     stage.setTitle(messages.get("display.window.title", shown.name()));
@@ -223,6 +244,8 @@ final class DisplayWindow {
     grid.getChildren().clear();
     grid.getColumnConstraints().clear();
     pageLabel.setText("");
+    pageBar.setVisible(false);
+    origin = null;
     final boolean round = shown.isScheduled() && state.mode().get() == DisplayState.Mode.ROUND;
     clockBox.setVisible(round);
     clockBox.setManaged(round);
@@ -231,9 +254,9 @@ final class DisplayWindow {
       return;
     }
     if (round) {
-      showRound(shown);
+      showRound(shown, now);
     } else {
-      showRanking(shown);
+      showRanking(shown, now);
     }
   }
 
@@ -241,10 +264,10 @@ final class DisplayWindow {
    * Shows the round: its countdown and the page of the places of the moment.
    *
    * @param shown the edition.
+   * @param now the current instant.
    */
-  private void showRound(final Edition shown) {
+  private void showRound(final Edition shown, final Instant now) {
     final Messages messages = main.messages();
-    final Instant now = clock.instant();
     final java.time.Duration left = DisplayModel.remaining(state.start().get(), shown.gameMinutes(), now);
     heading.setText(messages.get("schedule.round", state.round().get()));
     timer.setText(DisplayModel.clock(left));
@@ -252,15 +275,15 @@ final class DisplayWindow {
     Views.style(timer, OVER, over);
     status.setText(messages.get(statusKey(over)));
     final DisplayModel.Page<DisplayModel.PlaceLine> page =
-        DisplayModel.page(DisplayModel.places(shown, state.round().get()), fitting(0), now);
+        DisplayModel.page(DisplayModel.places(shown, state.round().get()), fitting(0), Instant.EPOCH, now);
     grid.getColumnConstraints().setAll(fixed(), growing(), fixed());
     for (final DisplayModel.PlaceLine line : page.lines()) {
       final String place = line.place() == 0 ? messages.get("display.sitting.out")
                                              : messages.get("display.place", line.place(), line.table());
       grid.addRow(grid.getRowCount(), cell(participant(shown, line.participant())),
-                  cell(names(shown, line.participant())), cell(place));
+                  cell(MainController.names(shown, line.participant())), cell(place));
     }
-    showPage(page);
+    showPage(page, Instant.EPOCH, now);
   }
 
   /**
@@ -281,8 +304,9 @@ final class DisplayWindow {
    * Shows the lines of the final ranking revealed so far, the best first, with a head of columns.
    *
    * @param shown the edition.
+   * @param now the current instant.
    */
-  private void showRanking(final Edition shown) {
+  private void showRanking(final Edition shown, final Instant now) {
     final Messages messages = main.messages();
     final Scoring scoring = new Scoring(shown);
     final Ranking ranking = scoring.ranking();
@@ -298,27 +322,53 @@ final class DisplayWindow {
     head.add(cell(messages.get("ranking.column.total")));
     head.forEach(label -> label.getStyleClass().add("display-column"));
     grid.addRow(0, head.toArray(Label[]::new));
-    final DisplayModel.Page<RankingEntry> page =
-        DisplayModel.page(DisplayModel.revealed(ranking, state.revealed().get()), fitting(1), clock.instant());
+    final List<RankingEntry> revealed = DisplayModel.revealed(ranking, state.revealed().get());
+    final Instant rotation = state.rotation().get();
+    final DisplayModel.Page<RankingEntry> page = rotation == null ? DisplayModel.firstPage(revealed, fitting(1))
+                                                                  : DisplayModel.page(revealed, fitting(1), rotation,
+                                                                                      now);
     for (final RankingEntry entry : page.lines()) {
       final List<Label> row = new ArrayList<>(List.of(cell(String.valueOf(entry.rank())),
                                                       cell(participant(shown, entry.participant())),
-                                                      cell(names(shown, entry.participant()))));
+                                                      cell(MainController.names(shown, entry.participant()))));
       rounds.forEach(number -> row.add(cell(scoring.points(entry.participant(), number)
                                                    .map(messages::number).orElse(""))));
       row.add(cell(messages.number(entry.points())));
       grid.addRow(grid.getRowCount(), row.toArray(Label[]::new));
     }
-    showPage(page);
+    showPage(page, rotation, now);
   }
 
   /**
-   * Shows the number of the page when there are several.
+   * Shows the number of the page when there are several, and the time left before the next page while they
+   * alternate.
    *
    * @param page the page shown.
+   * @param from the origin of the pages, used only when they alternate.
+   * @param now the current instant.
    */
-  private void showPage(final DisplayModel.Page<?> page) {
+  private void showPage(final DisplayModel.Page<?> page, final Instant from, final Instant now) {
     pageLabel.setText(page.count() > 1 ? main.messages().get("display.page", page.number(), page.count()) : "");
+    if (page.turning()) {
+      origin = from;
+      pageBar.setVisible(true);
+      pageBar.setProgress(DisplayModel.left(from, now));
+    }
+  }
+
+  /**
+   * Checks the clock: refreshes the window when its second changed, else moves the bar of the page, unless it is
+   * hidden or the animations are reduced.
+   */
+  private void tick() {
+    final Instant now = clock.instant();
+    if (now.getEpochSecond() != second) {
+      refresh();
+      return;
+    }
+    if (origin != null && !main.reducedMotion()) {
+      pageBar.setProgress(DisplayModel.left(origin, now));
+    }
   }
 
   /**
@@ -342,22 +392,6 @@ final class DisplayWindow {
    */
   private String participant(final Edition shown, final int participant) {
     return main.messages().get(shown.mode() == TournamentMode.TEAM ? "display.team" : "display.player", participant);
-  }
-
-  /**
-   * Returns the names of a participant: the two players of a team, or the player.
-   *
-   * @param shown the edition.
-   * @param participant the number of the participant.
-   *
-   * @return the names.
-   */
-  private static String names(final Edition shown, final int participant) {
-    if (shown.mode() == TournamentMode.TEAM) {
-      return shown.teamRegistrations().get(participant).players().stream().map(Player::fullName)
-                  .collect(Collectors.joining(" & "));
-    }
-    return shown.individualRegistrations().get(participant).fullName();
   }
 
   /**

@@ -15,10 +15,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.junit.jupiter.api.DisplayName;
@@ -81,6 +84,10 @@ final class DisplayScreenTest {
   private static final int RANKING_CELLS = 6;
   /** The players of the individual edition: one table, and one player sitting out. */
   private static final int PLAYERS = 5;
+  /** The time left before the next page in the middle of a page. */
+  private static final double HALF = 0.5;
+  /** Half a second, in milliseconds. */
+  private static final int HALF_SECOND = 500;
   /** The side of the logo of the tests, in pixels. */
   private static final int LOGO = 8;
 
@@ -92,6 +99,8 @@ final class DisplayScreenTest {
   private Path other;
   /** The clock of the application, moved by the tests. */
   private final MutableClock clock = new MutableClock(START);
+  /** The replaced windows of the system. */
+  private final FakeNatives natives = new FakeNatives();
 
   /**
    * Fills the data folder with a logo and the editions of the scenarios, then starts the application in French.
@@ -117,7 +126,7 @@ final class DisplayScreenTest {
         .withRegistrations(new IndividualRegistrations(players))
         .withSchedule(new IndividualSchedule(PLAYERS, 1, List.of(new IndividualRound(1, List.of(
             new IndividualGame(1, new Partners(1, 2), new Partners(ScoreFixtures.THIRD, ScoreFixtures.TEAMS))))))));
-    new JassApplication(new AppContext(folder, Languages.FRENCH, new FakeNatives().natives(), clock,
+    new JassApplication(new AppContext(folder, Languages.FRENCH, natives.natives(), clock,
                                        Solving::of, false, FakeUpdater.NONE)).start(stage);
   }
 
@@ -176,6 +185,17 @@ final class DisplayScreenTest {
   }
 
   /**
+   * Returns the time left before the next page shown by the bar of the page.
+   *
+   * @param robot the TestFX robot.
+   *
+   * @return the part left, from 0 to 1.
+   */
+  private static double left(final FxRobot robot) {
+    return robot.lookup("#pageBar").queryAs(ProgressBar.class).getProgress();
+  }
+
+  /**
    * Q21: the countdown shows the time of a game until the start signal, then the time remaining, and says when the
    * time is over; the signal can be cancelled; another round waits for its own signal; the time of a game is saved;
    * the places alternate by pages when they do not fit; the window goes to full screen and is closed.
@@ -193,6 +213,7 @@ final class DisplayScreenTest {
     final String heading = text(robot, "heading");
     final String waiting = text(robot, "status");
     final List<String> places = cells(robot);
+    final boolean onePage = text(robot, "pageLabel").isEmpty() && !visible(robot, "pageBar");
     final boolean logo = robot.lookup("#logo").queryAs(ImageView.class).getImage() != null;
     press(robot, "startButton");
     final String started = text(robot, "roundStatus");
@@ -223,6 +244,7 @@ final class DisplayScreenTest {
         () -> assertEquals(List.of("Équipe 1", "Emma1 Favre & Félix1 Girard", "Place 1 · table 1"),
                            places.subList(0, PLACE_CELLS)),
         () -> assertEquals("Place 4 · table 2", places.getLast()),
+        () -> assertTrue(onePage),
         () -> assertTrue(logo),
         () -> assertEquals("Départ donné à 14:00:00.", started),
         () -> assertEquals("Temps restant", running),
@@ -236,8 +258,9 @@ final class DisplayScreenTest {
   }
 
   /**
-   * Q22: the places that do not fit alternate by pages; the window goes to the screen chosen, in full screen or not,
-   * and is closed and opened again with the same state.
+   * Q22: the places that do not fit alternate by pages, a bar showing the time left before the next page, by steps
+   * once the animations are reduced; the window goes to the screen chosen, in full screen or not, and is closed and
+   * opened again with the same state.
    *
    * @param robot the TestFX robot.
    *
@@ -256,9 +279,20 @@ final class DisplayScreenTest {
     robot.interact(() -> display().setHeight(SHORT));
     await(() -> text(robot, "pageLabel").startsWith("Page"));
     final String first = text(robot, "pageLabel");
-    clock.advance(Duration.ofSeconds(DisplayModel.PAGE_SECONDS));
+    final boolean bar = visible(robot, "pageBar");
+    final double fullBar = left(robot);
+    final boolean focusable = robot.lookup("#pageBar").query().isFocusTraversable();
+    clock.advance(Duration.ofSeconds(DisplayModel.PAGE_SECONDS / 2));
+    await(() -> left(robot) == HALF);
+    clock.advance(Duration.ofSeconds(DisplayModel.PAGE_SECONDS / 2));
     await(() -> !first.equals(text(robot, "pageLabel")));
     final String next = text(robot, "pageLabel");
+    final double again = left(robot);
+    menu(robot, "optionsItem");
+    final Pane panel = (Pane) natives.questions().getLast().getDialogPane().getContent();
+    robot.interact(() -> ((CheckBox) panel.lookup("#motionBox")).setSelected(true));
+    clock.advance(Duration.ofSeconds(DisplayModel.PAGE_SECONDS / 2));
+    await(() -> left(robot) == HALF);
     final Stage shownDisplay = display();
     press(robot, "closeButton");
     await(() -> !shownDisplay.isShowing() && visible(robot, "openButton"));
@@ -275,13 +309,19 @@ final class DisplayScreenTest {
     assertAll(
         () -> assertTrue(first.startsWith("Page "), first),
         () -> assertTrue(next.startsWith("Page "), next),
+        () -> assertTrue(bar),
+        () -> assertEquals(1.0, fullBar),
+        () -> assertFalse(focusable),
+        () -> assertEquals(1.0, again),
         () -> assertNotNull(screens.getValue()),
         () -> assertFalse(display().isFullScreen()));
   }
 
   /**
    * F18: once every game has a result and nobody is tied, the final ranking is revealed from the last line to the
-   * first, with the points of every round; the lines can be hidden again and the display can go back to the round.
+   * first, with the points of every round; its first page is held during the reveal, then its pages alternate once the
+   * user starts their rotation, on the second (the bar is full when the page changes); the lines can be hidden again,
+   * which holds the first page again, and the display can go back to the round.
    *
    * @param robot the TestFX robot.
    *
@@ -300,14 +340,36 @@ final class DisplayScreenTest {
     final List<String> last = cells(robot);
     final boolean clockHidden = !visible(robot, "clockBox");
     final boolean rankingDisabled = disabled(robot, "rankingButton");
-    for (int i = 1; i < ScoreFixtures.TEAMS; i++) {
-      press(robot, "revealButton");
-    }
+    robot.interact(() -> display().setHeight(SHORT));
+    await(() -> ((Region) display().getScene().lookup("#area")).getHeight() < 2 * DisplayWindow.LINE_HEIGHT);
+    press(robot, "revealButton");
+    final String held = text(robot, "pageLabel");
+    clock.advance(Duration.ofSeconds(DisplayModel.PAGE_SECONDS));
+    press(robot, "revealButton");
+    final String stillHeld = text(robot, "pageLabel");
+    final String lastRevealed = cells(robot).get(RANKING_CELLS);
+    final boolean heldBar = visible(robot, "pageBar");
+    clock.advance(Duration.ofSeconds(DisplayModel.PAGE_SECONDS));
+    press(robot, "revealButton");
     final List<String> all = cells(robot);
+    final String allHeld = text(robot, "pageLabel");
+    final String rotate = robot.lookup("#revealButton").queryAs(Button.class).getText();
+    clock.advance(Duration.ofMillis(HALF_SECOND));
+    press(robot, "revealButton");
+    final boolean rotating = visible(robot, "pageBar");
     final String done = robot.lookup("#revealButton").queryAs(Button.class).getText();
     final boolean revealDisabled = disabled(robot, "revealButton");
+    clock.advance(Duration.ofSeconds(DisplayModel.PAGE_SECONDS).minusMillis(HALF_SECOND));
+    await(() -> "Page 2 sur 4".equals(text(robot, "pageLabel")));
+    final double turned = left(robot);
     press(robot, "hideButton");
     await(() -> cells(robot).size() == RANKING_CELLS);
+    press(robot, "revealButton");
+    press(robot, "revealButton");
+    clock.advance(Duration.ofSeconds(DisplayModel.PAGE_SECONDS));
+    press(robot, "revealButton");
+    final String heldAgain = text(robot, "pageLabel");
+    final boolean revealAgain = !disabled(robot, "revealButton");
     press(robot, "roundButton");
     final String round = text(robot, "heading");
     press(robot, "rankingButton");
@@ -320,10 +382,20 @@ final class DisplayScreenTest {
                            last.stream().map(cell -> cell.replace(' ', ' ')).toList()),
         () -> assertTrue(clockHidden),
         () -> assertTrue(rankingDisabled),
+        () -> assertEquals("Page 1 sur 2", held),
+        () -> assertEquals("Page 1 sur 3", stillHeld),
+        () -> assertEquals("2", lastRevealed),
+        () -> assertFalse(heldBar),
         () -> assertEquals("1", all.get(RANKING_CELLS)),
         () -> assertEquals("Équipe 1", all.get(RANKING_CELLS + 1)),
+        () -> assertEquals("Page 1 sur 4", allHeld),
+        () -> assertEquals("Faire défiler les pages", rotate),
+        () -> assertTrue(rotating),
         () -> assertEquals("Tout est révélé", done),
+        () -> assertEquals(1.0, turned),
         () -> assertTrue(revealDisabled),
+        () -> assertEquals("Page 1 sur 3", heldAgain),
+        () -> assertTrue(revealAgain),
         () -> assertEquals("Partie 2", round),
         () -> assertEquals("Classement final", text(robot, "heading")));
   }

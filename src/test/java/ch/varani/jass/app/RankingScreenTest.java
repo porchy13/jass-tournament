@@ -5,6 +5,8 @@ import ch.varani.jass.domain.Results;
 import ch.varani.jass.domain.TieBreak;
 import ch.varani.jass.persistence.EditionStore;
 import ch.varani.jass.scoring.RankingEntry;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleButton;
 import javafx.stage.Stage;
@@ -134,8 +136,9 @@ final class RankingScreenTest {
   }
 
   /**
-   * Rules 14 and 17: the provisional ranking shows the points of every game; a participant is excluded after
-   * confirmation, leaves the ranking, and can be readmitted.
+   * Rules 14 and 17: the provisional ranking shows the points of every game, the participant named by its number
+   * then its players, the numbers and their heads aligned to the right; a participant is excluded after confirmation,
+   * leaves the ranking, and can be readmitted.
    *
    * @param robot the TestFX robot.
    *
@@ -152,6 +155,11 @@ final class RankingScreenTest {
     final List<String> first = List.of(cell(robot, 0, 0), cell(robot, 0, 1), cell(robot, 0, FIRST_GAME),
                                        cell(robot, 0, FIRST_GAME + 1), cell(robot, 0, TOTAL),
                                        cell(robot, 0, GAMES));
+    final String names = cell(robot, 0, 2);
+    final List<Boolean> numeric = ranking(robot).getColumns().stream()
+        .map(column -> column.getStyleClass().contains(Views.NUMBER)).toList();
+    final List<Pos> heads = robot.lookup(".column-header.number .label").queryAll().stream()
+        .map(label -> ((Label) label).getAlignment()).distinct().toList();
     robot.interact(() -> ranking(robot).getSelectionModel().select(0));
     natives.answer(false);
     press(robot, "excludeButton");
@@ -164,6 +172,7 @@ final class RankingScreenTest {
     final int lines = ranking(robot).getItems().size();
     @SuppressWarnings("unchecked")
     final TableView<Integer> excludedTable = robot.lookup("#excludedTable").queryAs(TableView.class);
+    final String excludedNames = String.valueOf(excludedTable.getColumns().get(1).getCellData(0));
     robot.interact(() -> excludedTable.getSelectionModel().select(0));
     press(robot, "readmitButton");
     await(() -> ScoreFixtures.stored(folder, PROVISIONAL).results().excluded().isEmpty());
@@ -175,6 +184,10 @@ final class RankingScreenTest {
         () -> assertFalse(noExcluded),
         () -> assertEquals(List.of("1", "1", messages.number(SHEET), "",
                                    messages.number(SHEET), "1"), first),
+        () -> assertEquals("Emma1 Favre & Félix1 Girard", names),
+        () -> assertEquals("Emma1 Favre & Félix1 Girard", excludedNames),
+        () -> assertEquals(List.of(true, true, false, true, true, true, true), numeric),
+        () -> assertEquals(List.of(Pos.CENTER_RIGHT), heads),
         () -> assertEquals(0, cancelled),
         () -> assertEquals("Équipe 1 : Emma1 Favre & Félix1 Girard a été exclu du classement.", excluded),
         () -> assertEquals(ScoreFixtures.TEAMS - 1, lines),

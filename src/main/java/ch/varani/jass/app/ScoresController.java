@@ -76,8 +76,6 @@ final class ScoresController {
   static final String INCONSISTENT = "inconsistent";
   /** The style class of a field whose text is rejected. */
   static final String INVALID = "invalid";
-  /** The style class of the numbers, aligned to the right. */
-  private static final String NUMBER = "number";
   /** The column of the grid of the sheet holding column A, after the number and the type of the deal. */
   private static final int GIVER_COLUMN = 2;
   /** The column of the grid of the sheet holding column B. */
@@ -221,13 +219,13 @@ final class ScoresController {
     registration.setOnAction(event -> main.showPart(MainController.Place.REGISTRATION));
     table.setPlaceholder(Views.emptyState(messages.get("scores.empty"), registration));
     Views.keys(table, this::focusSheet, this::clearSheet);
-    column("column.round", game -> String.valueOf(game.round()));
-    column("column.table", game -> String.valueOf(game.table()));
-    column("scores.column.giver", game -> main.side(edition, game.giver()));
-    column("scores.column.receiver", game -> main.side(edition, game.receiver()));
+    column("column.round", game -> String.valueOf(game.round()), true);
+    column("column.table", game -> String.valueOf(game.table()), true);
+    column("scores.column.giver", game -> main.side(edition, game.giver()), false);
+    column("scores.column.receiver", game -> main.side(edition, game.receiver()), false);
     final TableColumn<Pairing, String> results = column("column.result", game -> scoring.result(game.round(),
-        game.table()).map(this::describe).orElse(""));
-    Views.warnings(table, results, this::toCheck, messages.get("scores.warning"));
+        game.table()).map(this::describe).orElse(""), true);
+    Views.warnings(table, results, this::toCheck, game -> messages.get("scores.warning"));
     sheet.visibleProperty().bind(table.getSelectionModel().selectedItemProperty().isNotNull());
     sheet.managedProperty().bind(sheet.visibleProperty());
     choose.visibleProperty().bind(sheet.visibleProperty().not());
@@ -253,12 +251,15 @@ final class ScoresController {
    *
    * @param key the key of the title of the column.
    * @param text gives the text of a game.
+   * @param number {@code true} for a column of numbers, aligned to the right.
    *
    * @return the column.
    */
-  private TableColumn<Pairing, String> column(final String key, final Function<Pairing, String> text) {
+  private TableColumn<Pairing, String> column(final String key, final Function<Pairing, String> text,
+                                              final boolean number) {
     final TableColumn<Pairing, String> column = new TableColumn<>(main.messages().get(key));
     column.setCellValueFactory(cell -> new ReadOnlyStringWrapper(text.apply(cell.getValue())));
+    Views.style(column, Views.NUMBER, number);
     table.getColumns().add(column);
     return column;
   }
@@ -361,7 +362,7 @@ final class ScoresController {
    * @return the label.
    */
   private static Label withSum(final Label label) {
-    label.getStyleClass().addAll("sum", NUMBER);
+    label.getStyleClass().addAll("sum", Views.NUMBER);
     label.setMaxWidth(Double.MAX_VALUE);
     return label;
   }

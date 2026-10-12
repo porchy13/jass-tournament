@@ -16,6 +16,7 @@ import ch.varani.jass.domain.TournamentMode;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.pdfbox.text.TextPosition;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -25,6 +26,7 @@ import java.io.UncheckedIOException;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -38,6 +40,8 @@ final class Samples {
   static final Locale FRENCH = Locale.forLanguageTag("fr-CH");
   /** The options of the documents without logo, in French. */
   static final DocumentOptions OPTIONS = new DocumentOptions(FRENCH, null);
+  /** The tolerance of the comparison of the positions of the texts, in points. */
+  static final float TOLERANCE = 0.5f;
   /** The date of the fictitious editions. */
   static final LocalDate DATE = LocalDate.of(2026, Month.NOVEMBER, 20);
   /** The line of the edition in the documents in French. */
@@ -141,6 +145,66 @@ final class Samples {
   }
 
   /**
+   * Finds the texts drawn on the first page of a PDF document, e.g. the cells of a table, with their positions.
+   *
+   * @param pdf the bytes of the PDF.
+   *
+   * @return the texts, in the order of the page.
+   *
+   * @throws IOException if the PDF cannot be read.
+   */
+  static List<Word> words(final byte[] pdf) throws IOException {
+    final List<Word> words = new ArrayList<>();
+    try (PDDocument document = Loader.loadPDF(pdf)) {
+      final PDFTextStripper stripper = new PDFTextStripper() {
+
+        /**
+         * Keeps each text drawn with its position.
+         *
+         * @param text the text.
+         * @param positions its characters.
+         */
+        @Override
+        protected void writeString(final String text, final List<TextPosition> positions) {
+          final TextPosition last = positions.getLast();
+          words.add(new Word(text, positions.getFirst().getXDirAdj(), last.getXDirAdj() + last.getWidthDirAdj(),
+                             last.getYDirAdj()));
+        }
+
+      };
+      stripper.setEndPage(1);
+      stripper.getText(document);
+    }
+    return words;
+  }
+
+  /**
+   * Finds the first word with a text below another word, e.g. the first cell of a column under its title.
+   *
+   * @param words the words of a page.
+   * @param text the text of the word searched.
+   * @param above the word above it.
+   *
+   * @return the word of that text nearest below.
+   */
+  static Word below(final List<Word> words, final String text, final Word above) {
+    return words.stream().filter(word -> word.text().equals(text) && word.y() > above.y())
+                .min(Comparator.comparingDouble(Word::y)).orElseThrow();
+  }
+
+  /**
+   * Finds the first word with a text.
+   *
+   * @param words the words of a page.
+   * @param text the text of the word.
+   *
+   * @return the first word of that text.
+   */
+  static Word first(final List<Word> words, final String text) {
+    return words.stream().filter(word -> word.text().equals(text)).findFirst().orElseThrow();
+  }
+
+  /**
    * Creates an extractor of the text of a PDF whose lines and pages end with {@code \n} on every system, so that the
    * expected texts do not depend on the line separator of the system ({@code \r\n} on Windows).
    *
@@ -151,6 +215,17 @@ final class Samples {
     stripper.setLineSeparator("\n");
     stripper.setPageEnd("\n");
     return stripper;
+  }
+
+  /**
+   * A word of a page with its position, in points from the top left corner.
+   *
+   * @param text the text of the word.
+   * @param start the left of its first character.
+   * @param end the right of its last character.
+   * @param y its baseline.
+   */
+  record Word(String text, float start, float end, float y) {
   }
 
   /**

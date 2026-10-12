@@ -113,10 +113,10 @@ final class ScheduleController {
     for (final int round : pairings.stream().map(Pairing::round).distinct().toList()) {
       final List<Pairing> games = pairings.stream().filter(pairing -> pairing.round() == round).toList();
       final TableView<Pairing> table = new TableView<>();
-      column(table, "column.table", pairing -> String.valueOf(pairing.table()));
-      column(table, "column.places", pairing -> (2 * pairing.table() - 1) + " – " + 2 * pairing.table());
-      column(table, "column.giver", pairing -> main.side(edition, pairing.giver()));
-      column(table, "column.receiver", pairing -> main.side(edition, pairing.receiver()));
+      column(table, "column.table", pairing -> String.valueOf(pairing.table()), true);
+      column(table, "column.places", pairing -> (2 * pairing.table() - 1) + " – " + 2 * pairing.table(), true);
+      column(table, "column.giver", pairing -> main.side(edition, pairing.giver()), false);
+      column(table, "column.receiver", pairing -> main.side(edition, pairing.receiver()), false);
       table.getItems().setAll(games);
       table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
       table.setPrefHeight((games.size() + 1) * ROW_HEIGHT);
@@ -140,10 +140,13 @@ final class ScheduleController {
    * @param table the table.
    * @param key the key of the title of the column.
    * @param text gives the text of a game.
+   * @param number {@code true} for a column of numbers, aligned to the right.
    */
-  private void column(final TableView<Pairing> table, final String key, final Function<Pairing, String> text) {
+  private void column(final TableView<Pairing> table, final String key, final Function<Pairing, String> text,
+                      final boolean number) {
     final TableColumn<Pairing, String> column = new TableColumn<>(main.messages().get(key));
     column.setCellValueFactory(cell -> new ReadOnlyStringWrapper(text.apply(cell.getValue())));
+    Views.style(column, Views.NUMBER, number);
     table.getColumns().add(column);
   }
 

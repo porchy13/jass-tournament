@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.GridPane?>
@@ -8,7 +9,8 @@
 <?import javafx.scene.layout.VBox?>
 <!--
   The external display (DisplayWindow, F18): the logo, the edition and the round or the final ranking at the top, the
-  countdown at the right; the places of the participants or the lines of the ranking below, by pages.
+  countdown at the right; the places of the participants or the lines of the ranking below, by pages; the number of
+  the page and the time left before the next one (an indicator, neither focusable nor interactive) at the bottom.
 -->
 <BorderPane styleClass="display" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
   <top>
@@ -30,6 +32,10 @@
     </StackPane>
   </center>
   <bottom>
-    <Label fx:id="pageLabel" styleClass="display-page"/>
+    <HBox styleClass="display-pager">
+      <Label fx:id="pageLabel" styleClass="display-page"/>
+      <ProgressBar fx:id="pageBar" styleClass="display-page-bar" focusTraversable="false" mouseTransparent="true"
+                   visible="false"/>
+    </HBox>
   </bottom>
 </BorderPane>

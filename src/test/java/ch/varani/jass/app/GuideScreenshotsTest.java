@@ -55,6 +55,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 
@@ -72,6 +73,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * described by the guide is shown as a user would, and the window (or the external display, or the settings) is
  * written as a PNG image at twice its size; the offer of an update (a fictitious release) and the first page of each
  * PDF document are written as images too.
+ *
+ * <p>The guide shows every screen at the same scale, as on a computer: the main window takes {@value #SHOWN_WIDTH}
+ * pixels, and a smaller window (about, update, settings) its share of them. The generator writes the width of each
+ * screen into the attribute {@code width} of its {@code <img>} in the guide of the language.</p>
  *
  * <p>It is not a test of the application and does not run with the quality gate: it is tagged {@code screenshots}
  * (excluded by default) and runs only when the system property {@value #FOLDER} names the folder of the images, as
@@ -92,6 +97,8 @@ final class GuideScreenshotsTest {
   private static final int HEIGHT = 800;
   /** The scale of the images of the screens, for the screens of high density. */
   private static final double SCALE = 2;
+  /** The width of the main window in the guide, in pixels: the screens are shown at this scale. */
+  private static final int SHOWN_WIDTH = 800;
   /** The resolution of the images of the documents, in dots per inch. */
   private static final float DPI = 110;
   /** The number of ranks revealed on the external display: the podium stays hidden. */
@@ -116,9 +123,9 @@ final class GuideScreenshotsTest {
   private static final LocalTime START = LocalTime.of(15, 30);
   /**
    * The time elapsed since the start signal when the external display is captured: a multiple of twice the time of a
-   * page of the display, so that its first page is shown.
+   * page of the display plus 3 seconds, so that its first page is shown with the bar of the next page partly empty.
    */
-  private static final Duration ELAPSED = Duration.parse("PT23M20S");
+  private static final Duration ELAPSED = Duration.parse("PT23M23S");
   /** The date of the new edition typed in the form. */
   private static final LocalDate NEW_DATE = LocalDate.of(2027, Month.JUNE, 19);
 
@@ -461,6 +468,27 @@ final class GuideScreenshotsTest {
       }
     }
     ImageIO.write(out, "png", images.resolve(name + ".png").toFile());
+    showAtScale(name, width / SCALE);
+  }
+
+  /**
+   * Writes the width of a screen into the guide of the language, so that every screen is shown at the same scale:
+   * the attribute {@code width} of its {@code <img>}, the share of {@value #SHOWN_WIDTH} pixels its window takes of
+   * the main window.
+   *
+   * @param name the name of the image, without extension.
+   * @param width the width of the window, in pixels of the screen.
+   *
+   * @throws IOException if the guide cannot be read or written.
+   */
+  private void showAtScale(final String name, final double width) throws IOException {
+    final String language = images.getFileName().toString();
+    final Path guide = images.getParent().getParent().resolve(language + ".md");
+    final String text = Files.readString(guide);
+    final Pattern image = Pattern.compile("(<img src=\"images/" + language + "/" + name + "\\.png\"[^>]*width=\")"
+                                          + "\\d+");
+    final String shown = image.matcher(text).replaceAll("$1" + Math.round(width * SHOWN_WIDTH / WIDTH));
+    Files.writeString(guide, shown);
   }
 
   /**

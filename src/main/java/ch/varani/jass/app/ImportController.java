@@ -109,13 +109,13 @@ final class ImportController {
     separatorBox.getItems().setAll(SEPARATORS);
     separatorBox.setConverter(Converters.showing(separator -> messages.get("separator." + (int) separator)));
     headerBox.setSelected(model.header());
-    column("import.line", row -> String.valueOf(row.line()));
-    column("import.person", row -> row.person() == null ? "" : row.person().fullName());
+    column("import.line", row -> String.valueOf(row.line()), true);
+    column("import.person", row -> row.person() == null ? "" : row.person().fullName(), false);
     column("import.email", row -> row.person() == null || row.person().email() == null ? ""
-                                  : row.person().email().value());
+                                  : row.person().email().value(), false);
     column("import.phone", row -> row.person() == null || row.person().phone() == null ? ""
-                                  : row.person().phone().value());
-    column("import.remark", this::remark);
+                                  : row.person().phone().value(), false);
+    column("import.remark", this::remark, false);
     text.textProperty().addListener((property, before, after) -> {
       model.setText(after);
       update();
@@ -135,10 +135,12 @@ final class ImportController {
    *
    * @param key the key of the title of the column.
    * @param value gives the text of a row.
+   * @param number {@code true} for a column of numbers, aligned to the right.
    */
-  private void column(final String key, final Function<ImportRow, String> value) {
+  private void column(final String key, final Function<ImportRow, String> value, final boolean number) {
     final TableColumn<ImportRow, String> column = new TableColumn<>(main.messages().get(key));
     column.setCellValueFactory(cell -> new ReadOnlyStringWrapper(value.apply(cell.getValue())));
+    Views.style(column, Views.NUMBER, number);
     table.getColumns().add(column);
   }
 

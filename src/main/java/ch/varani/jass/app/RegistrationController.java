@@ -1,5 +1,6 @@
 package ch.varani.jass.app;
 
+import ch.varani.jass.directory.ContactStatus;
 import ch.varani.jass.directory.Directory;
 import ch.varani.jass.directory.Person;
 import ch.varani.jass.domain.DomainException;
@@ -34,9 +35,11 @@ import javafx.util.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.IntFunction;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -48,10 +51,13 @@ import java.util.stream.IntStream;
  * case ignored, the deceased left out) are proposed, and choosing one links the player to it. In team mode, once the
  * first player is linked, its previous team mate is proposed to register the same team again. A typed player not
  * linked to the directory becomes a new person of the directory; when a person with the same names exists, the user
- * is asked whether it is the same. Selecting a registered row fills the entry, to correct names (always allowed, the
- * schedule is kept). A registration whose players were corrected in the directory since is marked (warning colour and
- * icon, {@link Views#warnings}); selecting it fills the entry with the corrected names, and says that Correct takes
- * them. Shortcut+S registers the entry: it corrects the selected registration, or adds a new one.</p>
+ * is asked whether it is the same; when only a deceased person has the same names, the user is asked whether it is
+ * another person (a homonym, added to the directory), else nothing is registered. Selecting a registered row fills the
+ * entry, to correct names (always allowed, the schedule is kept). A registration whose players were corrected in the
+ * directory since is marked (warning colour and icon, {@link Views#warnings}); selecting it fills the entry with the
+ * corrected names, and says that Correct takes them. A registration of a person declared deceased in the directory
+ * since is marked too: selecting it says so, and it cannot be corrected until the person is replaced (it can still be
+ * removed). Shortcut+S registers the entry: it corrects the selected registration, or adds a new one.</p>
  *
  * <p><b>Layout</b> (DESIGN.md §6): the registered participants at the left, the entry in the detail panel
  * ({@link DetailLayout}), floating when the window is narrow; the closing of the registration is the primary action of
@@ -143,7 +149,7 @@ final class RegistrationController {
   /** Why the entry cannot be registered. */
   @FXML
   private Label problem;
-  /** Tells that the selected registration was corrected in the directory. */
+  /** Tells that the selected registration was corrected in the directory, or that one of its persons died. */
   @FXML
   private Label outdated;
   /** The button adding a registration. */
@@ -222,12 +228,14 @@ final class RegistrationController {
     count.setText(messages.get(isTeam() ? "registration.count.teams" : "registration.count.players",
                                edition.registrations().size(),
                                edition.registrations().minimumSize(edition.games())));
-    Views.warnings(table, column(messages.get("column.number"), String::valueOf), this::outdated,
-                   messages.get("registration.outdated"));
+    Views.warnings(table, column(messages.get("column.number"), String::valueOf, true),
+                   number -> outdated(number) || !deceased(players(number)).isEmpty(),
+                   number -> messages.get(deceased(players(number)).isEmpty() ? "registration.outdated"
+                                                                              : "registration.deceased"));
     for (int i = 0; i < slots.size(); i++) {
       final int player = i;
       column(messages.get(isTeam() ? "column.player" : "column.name", player + 1),
-             number -> players(number).get(player).fullName());
+             number -> players(number).get(player).fullName(), false);
     }
     table.getItems().setAll(IntStream.rangeClosed(1, edition.registrations().size()).boxed().toList());
     table.getSelectionModel().selectedItemProperty().addListener((property, before, after) -> select(after));
@@ -259,12 +267,15 @@ final class RegistrationController {
    *
    * @param titleText the title of the column.
    * @param text gives the text of a registration.
+   * @param number {@code true} for a column of numbers, aligned to the right.
    *
    * @return the column.
    */
-  private TableColumn<Integer, String> column(final String titleText, final IntFunction<String> text) {
+  private TableColumn<Integer, String> column(final String titleText, final IntFunction<String> text,
+                                              final boolean number) {
     final TableColumn<Integer, String> column = new TableColumn<>(titleText);
     column.setCellValueFactory(cell -> new ReadOnlyStringWrapper(text.apply(cell.getValue())));
+    Views.style(column, Views.NUMBER, number);
     table.getColumns().add(column);
     return column;
   }
@@ -409,11 +420,16 @@ final class RegistrationController {
    * @param number the number of the registration, or {@code null} without selection.
    */
   private void select(final Integer number) {
-    outdated.setVisible(number != null && outdated(number));
-    outdated.setManaged(outdated.isVisible());
     if (number == null) {
+      outdated.setVisible(false);
+      outdated.setManaged(false);
       return;
     }
+    final String dead = deceased(players(number));
+    outdated.setText(dead.isEmpty() ? main.messages().get("registration.outdated.hint")
+                                    : main.messages().get("registration.deceased.hint", dead));
+    outdated.setVisible(outdated(number) || !dead.isEmpty());
+    outdated.setManaged(outdated.isVisible());
     final List<Player> players = players(number);
     final Directory directory = main.directory();
     for (int i = 0; i < slots.size(); i++) {
@@ -439,6 +455,25 @@ final class RegistrationController {
         player -> player.personId() != null && directory.find(player.personId())
             .filter(person -> !List.of(person.firstName(), person.lastName())
                                    .equals(List.of(player.firstName(), player.lastName()))).isPresent());
+  }
+
+  /**
+   * Names the players linked to a person declared deceased in the directory.
+   *
+   * @param players the players.
+   *
+   * @return their full names, joined by " &amp; ", empty when none died.
+   */
+  private String deceased(final List<Player> players) {
+    final Directory directory = main.directory();
+    if (directory == null) {
+      return "";
+    }
+    return players.stream()
+                  .filter(player -> player.personId() != null && directory.find(player.personId())
+                      .filter(person -> person.status() == ContactStatus.DECEASED).isPresent())
+                  .map(Player::fullName)
+                  .collect(Collectors.joining(" & "));
   }
 
   /**
@@ -552,16 +587,28 @@ final class RegistrationController {
 
   /**
    * Registers the entry: the players typed become persons of the directory (or the existing person when the user
-   * says so), then the registration is added or replaced and the edition saved.
+   * says so), then the registration is added or replaced and the edition saved. Nothing is registered when a player
+   * is linked to a person declared deceased in the directory, or when the user does not confirm a homonym of a
+   * deceased person.
    *
    * @param number the number of the replaced registration, or {@code null} to add one.
    */
   private void register(final Integer number) {
+    final String dead = deceased(slots.stream().map(PlayerSlot::person).filter(Objects::nonNull)
+                                      .map(Person::asPlayer).toList());
+    if (!dead.isEmpty()) {
+      problem.setText(main.messages().get("registration.deceased.hint", dead));
+      return;
+    }
     final List<Person> created = new ArrayList<>();
     final List<Player> players = new ArrayList<>();
     try {
       for (final PlayerSlot slot : slots) {
-        players.add(player(slot, created));
+        final Player player = player(slot, created);
+        if (player == null) {
+          return;
+        }
+        players.add(player);
       }
       final Edition edition = open.edition().withRegistrations(registrations(players, number));
       if (!created.isEmpty()) {
@@ -575,12 +622,13 @@ final class RegistrationController {
 
   /**
    * Makes the player of a slot: the linked person, the existing person of the same names when the user confirms
-   * it, or a new person of the directory.
+   * it, or a new person of the directory; when a deceased person has the same names, the new person only when the
+   * user confirms it is another person (a homonym).
    *
    * @param slot the slot.
    * @param created receives the new persons of the directory.
    *
-   * @return the player.
+   * @return the player, or {@code null} when the user did not confirm the homonym of a deceased person.
    *
    * @throws DomainException if the names are not valid.
    */
@@ -598,6 +646,12 @@ final class RegistrationController {
                                  .findFirst().orElse(null);
     if (same != null && main.dialogs().confirm("confirm.same.person", same.fullName())) {
       return same.asPlayer();
+    }
+    final boolean homonym = directory.persons().stream()
+        .anyMatch(known -> known.status() == ContactStatus.DECEASED
+                           && known.asPlayer().hasSameNameAs(person.asPlayer()));
+    if (homonym && !main.dialogs().confirm("confirm.deceased.homonym", person.fullName())) {
+      return null;
     }
     created.add(person);
     return person.asPlayer();

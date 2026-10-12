@@ -7,6 +7,7 @@ import ch.varani.jass.persistence.EditionHeader;
 import ch.varani.jass.persistence.EditionStore;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
@@ -597,8 +598,8 @@ final class JassApplicationTest {
 
   /**
    * Issue #3: the window about the application shows its name, version, author, licence and source code; the links
-   * open their page in the browser only when clicked; the donation, the default button, opens the page of the
-   * donations, Close opens nothing.
+   * open their page in the browser only when clicked; the donation, at the left, opens the page of the donations;
+   * Close, the default button, opens nothing.
    *
    * @param robot the TestFX robot.
    *
@@ -613,6 +614,7 @@ final class JassApplicationTest {
     final Alert alert = natives.questions().getLast();
     final Pane about = (Pane) alert.getDialogPane().getContent();
     final Button donate = (Button) alert.getDialogPane().lookupButton(alert.getButtonTypes().getFirst());
+    final Button close = (Button) alert.getDialogPane().lookupButton(alert.getButtonTypes().getLast());
     final List<String> donation = List.copyOf(natives.opened());
     robot.interact(((Hyperlink) about.lookup("#authorLink"))::fire);
     robot.interact(((Hyperlink) about.lookup("#sourceLink"))::fire);
@@ -625,7 +627,11 @@ final class JassApplicationTest {
         () -> assertEquals("Fait avec ❤️ par Varani", ((Hyperlink) about.lookup("#authorLink")).getText()),
         () -> assertEquals("Licence Apache-2.0", ((Label) about.lookup("#licenceLabel")).getText()),
         () -> assertEquals("Faire un don", donate.getText()),
-        () -> assertTrue(donate.isDefaultButton()),
+        () -> assertFalse(donate.isDefaultButton()),
+        () -> assertEquals(ButtonBar.ButtonData.LEFT, ButtonBar.getButtonData(donate)),
+        () -> assertEquals("Fermer", close.getText()),
+        () -> assertTrue(close.isDefaultButton()),
+        () -> assertTrue(close.isCancelButton()),
         () -> assertEquals(List.of("https://www.paypal.me/porchy13"), donation),
         () -> assertEquals(List.of("https://www.paypal.me/porchy13", "https://www.varani.ch",
                                    "https://github.com/porchy13/jass-tournament/"), links),

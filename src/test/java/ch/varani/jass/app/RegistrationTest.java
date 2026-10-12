@@ -72,6 +72,8 @@ final class RegistrationTest {
 
   /** The edition whose first team was corrected in the directory. */
   private static final String CORRECTED = "Match corrigé";
+  /** The edition whose first team has a player declared deceased in the directory since. */
+  private static final String DECEASED = "Match décès";
   /** The number of games of the editions of the tests. */
   private static final int GAMES = 2;
   /** The number of registrations once two teams have been added. */
@@ -101,8 +103,9 @@ final class RegistrationTest {
   private Person hugo;
 
   /**
-   * Fills the data folder: a directory where Anne and Bruno played together in 2025, a deceased person, and three
-   * editions: two teams registered, three teams ready to be scheduled, and eight players of an individual edition.
+   * Fills the data folder: a directory where Anne and Bruno played together in 2025, a deceased person, and the
+   * editions: two teams registered, three teams ready to be scheduled, a team corrected in the directory, a team of the
+   * deceased person, and eight players of an individual edition.
    *
    * @param stage the stage provided by TestFX.
    *
@@ -115,8 +118,8 @@ final class RegistrationTest {
     anne = Person.create("Anne", "Fontaine").withParticipations(List.of(
         new Participation(previous, "Match 2025", UiSupport.TODAY.minusYears(1), bruno.id())));
     hugo = Person.create("Hugo", "Meyer");
-    new DirectoryStore(folder).save(Directory.empty().add(anne).add(bruno).add(hugo)
-        .add(Person.create("Anna", "Fontana").withStatus(ContactStatus.DECEASED, UiSupport.TODAY)));
+    final Person anna = Person.create("Anna", "Fontana").withStatus(ContactStatus.DECEASED, UiSupport.TODAY);
+    new DirectoryStore(folder).save(Directory.empty().add(anne).add(bruno).add(hugo).add(anna));
     final EditionStore store = new EditionStore(folder);
     store.create(teams("Match 2026", 2));
     store.create(teams("Match prêt", GAMES + 1));
@@ -132,6 +135,10 @@ final class RegistrationTest {
                         .withRegistrations(TeamRegistrations.empty()
                             .add(new Team(new Player("Anne", "Fontaine-Ancien", anne.id(), false), bruno.asPlayer()))
                             .add(new Team(hugo.asPlayer(), new Player("Iris", "Absente", UUID.randomUUID(), false)))
+                            .add(new Team(new Player("Jules", "Libre"), new Player("Karl", "Libre")))));
+    store.create(Edition.create(DECEASED, UiSupport.TODAY, TournamentMode.TEAM).withGames(GAMES)
+                        .withRegistrations(TeamRegistrations.empty()
+                            .add(new Team(anna.asPlayer(), new Player("Luc", "Vivant")))
                             .add(new Team(new Player("Jules", "Libre"), new Player("Karl", "Libre")))));
     store.create(Edition.create("Individuel", UiSupport.TODAY, TournamentMode.INDIVIDUAL).withGames(GAMES)
                         .withRegistrations(new IndividualRegistrations(players)));
@@ -333,6 +340,57 @@ final class RegistrationTest {
         () -> assertEquals("Léa Nouvelle", saved(CORRECTED).teamRegistrations().get(FOUR).players().get(0)
                                                             .fullName()),
         () -> assertEquals(before, registrations(robot).getItems().size()));
+  }
+
+  /**
+   * F5, F14: a registration of a person declared deceased in the directory since is marked; selecting it says so, and
+   * it cannot be corrected; in another edition, typing the names of the deceased person registers nothing unless the
+   * user confirms that it is another person, then added to the directory.
+   *
+   * @param robot the TestFX robot.
+   *
+   * @throws Exception never.
+   */
+  @Test
+  @DisplayName("F5, F14: a deceased person cannot be registered, a homonym only when the user confirms it")
+  void deceasedTest(final FxRobot robot) throws Exception {
+    open(robot, DECEASED);
+    final int marked = robot.lookup(".table-row-cell.warned").queryAll().size();
+    final String tooltip = robot.lookup(".table-row-cell.warned .label").queryLabeled().getTooltip().getText();
+    robot.interact(() -> registrations(robot).getSelectionModel().select(0));
+    WaitForAsyncUtils.waitForFxEvents();
+    final boolean shownHint = robot.lookup("#outdated").query().isVisible();
+    final String hint = text(robot, "outdated");
+    type(robot, "first2", "Lucien");
+    press(robot, "modifyButton");
+    final String refused = text(robot, "problem");
+    menu(robot, "listItem");
+    open(robot, "Match 2026");
+    type(robot, "first1", "Anna");
+    type(robot, "last1", "Fontana");
+    type(robot, "first2", "Paul");
+    type(robot, "last2", "Vivant");
+    natives.answer(false);
+    press(robot, "addButton");
+    final String question = natives.questions().getLast().getHeaderText();
+    final int kept = registrations(robot).getItems().size();
+    natives.answer(true);
+    press(robot, "addButton");
+    await(() -> registrations(robot).getItems().size() == GAMES + 1);
+    await(() -> new DirectoryStore(folder).load().search("Anna Fontana").size() == 2);
+    final Player homonym = saved("Match 2026").teamRegistrations().get(GAMES + 1).players().get(0);
+    assertAll(
+        () -> assertEquals(1, marked),
+        () -> assertEquals("Personne décédée dans l’annuaire", tooltip),
+        () -> assertTrue(shownHint),
+        () -> assertEquals("Anna Fontana figure comme personne décédée dans l’annuaire. Pour corriger l’inscription, "
+                           + "remplacez cette personne.", hint),
+        () -> assertEquals(hint, refused),
+        () -> assertEquals("Luc Vivant", saved(DECEASED).teamRegistrations().get(1).players().get(1).fullName()),
+        () -> assertEquals("S’agit-il d’une autre personne que Anna Fontana ?", question),
+        () -> assertEquals(GAMES, kept),
+        () -> assertEquals(ContactStatus.CONTACTABLE, new DirectoryStore(folder).load().find(homonym.personId())
+                                                                                .orElseThrow().status()));
   }
 
   /**

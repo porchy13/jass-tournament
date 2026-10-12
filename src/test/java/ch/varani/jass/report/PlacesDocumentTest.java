@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -111,6 +112,29 @@ final class PlacesDocumentTest {
           () -> assertTrue(second.contains("N° Noms Partie 1 Partie 2"), second),
           () -> assertTrue(second.contains("Page 2 / " + pages), second));
     }
+  }
+
+
+  /**
+   * The numbers of the participants and their places, and their column titles, are aligned to the right of their
+   * column, the names to the left.
+   *
+   * @throws Exception never.
+   */
+  @Test
+  @DisplayName("The numbers and the places are aligned to the right, as their titles")
+  void alignTest() throws Exception {
+    final List<Samples.Word> words = Samples.words(Samples.pdf(
+        out -> PlacesDocument.write(Samples.teamEdition(), Samples.OPTIONS, out)));
+    final Samples.Word number = Samples.first(words, "N°");
+    final Samples.Word names = Samples.first(words, "Noms");
+    final Samples.Word first = Samples.below(words, "1", number);
+    final Samples.Word round = words.get(words.indexOf(names) + 1);
+    final List<Samples.Word> line = words.stream().filter(word -> word.y() == first.y()).toList();
+    assertAll(
+        () -> assertEquals(number.end(), first.end(), Samples.TOLERANCE),
+        () -> assertEquals(names.start(), line.get(1).start(), Samples.TOLERANCE),
+        () -> assertEquals(round.end(), line.get(2).end(), Samples.TOLERANCE));
   }
 
 }

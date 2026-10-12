@@ -140,4 +140,25 @@ final class ScoreCardsDocumentTest {
     assertTrue(text.contains("Joueur 3\nZoé3 Müller\nPartie Place Points Sous-total\nPartie 1 2"), text);
   }
 
+
+  /**
+   * The places and the titles of the columns of numbers (place, points, subtotal) are aligned to the right of their
+   * column, the rounds to the left.
+   *
+   * @throws Exception never.
+   */
+  @Test
+  @DisplayName("F13: the places are aligned to the right, as the titles of the columns of numbers")
+  void alignTest() throws Exception {
+    final List<Samples.Word> words = Samples.words(Samples.pdf(
+        out -> ScoreCardsDocument.write(Samples.teamEdition(), Samples.OPTIONS, out)));
+    final Samples.Word game = Samples.first(words, "Partie");
+    final Samples.Word place = Samples.first(words, "Place");
+    final Samples.Word round = Samples.below(words, "Partie 1", game);
+    final List<Samples.Word> line = words.stream().filter(word -> word.y() == round.y()).toList();
+    assertAll(
+        () -> assertEquals(game.start(), round.start(), Samples.TOLERANCE),
+        () -> assertEquals(place.end(), line.get(1).end(), Samples.TOLERANCE));
+  }
+
 }

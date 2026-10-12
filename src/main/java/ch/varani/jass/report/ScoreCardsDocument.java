@@ -18,7 +18,8 @@ import java.util.Set;
  * <p>Each card shows the logo, the title, the edition (name and date), the participant (label and names) and a grid
  * of one line per game the participant plays, with the round and the place where it sits (rule 6), so that the card
  * follows the schedule: a round sat out has no line (rule 1, catch-up round); then the total, in bold, under a double
- * line, its boxes of the place and of the points of a game shaded: only its subtotal is written.</p>
+ * line, its boxes of the place and of the points of a game shaded: only its subtotal is written. The numbers (place,
+ * points, subtotal) and their titles are aligned to the right, the rounds and the total to the left.</p>
  *
  * <p>Utility class without state, safe for concurrent use.</p>
  */
@@ -47,7 +48,15 @@ public final class ScoreCardsDocument {
   /** The position of the baseline in a line of the grid, from its bottom. */
   private static final float BASELINE = 0.35f;
   /** The shares of the width of the card taken by the columns: round, place, points, subtotal. */
-  private static final float[] COLUMNS = {0.25f, 0.15f, 0.3f, 0.3f};
+  private static final float[] COLUMNS = {0.24f, 0.16f, 0.26f, 0.34f};
+  /**
+   * The alignments of the columns, the same for their titles and their cells: the round at the left, the numbers
+   * (place, points, subtotal) at the right.
+   */
+  private static final List<PdfCanvas.Align> ALIGNS = List.of(PdfCanvas.Align.LEFT, PdfCanvas.Align.RIGHT,
+                                                              PdfCanvas.Align.RIGHT, PdfCanvas.Align.RIGHT);
+  /** The space between the text and the border of a cell of the grid. */
+  private static final float PADDING = 1.5f * PdfCanvas.MM;
   /** The width of the lines of the grid. */
   private static final float GRID = 0.5f;
   /** The width of the cutting marks. */
@@ -178,7 +187,8 @@ public final class ScoreCardsDocument {
         canvas.shade(left, y, width, grid.row());
       }
       canvas.box(left, y, width, grid.row(), GRID);
-      canvas.text(cells.get(i), left, y + grid.row() * BASELINE, TEXT, grid.style(), PdfCanvas.Align.CENTER, width);
+      canvas.text(cells.get(i), left + PADDING, y + grid.row() * BASELINE, TEXT, grid.style(), ALIGNS.get(i),
+                  width - 2 * PADDING);
       left += width;
     }
   }

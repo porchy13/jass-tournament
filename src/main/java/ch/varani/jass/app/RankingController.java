@@ -47,8 +47,6 @@ final class RankingController {
   // Constants
   // *******************************************************************************************************************
 
-  /** The style class of the numeric columns, aligned to the right. */
-  private static final String NUMBER = "number";
   /** The height of a row of the tables, in pixels (DESIGN.md §5). */
   private static final double ROW_HEIGHT = 44;
 
@@ -141,7 +139,8 @@ final class RankingController {
     excludedBox.setManaged(!excluded.isEmpty());
     excludedTable.setPrefHeight((excluded.size() + 1) * ROW_HEIGHT);
     column(excludedTable, messages.get("column.number"), String::valueOf, true);
-    column(excludedTable, messages.get("ranking.column.participant"), this::name, false);
+    column(excludedTable, messages.get("ranking.column.participant"),
+           participant -> MainController.names(edition, participant), false);
     excludedTable.getItems().setAll(excluded);
     if (!edition.isScheduled()) {
       return;
@@ -149,7 +148,8 @@ final class RankingController {
     showState();
     column(table, messages.get("ranking.column.rank"), entry -> String.valueOf(entry.rank()), true);
     column(table, messages.get("column.number"), entry -> String.valueOf(entry.participant()), true);
-    column(table, messages.get("ranking.column.participant"), entry -> name(entry.participant()), false);
+    column(table, messages.get("ranking.column.participant"),
+           entry -> MainController.names(edition, entry.participant()), false);
     final List<Pairing> pairings = edition.schedule().pairings();
     for (final int round : pairings.stream().map(Pairing::round).distinct().toList()) {
       column(table, messages.get("ranking.column.game", round), entry -> points(entry.participant(), round), true);
@@ -172,7 +172,7 @@ final class RankingController {
                                  final boolean number) {
     final TableColumn<T, String> column = new TableColumn<>(heading);
     column.setCellValueFactory(cell -> new ReadOnlyStringWrapper(text.apply(cell.getValue())));
-    Views.style(column, NUMBER, number);
+    Views.style(column, Views.NUMBER, number);
     target.getColumns().add(column);
   }
 

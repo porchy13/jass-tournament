@@ -919,11 +919,27 @@ final class MainController {
   String side(final Edition edition, final List<Integer> side) {
     if (edition.mode() == TournamentMode.TEAM) {
       final int team = side.getFirst();
-      return messages.get("schedule.team", team, edition.teamRegistrations().get(team).players().stream()
-          .map(Player::fullName).collect(Collectors.joining(" & ")));
+      return messages.get("schedule.team", team, names(edition, team));
     }
     return side.stream().map(player -> edition.individualRegistrations().get(player).fullName() + " (" + player + ")")
                .collect(Collectors.joining(" & "));
+  }
+
+  /**
+   * Names a participant without its number, e.g. in a column next to its number: the two players of a team, or the
+   * player.
+   *
+   * @param edition the edition.
+   * @param participant the number of the participant.
+   *
+   * @return the names.
+   */
+  static String names(final Edition edition, final int participant) {
+    if (edition.mode() == TournamentMode.TEAM) {
+      return edition.teamRegistrations().get(participant).players().stream().map(Player::fullName)
+                    .collect(Collectors.joining(" & "));
+    }
+    return edition.individualRegistrations().get(participant).fullName();
   }
 
   // *******************************************************************************************************************

@@ -59,7 +59,7 @@ angezeigt, **Abbrechen** unterbricht ihn), dann speichert die Anwendung alles, �
 beendet sich; folgen Sie den Schritten der Installation wie oben. **Später** verschiebt die Aktualisierung auf den
 nächsten Start. Ohne Internet startet die Anwendung normal und zeigt nichts an.
 
-![Das Angebot einer neuen Version](images/de/update.png)
+<img src="images/de/update.png" alt="Das Angebot einer neuen Version" width="325">
 
 ## 2. Das Fenster kennenlernen
 
@@ -76,12 +76,12 @@ nächsten Start. Ohne Internet startet die Anwendung normal und zeigt nichts an.
 **Von Hand ist nichts zu speichern**: Jede Änderung wird sofort gespeichert. Aktionen, die etwas löschen, verlangen
 immer eine Bestätigung.
 
-![Die Liste der Ausgaben](images/de/editions.png)
+<img src="images/de/editions.png" alt="Die Liste der Ausgaben" width="800">
 
 **Hilfe › Über** zeigt die Version der Anwendung, ihren Autor, ihre Lizenz und den Link zu ihrem Quellcode;
 **Spenden** öffnet die Seite der Spenden im Browser.
 
-![Das Fenster Über](images/de/about.png)
+<img src="images/de/about.png" alt="Das Fenster Über" width="225">
 
 ## 3. Das Logo der Dokumente wählen
 
@@ -106,7 +106,7 @@ auf einen anderen Computer exportierte Ausgabe nimmt es also nicht mit: Wählen 
 Dieselben Einstellungen betreffen auch das Aussehen der Anwendung: **Design** (wie das System, hell oder dunkel),
 **Akzentfarbe des Systems verwenden** und **Animationen reduzieren**.
 
-![Die Optionen, mit dem Logo der Dokumente](images/de/settings.png)
+<img src="images/de/settings.png" alt="Die Optionen, mit dem Logo der Dokumente" width="288">
 
 ## 4. Das Verzeichnis führen
 
@@ -132,7 +132,7 @@ vorgeschlagen und können für das nächste Turnier wieder kontaktiert werden.
 
 Das Verzeichnis beginnt leer; es kann auch im Lauf der Anmeldungen gefüllt werden.
 
-![Das Verzeichnis, eine Person ausgewählt](images/de/directory.png)
+<img src="images/de/directory.png" alt="Das Verzeichnis, eine Person ausgewählt" width="800">
 
 ## 5. Eine Ausgabe erstellen
 
@@ -155,7 +155,7 @@ Inhalt der Partien und Startgeld, aber nicht die Anmeldungen.
 
 Öffnen Sie eine Ausgabe mit einem Doppelklick oder der Eingabetaste.
 
-![Eine neue Ausgabe](images/de/edition-form.png)
+<img src="images/de/edition-form.png" alt="Eine neue Ausgabe" width="800">
 
 ## 6. Die Teilnehmenden anmelden
 
@@ -171,12 +171,18 @@ Wählen Sie eine Anmeldung, um sie zu **Korrigieren** oder zu **Entfernen**. Wur
 Verzeichnis korrigiert, ist die Anmeldung mit _Namen im Verzeichnis korrigiert_ markiert: **Korrigieren** übernimmt
 die neuen Namen.
 
+Eine im Verzeichnis als verstorben vermerkte Person kann nicht angemeldet werden. Tippen Sie ihren Vor- und Nachnamen,
+fragt die Anwendung, ob es sich um eine andere Person mit denselben Namen handelt: **Andere Person** nimmt sie ins
+Verzeichnis auf und meldet sie an, sonst wird nichts angemeldet. Eine Anmeldung, deren Person seither als verstorben
+vermerkt wurde, ist mit _Verstorbene Person im Verzeichnis_ markiert: Um sie zu korrigieren, ersetzen Sie diese
+Person (sie kann jederzeit entfernt werden).
+
 Die Zahl der Anmeldungen wird angezeigt, mit dem nötigen Minimum für den Spielplan (zum Beispiel 5 Teams für
 4 Partien).
 
-![Die Anmeldungen: die Personen des Verzeichnisses werden beim Tippen vorgeschlagen](images/de/registration.png)
+<img src="images/de/registration.png" alt="Die Anmeldungen: die Personen des Verzeichnisses werden beim Tippen vorgeschlagen" width="800">
 
-![Eine Person des Verzeichnisses gewählt, ihr vorheriges Team vorgeschlagen](images/de/registration-previous.png)
+<img src="images/de/registration-previous.png" alt="Eine Person des Verzeichnisses gewählt, ihr vorheriges Team vorgeschlagen" width="800">
 
 ## 7. Den Spielplan berechnen und die Dokumente drucken
 
@@ -202,7 +208,7 @@ empfängt, sowie die pausierenden Teilnehmenden. Er exportiert die folgenden Dok
 Eine späte Anmeldung oder eine Abmeldung? **Anmeldung wieder öffnen** (solange keine Punkte erfasst sind) löscht den
 Spielplan, der beim nächsten Schliessen neu berechnet wird. Drucken Sie die Dokumente dann neu.
 
-![Der Spielplan](images/de/schedule.png)
+<img src="images/de/schedule.png" alt="Der Spielplan" width="800">
 
 <table>
 <tr><td align="center" valign="top"><img src="images/de/document-schedule.png" alt="Spielplan" width="380"><br>Spielplan</td><td align="center" valign="top"><img src="images/de/document-places.png" alt="Plätze zum Aushängen" width="380"><br>Plätze zum Aushängen</td></tr>
@@ -219,17 +225,21 @@ Der Teil **Anzeige** steuert ein zweites Fenster für einen Projektor oder einen
    **Startsignal aufheben** nach einem Irrtum.
 
 Die Anzeige zeigt das Logo der Dokumente, die Ausgabe, die laufende Partie und Platz und Tisch jeder teilnehmenden
-Person oder jedes Teams; zu lange Listen wechseln alle 10 Sekunden die Seite. Gezeigt wird die laufende Partie;
+Person oder jedes Teams; zu lange Listen wechseln alle 10 Sekunden die Seite, und ein Balken neben der Seitennummer
+leert sich bis zur nächsten Seite. Gezeigt wird die laufende Partie;
 **Partie anzeigen** wählt eine andere.
 
 Am Ende des Turniers **Rangliste anzeigen**, dann mit **Rang enthüllen** einen Rang nach dem anderen, vom letzten zum
-ersten. **Alles verbergen** beginnt die Enthüllung von vorn.
+ersten. Während der Enthüllung bleibt die Anzeige auf der ersten Seite: Der zuletzt enthüllte Rang steht immer oben,
+und fehlt der Platz, verschwinden die unteren Ränge vom Bildschirm. Ist alles enthüllt, wird dieselbe Schaltfläche zu
+**Seiten durchblättern**: Klicken Sie darauf, wenn Sie wollen, damit die Seiten der ganzen Rangliste alle 10 Sekunden
+wechseln. **Alles verbergen** beginnt die Enthüllung von vorn, auf der ersten Seite.
 
-![Die Steuerung der Anzeige](images/de/display-control.png)
+<img src="images/de/display-control.png" alt="Die Steuerung der Anzeige" width="800">
 
-![Die Anzeige während einer Partie](images/de/display-round.png)
+<img src="images/de/display-round.png" alt="Die Anzeige während einer Partie" width="800">
 
-![Die Anzeige der Schlussrangliste, während der Enthüllung](images/de/display-ranking.png)
+<img src="images/de/display-ranking.png" alt="Die Anzeige der Schlussrangliste, während der Enthüllung" width="800">
 
 ## 9. Die Punkte erfassen
 
@@ -246,7 +256,7 @@ Blatt erfassen**): Ihr Blatt erscheint rechts, wie das Papierblatt.
 - **Abwesend (Regel 19)**: Das gegnerische Team erhält 1’256 Punkte.
 - **Blatt löschen** beginnt die Erfassung einer Partie von vorn.
 
-![Das Punkteblatt einer Partie](images/de/scores.png)
+<img src="images/de/scores.png" alt="Das Punkteblatt einer Partie" width="800">
 
 ## 10. Die Rangliste erstellen
 
@@ -259,7 +269,7 @@ definitiv. Sie zeigt den Rang, die Punkte jeder Partie und das Total.
 - **Wegen Betrugs ausschliessen** (Regel 17): Alle Partien der Teilnehmenden sind verloren, ihre Gegner erhalten
   1’256 Punkte, und sie werden aus der Rangliste entfernt. **Ausschluss aufheben** nimmt sie wieder auf.
 
-![Die definitive Rangliste](images/de/ranking.png)
+<img src="images/de/ranking.png" alt="Die definitive Rangliste" width="800">
 
 ## 11. Die Buchhaltung führen
 
@@ -274,7 +284,7 @@ Der Teil **Buchhaltung** vereint die Rechnung der Ausgabe:
 - die **Übersicht**: bezahlte und ausstehende Startgelder, Einnahmen und Ausgaben pro Kategorie, Saldo (rot, wenn er
   negativ ist).
 
-![Die Buchhaltung, eine Buchung ausgewählt](images/de/accounting.png)
+<img src="images/de/accounting.png" alt="Die Buchhaltung, eine Buchung ausgewählt" width="800">
 
 ## 12. Sichern, exportieren, eine Ausgabe wiederfinden
 
