@@ -1,6 +1,7 @@
 # Release of Jass Tournament on GitHub, only when a version tag vX.Y.Z is pushed (the tags come from the reference
 # repository, published with the snapshot they mark). The version of pom.xml must be the one of the tag, and
-# changelog.md must have its section "## [X.Y.Z]", whose text becomes the notes of the release.
+# changelog.md must have its section "## [X.Y.Z]" (or "## [X.Y.Z, …]", a section shared by several versions), whose
+# text becomes the notes of the release.
 #
 # Each installer is built on its own system (jpackage cannot cross-compile) by `mvn -P installer clean verify`, the
 # quality gate included; the packaged application is then smoke-tested (`--smoke-test`: OR-Tools, PDF, JavaFX). The
@@ -52,8 +53,16 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          awk -v head="## [$VERSION]" 'index($0, head) == 1 {found = 1; next} found && /^## / {exit} found {print}' \
-            changelog.md > notes.md
+          awk -v version="$VERSION" '
+            /^## / {
+              if (found) exit
+              list = $0
+              if (!sub(/^## \[/, "", list) || !sub(/\].*/, "", list)) next
+              count = split(list, versions, /, */)
+              for (i = 1; i <= count; i++) if (versions[i] == version) found = 1
+              next
+            }
+            found {print}' changelog.md > notes.md
           if ! grep -q '[^[:space:]]' notes.md; then
             echo "::error::changelog.md has no section \"## [$VERSION]\"."
             exit 1

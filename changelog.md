@@ -2,10 +2,9 @@
 
 All notable changes of the project are documented in this file.
 
-## [1.0.1] – 2026-10-12
+## [1.0.0, 1.0.1, 1.0.2] – 2026-10-12
 
-First release of Jass Tournament, the desktop application of the _match aux cartes des vétérans du FC Bevaix_. The
-version 1.0.0 was tagged but never published: its tests failed on Windows.
+First release of Jass Tournament, the desktop application of the _match aux cartes des vétérans du FC Bevaix_.
 
 ### Added
 - **Editions**: list of the editions, creation, duplication (same mode, games, plan of the deals and fee), import,

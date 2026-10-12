@@ -141,14 +141,15 @@ final class Samples {
   }
 
   /**
-   * Creates an extractor of the text of a PDF whose lines end with {@code \n} on every system, so that the expected
-   * texts do not depend on the line separator of the system ({@code \r\n} on Windows).
+   * Creates an extractor of the text of a PDF whose lines and pages end with {@code \n} on every system, so that the
+   * expected texts do not depend on the line separator of the system ({@code \r\n} on Windows).
    *
    * @return the extractor.
    */
   static PDFTextStripper stripper() {
     final PDFTextStripper stripper = new PDFTextStripper();
     stripper.setLineSeparator("\n");
+    stripper.setPageEnd("\n");
     return stripper;
   }
 

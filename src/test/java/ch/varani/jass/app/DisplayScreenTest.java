@@ -246,10 +246,9 @@ final class DisplayScreenTest {
     final CheckBox full = robot.lookup("#fullScreen").queryAs(CheckBox.class);
     robot.interact(full::fire);
     press(robot, "openButton");
-    await(() -> display() != null && display().isShowing());
-    final boolean fullScreen = display().isFullScreen();
+    await(() -> display() != null && display().isShowing() && display().isFullScreen());
     robot.interact(full::fire);
-    final boolean window = !display().isFullScreen();
+    await(() -> !display().isFullScreen());
     robot.interact(() -> display().setHeight(SHORT));
     await(() -> text(robot, "pageLabel").startsWith("Page"));
     final String first = text(robot, "pageLabel");
@@ -258,8 +257,7 @@ final class DisplayScreenTest {
     final String next = text(robot, "pageLabel");
     final Stage shownDisplay = display();
     press(robot, "closeButton");
-    final boolean closed = !shownDisplay.isShowing();
-    final boolean openShown = visible(robot, "openButton");
+    await(() -> !shownDisplay.isShowing() && visible(robot, "openButton"));
     menu(robot, "listItem");
     open(robot, ROUND);
     @SuppressWarnings("unchecked")
@@ -269,17 +267,12 @@ final class DisplayScreenTest {
     menu(robot, "listItem");
     open(robot, ROUND);
     press(robot, "openButton");
-    await(() -> display().isShowing());
+    await(() -> display().isShowing() && visible(robot, "closeButton"));
     assertAll(
-        () -> assertTrue(fullScreen),
-        () -> assertTrue(window),
         () -> assertTrue(first.startsWith("Page "), first),
         () -> assertTrue(next.startsWith("Page "), next),
-        () -> assertTrue(closed),
-        () -> assertTrue(openShown),
         () -> assertNotNull(screens.getValue()),
-        () -> assertFalse(display().isFullScreen()),
-        () -> assertTrue(visible(robot, "closeButton")));
+        () -> assertFalse(display().isFullScreen()));
   }
 
   /**
@@ -310,7 +303,7 @@ final class DisplayScreenTest {
     final String done = robot.lookup("#revealButton").queryAs(Button.class).getText();
     final boolean revealDisabled = disabled(robot, "revealButton");
     press(robot, "hideButton");
-    final int hidden = cells(robot).size();
+    await(() -> cells(robot).size() == RANKING_CELLS);
     press(robot, "roundButton");
     final String round = text(robot, "heading");
     press(robot, "rankingButton");
@@ -327,7 +320,6 @@ final class DisplayScreenTest {
         () -> assertEquals("Équipe 1", all.get(RANKING_CELLS + 1)),
         () -> assertEquals("Tout est révélé", done),
         () -> assertTrue(revealDisabled),
-        () -> assertEquals(RANKING_CELLS, hidden),
         () -> assertEquals("Partie 2", round),
         () -> assertEquals("Classement final", text(robot, "heading")));
   }
