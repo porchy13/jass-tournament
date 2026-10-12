@@ -2,6 +2,12 @@
 
 All notable changes of the project are documented in this file.
 
+## [Unreleased]
+
+### Added
+- **About** (Help › About): the version of the application, its author with a link to the site of the author, its
+  licence, a link to its source code, and a button to make a donation.
+
 ## [1.0.0, 1.0.1, 1.0.2, 1.0.3, 1.0.4] – 2026-10-12
 
 First release of Jass Tournament, the desktop application of the _match aux cartes des vétérans du FC Bevaix_.

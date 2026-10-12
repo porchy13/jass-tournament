@@ -184,7 +184,7 @@ final class GuideScreenshotsTest {
     others(robot);
     documents(locale);
     application.stop();
-    assertTrue(Files.exists(images.resolve("settings.png")));
+    assertTrue(Files.exists(images.resolve("about.png")));
   }
 
   /**
@@ -220,13 +220,7 @@ final class GuideScreenshotsTest {
    */
   private void update(final FxRobot robot) throws Exception {
     await(() -> !natives.questions().isEmpty());
-    final DialogPane pane = natives.questions().getFirst().getDialogPane();
-    write(snapshot(robot, () -> {
-      pane.applyCss();
-      pane.resize(pane.prefWidth(-1), pane.prefHeight(-1));
-      pane.layout();
-      return pane;
-    }), "update");
+    capture(robot, natives.questions().getFirst().getDialogPane(), "update");
   }
 
   /**
@@ -311,7 +305,8 @@ final class GuideScreenshotsTest {
   }
 
   /**
-   * Captures the directory, with a person selected, and the settings, with the logo of the documents.
+   * Captures the directory, with a person selected, the settings, with the logo of the documents, and the window about
+   * the application.
    *
    * @param robot the TestFX robot.
    *
@@ -330,12 +325,27 @@ final class GuideScreenshotsTest {
     final Alert alert = natives.questions().getLast();
     final DialogPane pane = alert.getDialogPane();
     await(() -> pane.lookup("#logoView") instanceof final ImageView view && view.getImage() != null);
+    capture(robot, pane, "settings");
+    menu(robot, "aboutItem");
+    capture(robot, natives.questions().getLast().getDialogPane(), "about");
+  }
+
+  /**
+   * Captures a dialog at its preferred size.
+   *
+   * @param robot the TestFX robot.
+   * @param pane the content of the dialog.
+   * @param name the name of the image.
+   *
+   * @throws IOException if the image cannot be written.
+   */
+  private void capture(final FxRobot robot, final DialogPane pane, final String name) throws IOException {
     write(snapshot(robot, () -> {
       pane.applyCss();
       pane.resize(pane.prefWidth(-1), pane.prefHeight(-1));
       pane.layout();
       return pane;
-    }), "settings");
+    }), name);
   }
 
   /**

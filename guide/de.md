@@ -63,8 +63,8 @@ nächsten Start. Ohne Internet startet die Anwendung normal und zeigt nichts an.
 
 ## 2. Das Fenster kennenlernen
 
-- **Die Menüs** (oben; unter macOS in der Menüleiste des Systems): **Datei**, **Ansicht** und, ausser unter macOS,
-  **Extras**.
+- **Die Menüs** (oben; unter macOS in der Menüleiste des Systems): **Datei**, **Ansicht**, **Extras** (ausser unter
+  macOS) und **Hilfe**.
 - **Die Seitennavigation** (links): **Ausgaben**, **Verzeichnis** und **Papierkorb**. Ist eine Ausgabe geöffnet,
   erscheint ihr Name mit ihren Teilen: **Anmeldungen**, **Spielplan**, **Punkte**, **Rangliste**, **Anzeige** und
   **Buchhaltung**. Sie werden im Lauf des Turniers in dieser Reihenfolge benutzt.
@@ -77,6 +77,11 @@ nächsten Start. Ohne Internet startet die Anwendung normal und zeigt nichts an.
 immer eine Bestätigung.
 
 ![Die Liste der Ausgaben](images/de/editions.png)
+
+**Hilfe › Über** zeigt die Version der Anwendung, ihren Autor, ihre Lizenz und den Link zu ihrem Quellcode;
+**Spenden** öffnet die Seite der Spenden im Browser.
+
+![Das Fenster Über](images/de/about.png)
 
 ## 3. Das Logo der Dokumente wählen
 

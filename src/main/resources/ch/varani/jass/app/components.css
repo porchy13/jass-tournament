@@ -425,3 +425,18 @@
 .download .caption {
     -fx-text-fill: -c-text-2;
 }
+
+/* About the application: the icon beside the version, the links in the accent colour. */
+.about {
+    -fx-pref-width: 360;
+}
+
+.about-head {
+    -fx-spacing: 16;
+    -fx-alignment: center-left;
+}
+
+.about .hyperlink {
+    -fx-text-fill: -c-accent;
+    -fx-padding: 0;
+}

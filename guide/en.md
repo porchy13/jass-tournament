@@ -59,8 +59,8 @@ the update to the next start. Without Internet, the application starts normally 
 
 ## 2. Get to know the window
 
-- **The menus** (at the top; on macOS, in the menu bar of the system): **File**, **View** and, except on macOS,
-  **Tools**.
+- **The menus** (at the top; on macOS, in the menu bar of the system): **File**, **View**, **Tools** (except on
+  macOS) and **Help**.
 - **The side navigation** (on the left): **Editions**, **Directory** and **Trash**. While an edition is open, its name
   appears with its parts: **Registration**, **Schedule**, **Scores**, **Ranking**, **Display** and **Accounting**. They
   are used in this order during the tournament.
@@ -73,6 +73,11 @@ the update to the next start. Without Internet, the application starts normally 
 a confirmation.
 
 ![The list of the editions](images/en/editions.png)
+
+**Help › About** shows the version of the application, its author, its licence and the link to its source code;
+**Make a donation** opens the page of the donations in the browser.
+
+![The About window](images/en/about.png)
 
 ## 3. Choose the logo of the documents
 

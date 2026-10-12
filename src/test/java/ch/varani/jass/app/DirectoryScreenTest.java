@@ -39,6 +39,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static ch.varani.jass.app.UiSupport.await;
 import static ch.varani.jass.app.UiSupport.disabled;
@@ -66,6 +68,10 @@ final class DirectoryScreenTest {
   private static final int PERSONS = 4;
   /** The column of the phone numbers in the pasted rows, recognised by its title. */
   private static final int PHONE_COLUMN = 3;
+  /** The number of times the pointer is moved onto a tool before its tooltip is expected. */
+  private static final int HOVER_ATTEMPTS = 3;
+  /** The time given to a tooltip to appear after each move of the pointer, in seconds. */
+  private static final long HOVER_SECONDS = 5;
 
   /** The temporary data folder. */
   @TempDir
@@ -474,7 +480,8 @@ final class DirectoryScreenTest {
   }
 
   /**
-   * DESIGN.md §8: the tooltip of a tool appears when the pointer rests on it, and stays as long as the pointer does.
+   * DESIGN.md §8: the tooltip of a tool appears when the pointer rests on it, and stays as long as the pointer does. On
+   * a slow runner the move of the pointer may be lost: the pointer leaves and comes back, a few times.
    *
    * @param robot the TestFX robot.
    *
@@ -485,10 +492,21 @@ final class DirectoryScreenTest {
   void tooltipTest(final FxRobot robot) throws Exception {
     showDirectory(robot);
     final Button export = robot.lookup("#exportButton").queryButton();
-    robot.moveTo(export);
-    robot.moveBy(1, 1);
-    await(() -> export.getTooltip().isShowing());
-    assertEquals(Duration.INDEFINITE, export.getTooltip().getShowDuration());
+    boolean shown = false;
+    for (int attempt = 0; attempt < HOVER_ATTEMPTS && !shown; attempt++) {
+      robot.moveTo(export);
+      robot.moveBy(1, 1);
+      try {
+        WaitForAsyncUtils.waitFor(HOVER_SECONDS, TimeUnit.SECONDS, () -> export.getTooltip().isShowing());
+        shown = true;
+      } catch (TimeoutException _) {
+        robot.moveTo(robot.lookup("#table").queryAs(TableView.class));
+      }
+    }
+    final boolean appeared = shown;
+    assertAll(
+        () -> assertTrue(appeared),
+        () -> assertEquals(Duration.INDEFINITE, export.getTooltip().getShowDuration()));
   }
 
   /**

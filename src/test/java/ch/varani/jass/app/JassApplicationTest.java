@@ -5,10 +5,12 @@ import ch.varani.jass.domain.Edition;
 import ch.varani.jass.domain.TournamentMode;
 import ch.varani.jass.persistence.EditionHeader;
 import ch.varani.jass.persistence.EditionStore;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -591,6 +593,43 @@ final class JassApplicationTest {
     nav(robot, "trashNav");
     await(() -> robot.lookup("#emptyButton").tryQuery().isPresent());
     assertFalse(robot.lookup("#emptyButton").queryButton().isDisabled());
+  }
+
+  /**
+   * Issue #3: the window about the application shows its name, version, author, licence and source code; the links
+   * open their page in the browser only when clicked; the donation, the default button, opens the page of the
+   * donations, Close opens nothing.
+   *
+   * @param robot the TestFX robot.
+   *
+   * @throws Exception never.
+   */
+  @Test
+  @DisplayName("Issue #3: the window about the application shows the version and opens the links and the donation")
+  void aboutTest(final FxRobot robot) throws Exception {
+    await(() -> names(robot).size() == 2);
+    natives.answer(true);
+    menu(robot, "aboutItem");
+    final Alert alert = natives.questions().getLast();
+    final Pane about = (Pane) alert.getDialogPane().getContent();
+    final Button donate = (Button) alert.getDialogPane().lookupButton(alert.getButtonTypes().getFirst());
+    final List<String> donation = List.copyOf(natives.opened());
+    robot.interact(((Hyperlink) about.lookup("#authorLink"))::fire);
+    robot.interact(((Hyperlink) about.lookup("#sourceLink"))::fire);
+    final List<String> links = List.copyOf(natives.opened());
+    natives.answer(false);
+    menu(robot, "aboutItem");
+    assertAll(
+        () -> assertEquals("Tournoi de Jass", alert.getHeaderText()),
+        () -> assertEquals("Version 1.0.0", ((Label) about.lookup("#versionLabel")).getText()),
+        () -> assertEquals("Fait avec ❤️ par Varani", ((Hyperlink) about.lookup("#authorLink")).getText()),
+        () -> assertEquals("Licence Apache-2.0", ((Label) about.lookup("#licenceLabel")).getText()),
+        () -> assertEquals("Faire un don", donate.getText()),
+        () -> assertTrue(donate.isDefaultButton()),
+        () -> assertEquals(List.of("https://www.paypal.me/porchy13"), donation),
+        () -> assertEquals(List.of("https://www.paypal.me/porchy13", "https://www.varani.ch",
+                                   "https://github.com/porchy13/jass-tournament/"), links),
+        () -> assertEquals(links, natives.opened()));
   }
 
 }

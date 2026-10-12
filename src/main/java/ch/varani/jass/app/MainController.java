@@ -8,6 +8,7 @@ import ch.varani.jass.persistence.EditionHeader;
 import ch.varani.jass.persistence.FileFormatException;
 import ch.varani.jass.report.DocumentOptions;
 import ch.varani.jass.service.StoreService;
+import ch.varani.jass.update.Version;
 import javafx.animation.PauseTransition;
 import javafx.application.HostServices;
 import javafx.application.Platform;
@@ -47,6 +48,7 @@ import javafx.util.Duration;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -75,7 +77,8 @@ import java.util.stream.Collectors;
  *
  * <p><b>Menus</b> (DESIGN.md §2, §10): File (new element of the view, save of the form of the view when it has
  * one, import, export and deletion of the open edition, backup of the whole data folder, settings on macOS, quit
- * elsewhere), View (editions, directory, trash, search, side navigation) and Tools (options, except on macOS);
+ * elsewhere), View (editions, directory, trash, search, side navigation), Tools (options, except on macOS) and Help
+ * (about the application, {@link AboutController});
  * shortcuts with the key of the system (Ctrl, or ⌘ on macOS); F6 and Shift+F6 move the focus from a panel to the
  * next. The menu bar is the global one on macOS.</p>
  *
@@ -130,6 +133,8 @@ final class MainController {
   private static final List<String> FOCUSABLE = List.of(".nav-item", ".text-field", ".table-view", ".list-view");
   /** The new element of the views that have none of their own: a new edition. */
   private static final String NEW_EDITION = "menu.new.edition";
+  /** The key of the name of the application, title of the window and of the window about the application. */
+  private static final String APPLICATION_TITLE = "application.title";
   /** The sizes of the icon of the windows ({@code icon-<size>.png} in this package), in pixels. */
   static final List<Integer> ICON_SIZES = List.of(16, 32, 64, 128, 256);
 
@@ -384,7 +389,7 @@ final class MainController {
     } catch (final IOException e) {
       failure = e;
     }
-    stage.setTitle(messages.get("application.title"));
+    stage.setTitle(messages.get(APPLICATION_TITLE));
     stage.getIcons().setAll(icons());
     stage.setScene(new Scene(load("main.fxml", this), Math.max(settings.width(), MIN_WIDTH),
                              Math.max(settings.height(), MIN_HEIGHT)));
@@ -949,7 +954,7 @@ final class MainController {
   private void show(final Parent view, final OpenEdition edition, final Place place, final Creation newElement,
                     final Runnable save) {
     current.set(edition);
-    stage.setTitle(edition == null ? messages.get("application.title")
+    stage.setTitle(edition == null ? messages.get(APPLICATION_TITLE)
                                    : messages.get("window.title", edition.edition().name()));
     viewArea.getChildren().setAll(view);
     creation = newElement;
@@ -1228,6 +1233,39 @@ final class MainController {
       }
     }
     return false;
+  }
+
+  // *******************************************************************************************************************
+  // About
+  // *******************************************************************************************************************
+
+  /**
+   * Shows the window about the application; opens the page of the donations when the user chooses to make one.
+   */
+  @FXML
+  void showAbout() {
+    if (dialogs.panel(APPLICATION_TITLE, load("about.fxml", new AboutController(this)), "about.donate")) {
+      browse(AboutController.DONATION);
+    }
+  }
+
+  /**
+   * Returns the version of the running application.
+   *
+   * @return the version.
+   */
+  Version version() {
+    return context.updater().current();
+  }
+
+  /**
+   * Opens a page in the browser of the system, only when the user asks for it (the application itself never calls
+   * the network for it).
+   *
+   * @param address the address of the page.
+   */
+  void browse(final URI address) {
+    context.natives().opener().open(host, address.toString());
   }
 
   // *******************************************************************************************************************

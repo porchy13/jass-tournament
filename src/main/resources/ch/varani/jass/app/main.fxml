@@ -46,6 +46,9 @@
       <Menu fx:id="toolsMenu" text="%menu.tools">
         <MenuItem fx:id="optionsItem" text="%menu.settings" onAction="#showSettings" accelerator="Shortcut+Comma"/>
       </Menu>
+      <Menu text="%menu.help">
+        <MenuItem fx:id="aboutItem" text="%menu.about" onAction="#showAbout"/>
+      </Menu>
     </MenuBar>
   </top>
   <center>

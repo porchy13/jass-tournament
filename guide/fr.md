@@ -63,8 +63,8 @@ l’application démarre normalement et n’affiche rien.
 
 ## 2. Découvrir la fenêtre
 
-- **Les menus** (en haut ; sur macOS, dans la barre de menus du système) : **Fichier**, **Affichage** et, hors macOS,
-  **Outils**.
+- **Les menus** (en haut ; sur macOS, dans la barre de menus du système) : **Fichier**, **Affichage**, **Outils** (hors
+  macOS) et **Aide**.
 - **La navigation latérale** (à gauche) : **Éditions**, **Annuaire** et **Corbeille**. Quand une édition est ouverte,
   son nom apparaît avec ses parties : **Inscriptions**, **Rencontres**, **Points**, **Classement**, **Affichage** et
   **Comptabilité**. On les parcourt dans cet ordre au fil du tournoi.
@@ -78,6 +78,11 @@ l’application démarre normalement et n’affiche rien.
 quelque chose demandent toujours une confirmation.
 
 ![La liste des éditions](images/fr/editions.png)
+
+**Aide › À propos** affiche la version de l’application, son auteur, sa licence et le lien vers son code source ;
+**Faire un don** ouvre la page des dons dans le navigateur.
+
+![La fenêtre À propos](images/fr/about.png)
 
 ## 3. Choisir le logo des documents
 

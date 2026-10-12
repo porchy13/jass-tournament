@@ -50,7 +50,8 @@ saved, the selection and the notices.
 | Trash | Deleted editions: restore, empty after confirmation. |
 | Settings | "Settings…" in the File menu on macOS, "Options…" in the Tools menu elsewhere (Shortcut+,): theme (as the system, light, dark), accent colour of the system, reduced animations, and the logo of the documents — a PNG or JPEG image of at most 2 MB, printed at the top left of every document, shown in the panel. |
 | Update | At start-up, when a newer release is published on GitHub: its version and notes, Download and install or Not now; the download with its progress and Cancel; then the installer is opened and the application quits (see Automatic update). |
-| Menus | File: new element of the view (Shortcut+N), save of the form of the view in the registration, the accounting and the directory (Shortcut+S), import (Shortcut+O), export (Shortcut+E), move the edition to the trash, back up everything, quit (the application menu on macOS). View: editions, directory, trash (Shortcut+1, 2, 3), search (Shortcut+F), side bar (Shortcut+B), external display. F6 and Shift+F6 move the focus from a panel to the next. |
+| About | Help › About: the icon, the name and the version of the application (marked when it is a development version), "Made with ❤️ by Varani" with a link to https://www.varani.ch, the licence (Apache-2.0), a link to the source code on GitHub, and Make a donation (default button), which opens the page of the donations (PayPal) in the browser; Close. |
+| Menus | File: new element of the view (Shortcut+N), save of the form of the view in the registration, the accounting and the directory (Shortcut+S), import (Shortcut+O), export (Shortcut+E), move the edition to the trash, back up everything, quit (the application menu on macOS). View: editions, directory, trash (Shortcut+1, 2, 3), search (Shortcut+F), side bar (Shortcut+B), external display. Help: about the application. F6 and Shift+F6 move the focus from a panel to the next. |
 
 The destructive actions are confirmed in a message box that names the action; the information that needs no decision
 is shown in the status bar. The settings, the size and position of the window and the widths of its panels are saved
@@ -371,7 +372,8 @@ over the network; the tests use fictitious names only. The files used during the
 
 The application works offline. Its only network access is the check of the latest release at start-up and the
 download of its installer (see Automatic update): no data of the user is sent, but GitHub sees the IP address of the
-computer, as for any visit of its pages.
+computer, as for any visit of its pages. The links of the window about the application are opened in the browser only
+when the user clicks on them.
 
 ## Repositories and continuous integration
 

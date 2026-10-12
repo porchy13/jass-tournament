@@ -22,8 +22,8 @@ import java.util.function.Supplier;
 
 /**
  * The dialogs of the system and the message boxes of the application: choice of a file to open or to save,
- * confirmation, offer with details (an update and its notes), progress of a long operation, error, and the panel of
- * the settings.
+ * confirmation, offer with details (an update and its notes), progress of a long operation, error, the panel of
+ * the settings, and the panel about the application with its main action (a donation).
  *
  * <p><b>Message boxes</b> (DESIGN.md §7): a confirmation shows the question as header ({@code <key>.title}), its
  * consequence as text ({@code <key>.text}), and two buttons in the order of the system ({@link ButtonBar}): the action
@@ -343,6 +343,27 @@ final class Dialogs {
     alert.getDialogPane().setContent(content);
     alert.getButtonTypes().setAll(new ButtonType(messages.get("button.close"), ButtonBar.ButtonData.CANCEL_CLOSE));
     natives.question().ask(alert);
+  }
+
+  /**
+   * Shows a panel with a main action, e.g. the window about the application and its donation, and waits until the user
+   * closes it: the action ({@code actionKey}) is the default button, in the accent colour, and closes the panel; Close
+   * closes it without the action.
+   *
+   * @param titleKey the key of the title of the panel.
+   * @param content the content of the panel.
+   * @param actionKey the key of the name of the action.
+   *
+   * @return {@code true} if the user chose the action.
+   */
+  boolean panel(final String titleKey, final Node content, final String actionKey) {
+    final Alert alert = alert(Alert.AlertType.NONE, null);
+    alert.setHeaderText(messages.get(titleKey));
+    alert.getDialogPane().setContent(content);
+    alert.getButtonTypes().setAll(new ButtonType(messages.get(actionKey), ButtonBar.ButtonData.OK_DONE),
+                                  new ButtonType(messages.get("button.close"), ButtonBar.ButtonData.CANCEL_CLOSE));
+    return natives.question().ask(alert).map(ButtonType::getButtonData)
+                  .filter(ButtonBar.ButtonData.OK_DONE::equals).isPresent();
   }
 
   /**

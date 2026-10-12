@@ -384,9 +384,9 @@ final class WindowTest {
   }
 
   /**
-   * DESIGN.md §2: on macOS, the settings are in the File menu and the application menu quits; a window saved outside
-   * the screens is centred, a maximized one is maximized again; an empty data folder says how to start; a data folder
-   * that cannot be opened leaves the directory unavailable.
+   * DESIGN.md §2: on macOS, the settings are in the File menu, there is no Tools menu and the application menu quits;
+   * a window saved outside the screens is centred, a maximized one is maximized again; an empty data folder says how to
+   * start; a data folder that cannot be opened leaves the directory unavailable.
    *
    * @param robot the TestFX robot.
    *
@@ -414,7 +414,7 @@ final class WindowTest {
       visible.add(menus.getFirst().getItems().stream().filter(item -> id.equals(item.getId())).findFirst()
                        .map(MenuItem::isVisible).orElseThrow());
     }
-    visible.add(menus.getLast().isVisible());
+    visible.add(menus.stream().filter(menu -> "toolsMenu".equals(menu.getId())).findFirst().orElseThrow().isVisible());
     final boolean maximized = stages[0].isMaximized();
     final Button create = (Button) mac.from(macRoot).lookup(".empty-state .button").query();
     robot.interact(create::fire);

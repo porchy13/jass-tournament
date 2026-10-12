@@ -62,8 +62,8 @@ si avvia normalmente e non mostra nulla.
 
 ## 2. Conoscere la finestra
 
-- **I menu** (in alto; su macOS, nella barra dei menu del sistema): **File**, **Vista** e, tranne su macOS,
-  **Strumenti**.
+- **I menu** (in alto; su macOS, nella barra dei menu del sistema): **File**, **Vista**, **Strumenti** (tranne su
+  macOS) e **Aiuto**.
 - **La navigazione laterale** (a sinistra): **Edizioni**, **Elenco** e **Cestino**. Quando un’edizione è aperta,
   appare il suo nome con le sue parti: **Iscrizioni**, **Incontri**, **Punti**, **Classifica**, **Schermo** e
   **Contabilità**. Si usano in quest’ordine nel corso del torneo.
@@ -76,6 +76,11 @@ si avvia normalmente e non mostra nulla.
 una conferma.
 
 ![L’elenco delle edizioni](images/it/editions.png)
+
+**Aiuto › Informazioni** mostra la versione dell’applicazione, il suo autore, la sua licenza e il link al suo codice
+sorgente; **Fai una donazione** apre la pagina delle donazioni nel browser.
+
+![La finestra Informazioni](images/it/about.png)
 
 ## 3. Scegliere il logo dei documenti
 

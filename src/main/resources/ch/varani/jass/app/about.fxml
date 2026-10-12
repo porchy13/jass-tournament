@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<!-- The window about the application (AboutController): icon, version, author, licence and source code. -->
+<VBox styleClass="panel-body, about" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+  <HBox styleClass="about-head">
+    <ImageView fitWidth="64" fitHeight="64" preserveRatio="true">
+      <Image url="@icon-128.png"/>
+    </ImageView>
+    <Label fx:id="versionLabel"/>
+  </HBox>
+  <Hyperlink fx:id="authorLink" text="%about.author" onAction="#openWebsite"/>
+  <Label fx:id="licenceLabel" text="%about.licence"/>
+  <Hyperlink fx:id="sourceLink" text="%about.source" onAction="#openSource"/>
+</VBox>
