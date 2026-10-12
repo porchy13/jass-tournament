@@ -116,7 +116,7 @@ final class ScheduleDocumentTest {
       final int pages = document.getNumberOfPages();
       final List<String> texts = new ArrayList<>();
       for (int page = 1; page <= pages; page++) {
-        final PDFTextStripper stripper = new PDFTextStripper();
+        final PDFTextStripper stripper = Samples.stripper();
         stripper.setStartPage(page);
         stripper.setEndPage(page);
         texts.add(stripper.getText(document));

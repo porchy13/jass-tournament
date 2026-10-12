@@ -17,6 +17,8 @@ final class DataFolderTest {
 
   /** A fictitious home folder. */
   private static final Path HOME = Path.of("/home/user");
+  /** An absolute data folder on the system running the tests ({@code /data} is not absolute on Windows). */
+  private static final Path DATA = Path.of("/data").toAbsolutePath();
 
   /**
    * macOS: the folder is in the application support folder of the user.
@@ -50,8 +52,8 @@ final class DataFolderTest {
   void linuxTest() {
     final Path share = HOME.resolve(".local/share/jass-tournament");
     assertAll(
-        () -> assertEquals(Path.of("/data/jass-tournament"),
-                           DataFolder.resolve("Linux", Map.of(DataFolder.XDG_DATA_HOME, "/data"), HOME)),
+        () -> assertEquals(DATA.resolve("jass-tournament"),
+                           DataFolder.resolve("Linux", Map.of(DataFolder.XDG_DATA_HOME, DATA.toString()), HOME)),
         () -> assertEquals(share, DataFolder.resolve("Linux", Map.of(DataFolder.XDG_DATA_HOME, "data"), HOME)),
         () -> assertEquals(share, DataFolder.resolve("Linux", Map.of(DataFolder.XDG_DATA_HOME, ""), HOME)),
         () -> assertEquals(share, DataFolder.resolve("Linux", Map.of(), HOME)));

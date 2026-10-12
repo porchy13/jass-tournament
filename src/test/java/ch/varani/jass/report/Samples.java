@@ -136,8 +136,20 @@ final class Samples {
    */
   static String text(final byte[] pdf) throws IOException {
     try (PDDocument document = Loader.loadPDF(pdf)) {
-      return new PDFTextStripper().getText(document);
+      return stripper().getText(document);
     }
+  }
+
+  /**
+   * Creates an extractor of the text of a PDF whose lines end with {@code \n} on every system, so that the expected
+   * texts do not depend on the line separator of the system ({@code \r\n} on Windows).
+   *
+   * @return the extractor.
+   */
+  static PDFTextStripper stripper() {
+    final PDFTextStripper stripper = new PDFTextStripper();
+    stripper.setLineSeparator("\n");
+    return stripper;
   }
 
   /**

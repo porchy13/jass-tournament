@@ -102,7 +102,7 @@ final class PlacesDocumentTest {
     final byte[] pdf = Samples.pdf(out -> PlacesDocument.write(edition, Samples.OPTIONS, out));
     try (PDDocument document = Loader.loadPDF(pdf)) {
       final int pages = document.getNumberOfPages();
-      final PDFTextStripper stripper = new PDFTextStripper();
+      final PDFTextStripper stripper = Samples.stripper();
       stripper.setStartPage(2);
       stripper.setEndPage(2);
       final String second = stripper.getText(document);
