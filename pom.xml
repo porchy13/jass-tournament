@@ -4,7 +4,7 @@
 
     <groupId>ch.varani.jass</groupId>
     <artifactId>jass-tournament</artifactId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.0.4-SNAPSHOT</version>
 
     <organization>
         <name>Varani</name>
