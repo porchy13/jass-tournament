@@ -45,8 +45,8 @@ First release of Jass Tournament, the desktop application of the _match aux cart
   `directory.jassdir` (format version 1), written atomically; damaged or unsafe files rejected with a clear message.
   The application works offline (its only network access is the check of the updates) and logs no personal data.
 - **Quality**: `mvn clean verify` runs Checkstyle, the unit and headless UI tests (TestFX, Monocle), a 100 % Jacoco
-  coverage check and the Javadoc; GitHub Actions run it on every push and pull request, with the slow solver tests,
-  CodeQL and the review of the dependencies.
+  coverage check and the Javadoc; GitHub Actions run it on every push and pull request, with CodeQL and the review of
+  the dependencies.
 - **Installers** for macOS (Apple Silicon and Intel, `.dmg`), Windows (`.msi`) and Linux (`.deb`), with the icon of
   the application (♥ ♠ ♦ ♣), published as GitHub releases with their SHA-256 checksums; the application carries its
   own Java runtime and native libraries.

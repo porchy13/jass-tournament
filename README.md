@@ -382,7 +382,7 @@ The GitHub Actions (`.github/workflows/`) run on GitHub only:
 
 | Workflow | Runs | Content |
 |----------|------|---------|
-| `ci.yml` | every push and pull request on `main` | quality gate `mvn clean verify` on Temurin 25 (Checkstyle, tests, 100 % Jacoco, Javadoc), test and coverage reports kept as artifacts; then the slow solver tests (`-Dtest.excludedGroups=none`) |
+| `ci.yml` | every push and pull request on `main` | quality gate `mvn clean verify` on Temurin 25 (Checkstyle, tests, 100 % Jacoco, Javadoc), test and coverage reports kept as artifacts; the slow solver tests, whose performance targets are measured on the reference computer, are run locally before a release |
 | `codeql.yml` | every push and pull request on `main`, weekly | CodeQL analysis of the Java code (security and quality queries) |
 | `dependency-review.yml` | every pull request on `main` | vulnerabilities (moderate or higher) and licences of the dependencies changed |
 | `release.yml` | a version tag `vX.Y.Z` (published from the reference repository) | checks that the version of `pom.xml` is the one of the tag and takes the notes of its section of `changelog.md`; builds, tests and smoke-tests the installers on macOS Apple Silicon and Intel (`.dmg`), Windows (`.msi`) and Linux (`.deb`); publishes them as a GitHub release with the notes (`release-notes.md`) and their SHA-256 checksums (`SHA256SUMS`), read by the automatic update |

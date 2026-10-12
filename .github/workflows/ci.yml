@@ -1,6 +1,7 @@
 # Quality gate of Jass Tournament on GitHub: the same gate as the reference repository, `mvn clean verify`
-# (Checkstyle, unit and headless UI tests, 100 % Jacoco coverage, Javadoc), on every push and pull request;
-# the slow solver tests (tagged `slow`) run in a separate job.
+# (Checkstyle, unit and headless UI tests, 100 % Jacoco coverage, Javadoc), on every push and pull request. The slow
+# solver tests (tagged `slow`) are not run here: they check performance targets measured on the reference computer,
+# which the runners of GitHub cannot reach; they are run locally before a release.
 name: CI
 
 on:
@@ -49,20 +50,3 @@ jobs:
             target/surefire-reports/
             target/site/jacoco/
           if-no-files-found: ignore
-
-  slow-tests:
-    name: Slow solver tests
-    needs: quality-gate
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
-        with:
-          distribution: temurin
-          java-version: '25'
-          cache: maven
-      - name: Install the libraries of JavaFX (fonts)
-        run: sudo apt-get update && sudo apt-get install --yes --no-install-recommends $JAVAFX_LIBRARIES
-      - name: Run every test, the slow ones included
-        run: mvn $MAVEN_CLI_OPTS clean verify -Dtest.excludedGroups=none
