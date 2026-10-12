@@ -4,7 +4,7 @@
 
     <groupId>ch.varani.jass</groupId>
     <artifactId>jass-tournament</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.5-SNAPSHOT</version>
 
     <organization>
         <name>Varani</name>
@@ -512,7 +512,9 @@
                                             <groupId>com.google.ortools</groupId>
                                             <artifactId>ortools-${installer.ortools}</artifactId>
                                             <version>${ortools.version}</version>
-                                            <includes>ortools-${installer.ortools}/**</includes>
+                                            <!-- The files only: the entry of the folder itself, flattened to an empty name,
+                                                 breaks the unpacking on Windows. -->
+                                            <includes>ortools-${installer.ortools}/*.*</includes>
                                             <fileMappers>
                                                 <org.codehaus.plexus.components.io.filemappers.FlattenFileMapper />
                                             </fileMappers>

@@ -126,7 +126,7 @@ public final class AtomicFiles {
   private static void pause(final AccessDeniedException failure) throws AccessDeniedException {
     try {
       Thread.sleep(MOVE_PAUSE);
-    } catch (final InterruptedException e) {
+    } catch (InterruptedException _) {
       Thread.currentThread().interrupt();
       throw failure;
     }
