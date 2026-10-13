@@ -264,9 +264,12 @@ starts the reveal again, on the first page.
 The part **Scores** lists the games with their teams and their result. Choose a game (or **Next sheet to enter**): its
 sheet appears on the right, like the paper sheet.
 
-- **Column A** is the team that deals first (odd place). Type its points, deal by deal, and press Enter to move to the
-  next one (Up and Down arrows to move around).
-- **Column B** is filled in automatically (157 − A, in grey); type it only when the sheet says otherwise.
+- **Column A** is the team that deals first (odd place), **column B** its opponent. A typed column fills in the other
+  one automatically (157 minus its value, in grey).
+- **Type column A and check column B.** Type the points of the team that deals, deal by deal, and press Enter to
+  move to the next one (Up and Down arrows to move around). Then compare each grey value of column B with the paper
+  sheet: a difference reveals a typing error or a mistake of the players. Type then the value of the sheet in
+  column B.
 - Every value is saved at once. The subtotals per block of 4 deals, the totals, the **Deduction (rule 16)** and the
   **points counted** are computed.
 - A deal whose two columns do not make 157 points is highlighted, and the game is marked _Sheet to check_ in the

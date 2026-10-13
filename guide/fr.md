@@ -270,10 +270,12 @@ pages** : cliquez-le quand vous le souhaitez pour que les pages du classement co
 La partie **Points** liste les parties avec leurs équipes et leur résultat. Choisissez une partie (ou **Feuille
 suivante à saisir**) : sa feuille apparaît à droite, comme la feuille papier.
 
-- La **colonne A** est l’équipe qui donne en premier (place impaire). Tapez ses points, donne par donne, et appuyez
-  sur Entrée pour passer à la suivante (flèches haut et bas pour se déplacer).
-- La **colonne B** est complétée automatiquement (157 − A, en gris) ; tapez-la seulement si la feuille indique
-  autre chose.
+- La **colonne A** est l’équipe qui donne en premier (place impaire), la **colonne B** son adversaire. Une colonne
+  tapée complète l’autre automatiquement (157 moins sa valeur, en gris).
+- **Saisissez la colonne A et vérifiez la colonne B.** Tapez les points de l’équipe qui donne, donne par donne, et
+  appuyez sur Entrée pour passer à la suivante (flèches haut et bas pour se déplacer). Comparez ensuite chaque
+  valeur grise de la colonne B avec la feuille papier : une différence révèle une faute de frappe ou une erreur des
+  joueurs. Tapez alors la valeur de la feuille dans la colonne B.
 - Chaque valeur est enregistrée aussitôt. Les sous-totaux par bloc de 4 donnes, les totaux, la **Déduction (règle
   16)** et les **points retenus** sont calculés.
 - Une donne dont les deux colonnes ne font pas 157 points est surlignée, et la partie est marquée _Feuille à

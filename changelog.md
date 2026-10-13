@@ -25,6 +25,8 @@ All notable changes of the project are documented in this file.
 - **Scores**: in the list of the games, a game whose result is entered (every deal of its sheet typed and
   consistent, or a forfeit) is marked with a green tick, so that the sheets still to transcribe are seen at a
   glance; a sheet to check keeps its warning.
+- **User guide**: the entry of the scores advises typing column A (the team that deals), then checking each value of
+  column B derived from it against the paper sheet, so that a typing error or a mistake of the players shows up.
 - **Editions**: the report of the unreadable edition files suggests checking that the latest version of the
   application is used, as they may come from a newer version.
 - **Edition files**: format version 2, with the maximum of teams and the waiting list. The files of the earlier

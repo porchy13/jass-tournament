@@ -270,9 +270,12 @@ pagine**: cliccatelo quando volete perché le pagine della classifica completa s
 La parte **Punti** elenca le partite con le loro squadre e il loro risultato. Scegliete una partita (o **Foglio
 successivo da inserire**): il suo foglio appare a destra, come il foglio di carta.
 
-- La **colonna A** è la squadra che distribuisce per prima (posto dispari). Digitate i suoi punti, mano per mano, e
-  premete Invio per passare alla successiva (frecce su e giù per spostarsi).
-- La **colonna B** è completata automaticamente (157 − A, in grigio); digitatela solo se il foglio indica altro.
+- La **colonna A** è la squadra che distribuisce per prima (posto dispari), la **colonna B** la sua avversaria. Una
+  colonna digitata completa automaticamente l’altra (157 meno il suo valore, in grigio).
+- **Inserite la colonna A e verificate la colonna B.** Digitate i punti della squadra che distribuisce, mano per
+  mano, e premete Invio per passare alla successiva (frecce su e giù per spostarsi). Confrontate poi ogni valore
+  grigio della colonna B con il foglio cartaceo: una differenza rivela un errore di battitura o un errore dei
+  giocatori. Digitate allora il valore del foglio nella colonna B.
 - Ogni valore è salvato subito. I subtotali per blocco di 4 mani, i totali, la **Deduzione (regola 16)** e i **punti
   conteggiati** sono calcolati.
 - Una mano le cui due colonne non fanno 157 punti è evidenziata, e la partita è segnata _Foglio da verificare_

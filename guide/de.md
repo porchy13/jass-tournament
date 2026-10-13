@@ -273,9 +273,12 @@ wechseln. **Alles verbergen** beginnt die Enthüllung von vorn, auf der ersten S
 Der Teil **Punkte** listet die Partien mit ihren Teams und ihrem Resultat. Wählen Sie eine Partie (oder **Nächstes
 Blatt erfassen**): Ihr Blatt erscheint rechts, wie das Papierblatt.
 
-- **Spalte A** ist das Team, das zuerst gibt (ungerader Platz). Tippen Sie seine Punkte Spiel für Spiel und drücken
-  Sie die Eingabetaste für das nächste (Pfeiltasten nach oben und unten zum Wechseln).
-- **Spalte B** wird automatisch ergänzt (157 − A, grau); tippen Sie sie nur, wenn das Blatt etwas anderes zeigt.
+- **Spalte A** ist das Team, das zuerst gibt (ungerader Platz), **Spalte B** sein Gegner. Eine getippte Spalte
+  ergänzt die andere automatisch (157 minus ihr Wert, grau).
+- **Erfassen Sie Spalte A und prüfen Sie Spalte B.** Tippen Sie die Punkte des gebenden Teams Spiel für Spiel und
+  drücken Sie die Eingabetaste für das nächste (Pfeiltasten nach oben und unten zum Wechseln). Vergleichen Sie
+  danach jeden grauen Wert der Spalte B mit dem Papierblatt: Ein Unterschied deckt einen Tippfehler oder einen
+  Fehler der Spieler auf. Tippen Sie dann den Wert des Blatts in Spalte B.
 - Jeder Wert wird sofort gespeichert. Die Zwischentotale pro Block von 4 Spielen, die Totale, der **Abzug (Regel
   16)** und die **gezählten Punkte** werden berechnet.
 - Ein Spiel, dessen zwei Spalten nicht 157 Punkte ergeben, wird hervorgehoben, und die Partie ist in der Liste mit
