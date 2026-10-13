@@ -3,6 +3,7 @@ package ch.varani.jass.report;
 import org.apache.fontbox.ttf.CmapLookup;
 import org.apache.fontbox.ttf.TTFParser;
 import org.apache.fontbox.ttf.TrueTypeFont;
+import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.io.RandomAccessReadBuffer;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -10,6 +11,7 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.apache.pdfbox.pdmodel.interactive.viewerpreferences.PDViewerPreferences;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -28,6 +30,10 @@ import java.io.OutputStream;
  * reduced down to {@link #MIN_SCALE} of its size, then cut and ended by an ellipsis.</p>
  *
  * <p>The coordinates are in PDF points from the bottom left corner of the page; {@link #MM} converts millimetres.</p>
+ *
+ * <p><b>Printing</b>: the document asks the viewer to print on one side of the paper (viewer preference
+ * {@code /Duplex /Simplex}), so that the cards and the sheets to cut have nothing on their back. It is a preference
+ * only: the viewers that honour it (Adobe Acrobat Reader) preselect one-sided printing, the others ignore it.</p>
  *
  * <p>Not thread-safe: an instance draws one document, from one thread.</p>
  */
@@ -134,6 +140,9 @@ final class PdfCanvas implements Closeable {
    */
   PdfCanvas(final DocumentOptions options) throws IOException {
     document = new PDDocument();
+    final PDViewerPreferences preferences = new PDViewerPreferences(new COSDictionary());
+    preferences.setDuplex(PDViewerPreferences.DUPLEX.Simplex);
+    document.getDocumentCatalog().setViewerPreferences(preferences);
     regularFile = parse(REGULAR_FONT);
     boldFile = parse(BOLD_FONT);
     regular = PDType0Font.load(document, regularFile, true);

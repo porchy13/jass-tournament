@@ -5,6 +5,7 @@ import ch.varani.jass.domain.IndividualRegistrations;
 import ch.varani.jass.domain.Player;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.interactive.viewerpreferences.PDViewerPreferences;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -47,6 +48,22 @@ final class PdfCanvasTest {
     final byte[] none = Samples.pdf(out -> ScheduleDocument.write(Samples.teamEdition(), Samples.OPTIONS, out));
     try (PDDocument document = Loader.loadPDF(none)) {
       assertTrue(!document.getPage(0).getResources().getXObjectNames().iterator().hasNext());
+    }
+  }
+
+  /**
+   * Every document asks the viewer to print on one side of the paper, so that the cards and the sheets to cut have
+   * nothing on their back.
+   *
+   * @throws Exception never.
+   */
+  @Test
+  @DisplayName("The documents ask for one-sided printing")
+  void simplexTest() throws Exception {
+    final byte[] pdf = Samples.pdf(out -> ScoreCardsDocument.write(Samples.teamEdition(), Samples.OPTIONS, out));
+    try (PDDocument document = Loader.loadPDF(pdf)) {
+      assertEquals(PDViewerPreferences.DUPLEX.Simplex.toString(),
+                   document.getDocumentCatalog().getViewerPreferences().getDuplex());
     }
   }
 

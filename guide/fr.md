@@ -239,6 +239,10 @@ reçoit, et les participants au repos. Elle exporte en PDF les documents suivant
 | **Cartes de points** | Une carte par participant, quatre par page A4 à découper : sa place à chaque partie, et les cases où il note ses points et son total. |
 | **Feuilles de résultats** | Une feuille par partie et par table, deux par page A4 paysage à découper : les deux équipes avec leur place, puis les donnes du contenu des parties, à remplir pendant le jeu. |
 
+Imprimez les documents **en recto seul** : les cartes et les feuilles se découpent, rien ne doit figurer à leur dos.
+Les documents le demandent au lecteur PDF ; Adobe Acrobat Reader le respecte, mais d’autres lecteurs, comme Aperçu
+sur macOS, l’ignorent : choisissez alors vous-même l’impression recto seul (sans recto verso) avant d’imprimer.
+
 Une inscription tardive ? Après la clôture, elle va en liste d’attente.
 
 Un désistement ? Sélectionnez l’inscrit dans **Inscriptions** : **Remplacer par le premier de la liste d’attente**, ou

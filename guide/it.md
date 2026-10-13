@@ -238,6 +238,10 @@ quella che riceve, e i partecipanti a riposo. Esporta in PDF i documenti seguent
 | **Schede dei punti** | Una scheda per partecipante, quattro per pagina A4 da ritagliare: il suo posto in ogni partita e le caselle dove annota i punti e il totale. |
 | **Fogli dei risultati** | Un foglio per partita e per tavolo, due per pagina A4 orizzontale da ritagliare: le due squadre con il loro posto, poi le mani del contenuto delle partite, da compilare durante il gioco. |
 
+Stampate i documenti **solo fronte**: le schede e i fogli si ritagliano, sul retro non deve esserci nulla. I
+documenti lo chiedono al lettore PDF; Adobe Acrobat Reader lo rispetta, ma altri lettori, come Anteprima su macOS,
+lo ignorano: scegliete allora voi stessi la stampa solo fronte (senza fronte-retro) prima di stampare.
+
 Un’iscrizione tardiva? Dopo la chiusura, va nella lista d’attesa.
 
 Un ritiro? Selezionate l’iscritto in **Iscrizioni**: **Sostituisci con il primo della lista d’attesa**, oppure

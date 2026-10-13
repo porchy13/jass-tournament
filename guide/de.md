@@ -243,6 +243,10 @@ empfängt, sowie die pausierenden Teilnehmenden. Er exportiert die folgenden Dok
 | **Punktekarten** | Eine Karte pro Teilnehmende, vier pro A4-Seite zum Ausschneiden: der Platz in jeder Partie und die Felder für die Punkte und das Total. |
 | **Resultatblätter** | Ein Blatt pro Partie und Tisch, zwei pro A4-Seite quer zum Ausschneiden: beide Teams mit ihren Plätzen, dann die Spiele des Inhalts der Partien, während des Spiels auszufüllen. |
 
+Drucken Sie die Dokumente **einseitig**: Die Karten und die Blätter werden ausgeschnitten, auf ihrer Rückseite darf
+nichts stehen. Die Dokumente verlangen dies vom PDF-Programm; Adobe Acrobat Reader hält sich daran, andere Programme wie
+Vorschau unter macOS nicht: Wählen Sie dann vor dem Drucken selbst den einseitigen Druck (ohne Duplex).
+
 Eine späte Anmeldung? Nach dem Schliessen kommt sie auf die Warteliste.
 
 Eine Abmeldung? Wählen Sie die Anmeldung unter **Anmeldungen**: **Durch die erste Anmeldung der Warteliste ersetzen**,

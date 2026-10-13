@@ -232,6 +232,10 @@ receives, and the participants sitting out. It exports the following documents a
 | **Score cards** | One card per participant, four per A4 page to cut: its place in each round, and the boxes where it writes its points and its total. |
 | **Score sheets** | One sheet per round and table, two per A4 landscape page to cut: both teams with their places, then the deals of the content of the games, filled in during the play. |
 
+Print the documents **one-sided**: the cards and the sheets are cut, nothing may be printed on their back. The
+documents ask the PDF viewer for it; Adobe Acrobat Reader follows it, but other viewers, such as Preview on macOS,
+ignore it: then choose one-sided printing (no two-sided) yourself before printing.
+
 A late registration? After the closing, it goes to the waiting list.
 
 A withdrawal? Select the participant in **Registration**: **Replace by the first of the waiting list**, or type other

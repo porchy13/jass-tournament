@@ -22,6 +22,9 @@ All notable changes of the project are documented in this file.
   date, is a development version, or when the check fails.
 
 ### Changed
+- **Documents**: the PDF documents ask for one-sided printing, so that the score cards and the score sheets to cut
+  have nothing on their back; the viewers that honour this preference (Adobe Acrobat Reader) preselect it, the
+  others leave the choice to the print dialog, as the user guide explains.
 - **Scores**: in the list of the games, a game whose result is entered (every deal of its sheet typed and
   consistent, or a forfeit) is marked with a green tick, so that the sheets still to transcribe are seen at a
   glance; a sheet to check keeps its warning.
