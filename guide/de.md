@@ -280,6 +280,8 @@ Blatt erfassen**): Ihr Blatt erscheint rechts, wie das Papierblatt.
   16)** und die **gezählten Punkte** werden berechnet.
 - Ein Spiel, dessen zwei Spalten nicht 157 Punkte ergeben, wird hervorgehoben, und die Partie ist in der Liste mit
   _Blatt prüfen_ markiert.
+- Eine Partie, deren Resultat erfasst ist (alle Spiele ohne Fehler, oder ein Forfait), ist in der Liste mit einem
+  grünen Häkchen _Resultat erfasst_ markiert: Die noch zu übertragenden Blätter sind auf einen Blick erkennbar.
 - **Abwesend (Regel 19)**: Das gegnerische Team erhält 1’256 Punkte.
 - **Blatt löschen** beginnt die Erfassung einer Partie von vorn.
 

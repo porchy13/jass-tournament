@@ -26,6 +26,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,8 +53,10 @@ import java.util.stream.IntStream;
  * Enter, which moves to the next deal; the arrows Up and Down move between the deals of a column. A value that is not
  * a number between 0 and 157 is rejected with a message; the deals whose columns do not sum to 157 are highlighted
  * (style class {@value #INCONSISTENT}) and listed under the sheet, never rejected, and the game is marked in the list
- * (warning colour and icon, {@link Views#warnings}). Enter in the list of the games moves to the first
- * deal of the sheet; Delete clears the sheet, after confirmation.</p>
+ * (warning colour and icon, {@link Views#marks}); a game whose result is entered (a forfeit, or every deal of the
+ * sheet typed and consistent) is marked with a tick, so that the sheets still to transcribe are seen at a glance.
+ * Enter in the list of the games moves to the first deal of the sheet; Delete clears the sheet, after
+ * confirmation.</p>
  *
  * <p><b>Lock</b>: once the lots are drawn (rule 15), the match is closed: the sheets can no longer be changed, until
  * the draw is cancelled from the ranking.</p>
@@ -82,6 +85,11 @@ final class ScoresController {
   private static final int RECEIVER_COLUMN = 3;
   /** The width of the fields of the points, in characters: up to 157. */
   private static final int POINTS_WIDTH = 3;
+  /**
+   * The width added to the widest result to size its column, in pixels: the padding of the cell (8 on each side), the
+   * gap between the icon and the text, and a margin.
+   */
+  private static final double RESULT_PADDING = 28;
 
   // *******************************************************************************************************************
   // Attributes
@@ -225,7 +233,9 @@ final class ScoresController {
     column("scores.column.receiver", game -> main.side(edition, game.receiver()), false);
     final TableColumn<Pairing, String> results = column("column.result", game -> scoring.result(game.round(),
         game.table()).map(this::describe).orElse(""), true);
-    Views.warnings(table, results, this::toCheck, game -> messages.get("scores.warning"));
+    results.setMinWidth(resultWidth());
+    Views.marks(table, results, this::toCheck, game -> messages.get("scores.warning"), this::entered,
+                messages.get("scores.entered"));
     sheet.visibleProperty().bind(table.getSelectionModel().selectedItemProperty().isNotNull());
     sheet.managedProperty().bind(sheet.visibleProperty());
     choose.visibleProperty().bind(sheet.visibleProperty().not());
@@ -274,6 +284,31 @@ final class ScoresController {
   private boolean toCheck(final Pairing game) {
     return edition.results().sheet(game.round(), game.table())
                   .map(scoreSheet -> !scoring.totals(scoreSheet).inconsistentDeals().isEmpty()).orElse(false);
+  }
+
+  /**
+   * Measures the width of the column of the results, so that a result is never cut: the widest result, a forfeit
+   * between two sides with the points of a whole game, after its icon.
+   *
+   * @return the minimum width of the column, in pixels.
+   */
+  private double resultWidth() {
+    final String points = main.messages().number(edition.deals().pointsPerGame());
+    final Text widest = new Text(main.messages().get("scores.result.forfeit", points, points));
+    return widest.getLayoutBounds().getWidth() + Icon.SIZE + RESULT_PADDING;
+  }
+
+  /**
+   * Tells whether the result of a game is entered: it is a forfeit (rules 17 and 19), or every deal of its sheet is
+   * played; a sheet with inconsistent deals is marked as to check instead ({@link #toCheck}).
+   *
+   * @param game the game.
+   *
+   * @return {@code true} if the result of the game is entered.
+   */
+  private boolean entered(final Pairing game) {
+    return scoring.result(game.round(), game.table()).filter(result -> result.forfeit() || edition.results()
+        .sheet(game.round(), game.table()).orElseThrow().deals().stream().allMatch(DealScore::isPlayed)).isPresent();
   }
 
   /**

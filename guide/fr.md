@@ -278,6 +278,8 @@ suivante à saisir**) : sa feuille apparaît à droite, comme la feuille papier.
   16)** et les **points retenus** sont calculés.
 - Une donne dont les deux colonnes ne font pas 157 points est surlignée, et la partie est marquée _Feuille à
   vérifier_ dans la liste.
+- Une partie dont le résultat est saisi (toutes les donnes, sans erreur, ou un forfait) est marquée d’une coche verte
+  _Résultat saisi_ dans la liste : les feuilles qui restent à retranscrire se repèrent d’un coup d’œil.
 - **Absent (règle 19)** : l’équipe adverse reçoit 1 256 points.
 - **Effacer la feuille** recommence la saisie d’une partie.
 

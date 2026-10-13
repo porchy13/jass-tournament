@@ -271,6 +271,8 @@ sheet appears on the right, like the paper sheet.
   **points counted** are computed.
 - A deal whose two columns do not make 157 points is highlighted, and the game is marked _Sheet to check_ in the
   list.
+- A game whose result is entered (every deal, without error, or a forfeit) is marked with a green tick _Result
+  entered_ in the list: the sheets still to transcribe are seen at a glance.
 - **Absent (rule 19)**: the opposing team receives 1,256 points.
 - **Clear the sheet** starts the entry of a game again.
 

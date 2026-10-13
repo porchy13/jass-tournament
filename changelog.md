@@ -22,6 +22,9 @@ All notable changes of the project are documented in this file.
   date, is a development version, or when the check fails.
 
 ### Changed
+- **Scores**: in the list of the games, a game whose result is entered (every deal of its sheet typed and
+  consistent, or a forfeit) is marked with a green tick, so that the sheets still to transcribe are seen at a
+  glance; a sheet to check keeps its warning.
 - **Editions**: the report of the unreadable edition files suggests checking that the latest version of the
   application is used, as they may come from a newer version.
 - **Edition files**: format version 2, with the maximum of teams and the waiting list. The files of the earlier

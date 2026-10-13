@@ -233,6 +233,11 @@
     -fx-stroke: -c-warning;
 }
 
+/* The rows of a table that are done, e.g. a result entered: a tick in the success colour (Views.marks). */
+.table-row-cell .done .icon {
+    -fx-stroke: -c-success;
+}
+
 /* A button whose text takes several lines, e.g. the previous team mate of the registration: its height follows its
    text instead of the one line of the other buttons. */
 .button.multiline {

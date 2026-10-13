@@ -29,6 +29,8 @@ final class Views {
 
   /** The style class of a row of a table that needs the attention of the user. */
   static final String WARNED = "warned";
+  /** The style class of the tick of a row of a table that is done. */
+  static final String DONE = "done";
   /**
    * The style class of a column of numbers or dates, and of a number: aligned to the right (DESIGN.md §6), the head of
    * the column too.
@@ -115,7 +117,7 @@ final class Views {
   }
 
   /**
-   * Marks the rows of a table that need the attention of the user, e.g. a score sheet to check: the row is written in
+   * Marks the rows of a table that need the attention of the user, e.g. a participant to check: the row is written in
    * the warning colour (style class {@value #WARNED}) and, as a colour is never alone, a column shows a warning icon
    * with its description (tooltip and screen readers) before its text. The marks follow
    * {@link TableView#refresh()}.
@@ -128,6 +130,36 @@ final class Views {
    */
   static <T> void warnings(final TableView<T> table, final TableColumn<T, String> column, final Predicate<T> warned,
                            final Function<T, String> description) {
+    marks(table, column, new Marks<>(warned, description, null, null));
+  }
+
+  /**
+   * Marks the rows of a table that need the attention of the user, as {@link #warnings}, and the rows that are done,
+   * e.g. a game whose result is entered: the column shows a tick (style class {@value #DONE}, in the success colour)
+   * with its description before its text. A row that needs the attention of the user shows the warning only.
+   *
+   * @param <T> the type of the rows.
+   * @param table the table.
+   * @param column the column showing the icons.
+   * @param warned tells whether a row needs the attention of the user.
+   * @param warning what the warning icon of a row means.
+   * @param done tells whether a row is done.
+   * @param finished what the tick means.
+   */
+  static <T> void marks(final TableView<T> table, final TableColumn<T, String> column, final Predicate<T> warned,
+                        final Function<T, String> warning, final Predicate<T> done, final String finished) {
+    marks(table, column, new Marks<>(warned, warning, done, finished));
+  }
+
+  /**
+   * Gives the rows of a table their style class and the column its icons.
+   *
+   * @param <T> the type of the rows.
+   * @param table the table.
+   * @param column the column showing the icons.
+   * @param marks the marks of the rows.
+   */
+  private static <T> void marks(final TableView<T> table, final TableColumn<T, String> column, final Marks<T> marks) {
     table.setRowFactory(view -> new TableRow<>() {
 
       /**
@@ -139,14 +171,15 @@ final class Views {
       @Override
       protected void updateItem(final T item, final boolean empty) {
         super.updateItem(item, empty);
-        style(this, WARNED, !empty && warned.test(item));
+        style(this, WARNED, !empty && marks.warned().test(item));
       }
 
     });
     column.setCellFactory(view -> new TableCell<>() {
 
       /**
-       * Shows the text of the cell, with the warning icon when its row needs the attention of the user.
+       * Shows the text of the cell, with the warning icon when its row needs the attention of the user, else with the
+       * tick when its row is done.
        *
        * @param text the text.
        * @param empty whether the cell is empty.
@@ -155,16 +188,51 @@ final class Views {
       protected void updateItem(final String text, final boolean empty) {
         super.updateItem(text, empty);
         setText(empty ? null : text);
-        setGraphic(null);
-        final T item = empty ? null : getTableView().getItems().get(getIndex());
-        if (item != null && warned.test(item)) {
-          final Label icon = new Label();
-          Icon.WARNING.decorate(icon, description.apply(item));
-          setGraphic(icon);
-        }
+        setGraphic(empty ? null : marks.graphic(getTableView().getItems().get(getIndex())));
       }
 
     });
+  }
+
+  // *******************************************************************************************************************
+  // Inner classes
+  // *******************************************************************************************************************
+
+  /**
+   * The marks of the rows of a table: the warning of the rows that need the attention of the user and, optionally,
+   * the tick of the rows that are done.
+   *
+   * <p>Immutable; the nodes it creates are confined to the JavaFX Application Thread.</p>
+   *
+   * @param <T> the type of the rows.
+   * @param warned tells whether a row needs the attention of the user.
+   * @param warning what the warning icon of a row means.
+   * @param done tells whether a row is done, or {@code null} when the rows have no tick.
+   * @param finished what the tick means, or {@code null} when the rows have no tick.
+   */
+  private record Marks<T>(Predicate<T> warned, Function<T, String> warning, Predicate<T> done, String finished) {
+
+    /**
+     * Creates the icon of a row: the warning when it needs the attention of the user, else the tick when it is done.
+     *
+     * @param item the row.
+     *
+     * @return the icon, or {@code null} when the row has no mark.
+     */
+    Node graphic(final T item) {
+      final Label icon = new Label();
+      if (warned.test(item)) {
+        Icon.WARNING.decorate(icon, warning.apply(item));
+        return icon;
+      }
+      if (done == null || !done.test(item)) {
+        return null;
+      }
+      Icon.CHECK.decorate(icon, finished);
+      icon.getStyleClass().add(DONE);
+      return icon;
+    }
+
   }
 
 }

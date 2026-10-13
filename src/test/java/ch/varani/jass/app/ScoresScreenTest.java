@@ -71,6 +71,8 @@ final class ScoresScreenTest {
   private static final int DEDUCTION = 24;
   /** The points of a forfeit: half of a game (rule 19). */
   private static final int FORFEIT = 1256;
+  /** The games of the schedule: 2 rounds of 2 tables. */
+  private static final int PAIRINGS = 4;
   /** The points typed then left by going to another view. */
   private static final int LEFT = 90;
 
@@ -305,6 +307,38 @@ final class ScoresScreenTest {
         () -> assertEquals(1, marked),
         () -> assertEquals("Feuille à vérifier", tooltip),
         () -> assertTrue(check.startsWith("Donnes 1, 2, 3"), check));
+  }
+
+  /**
+   * F9: a game whose result is entered (a forfeit, or every deal of its sheet typed and consistent) is marked with a
+   * tick and its description; a sheet partly typed has no tick, a sheet to check shows the warning only.
+   *
+   * @param robot the TestFX robot.
+   *
+   * @throws Exception never.
+   */
+  @Test
+  @DisplayName("F9: the games whose result is entered are marked with a tick in the list")
+  void enteredTest(final FxRobot robot) throws Exception {
+    ScoreFixtures.open(robot, POINTS, "scoresNav");
+    await(() -> shown(robot, "a1"));
+    final int before = robot.lookup("." + Views.DONE).queryAll().size();
+    enter(robot, "a1", "100");
+    await(() -> ScoreFixtures.stored(folder, POINTS).results().sheet(1, 1).isPresent());
+    final int partial = robot.lookup("." + Views.DONE).queryAll().size();
+    select(robot, 2);
+    robot.interact(robot.lookup("#giverAbsent").queryAs(CheckBox.class)::fire);
+    await(() -> robot.lookup("." + Views.DONE).queryAll().size() == 1);
+    final String tooltip = robot.lookup("." + Views.DONE).queryLabeled().getTooltip().getText();
+    final boolean warned = robot.lookup(".table-row-cell.warned ." + Views.DONE).queryAll().isEmpty();
+    menu(robot, "listItem");
+    ScoreFixtures.open(robot, COMPLETE, "scoresNav");
+    await(() -> robot.lookup("." + Views.DONE).queryAll().size() == PAIRINGS);
+    assertAll(
+        () -> assertEquals(0, before),
+        () -> assertEquals(0, partial),
+        () -> assertEquals("Résultat saisi", tooltip),
+        () -> assertTrue(warned));
   }
 
   /**

@@ -61,6 +61,8 @@ enum Icon {
   DOCUMENT("M4 1.5h5.5L12.5 4.5v10H4zM9.5 1.5v3h3M6 8h4.5M6 10.5h4.5"),
   /** A cross: close. */
   CLOSE("M4 4l8 8M12 4l-8 8"),
+  /** A tick: something done, e.g. a result entered. */
+  CHECK("M3 8.5l3.2 3.2L13 4.5"),
   /** Something to check: a warning triangle. */
   WARNING("M8 2.5l6 10.5H2zM8 6.5v3M8 11.2h.1");
 

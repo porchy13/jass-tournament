@@ -61,6 +61,7 @@ All the colours are *looked-up colors* defined on `.root`. No hexadecimal code a
 | `-c-on-accent` | `#FFFFFF` | Text on an accent background |
 | `-c-danger` | `#B4363A` | Errors, delays, destructive actions |
 | `-c-warning` | `#A86A12` | Warnings |
+| `-c-success` | `#2E7D4F` | Something done, e.g. the tick of a result entered |
 
 ### Dark theme
 
@@ -80,6 +81,7 @@ All the colours are *looked-up colors* defined on `.root`. No hexadecimal code a
 | `-c-on-accent` | `#0F1A16` |
 | `-c-danger` | `#E0787B` |
 | `-c-warning` | `#D9A24F` |
+| `-c-success` | `#6CC08B` |
 
 ![Main window, dark theme](screenshots/ecran-principal-sombre.png)
 
@@ -234,7 +236,7 @@ Background `-c-bg`, border `-c-border`, caption text `-c-text-2`. Neutral: colou
 
 - Line style, stroke of 1.6 px at 16 px, round ends, a single icon family in the whole application (Ikonli with a consistent line pack, or home-made `SVGPath`).
 - Size: 16 px in the interface, 20 px at most in the empty states.
-- Colour: `-c-text` by default, `-c-accent` for the active element only.
+- Colour: `-c-text` by default, `-c-accent` for the active element only; in a list, the warning icon in `-c-warning`, the tick of a row that is done in `-c-success` (warning first: a row to check never shows the tick).
 - Icons are never alone without a label or a tooltip.
 - Bitmap images: provide the `@2x` variants (JavaFX loads them automatically on HiDPI screens).
 
@@ -324,6 +326,7 @@ We start from Modena (the default theme of JavaFX) and override it through its o
     -c-on-accent: #FFFFFF;
     -c-danger: #B4363A;
     -c-warning: #A86A12;
+    -c-success: #2E7D4F;
 }
 ```
 

@@ -277,6 +277,8 @@ successivo da inserire**): il suo foglio appare a destra, come il foglio di cart
   conteggiati** sono calcolati.
 - Una mano le cui due colonne non fanno 157 punti è evidenziata, e la partita è segnata _Foglio da verificare_
   nell’elenco.
+- Una partita il cui risultato è inserito (tutte le mani, senza errori, o un forfait) è segnata con una spunta verde
+  _Risultato inserito_ nell’elenco: i fogli ancora da trascrivere si vedono a colpo d’occhio.
 - **Assente (regola 19)**: la squadra avversaria riceve 1’256 punti.
 - **Cancella il foglio** ricomincia l’inserimento di una partita.
 
