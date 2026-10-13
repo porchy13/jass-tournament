@@ -86,6 +86,11 @@ immer eine Bestätigung.
 
 <img src="images/de/about.png" alt="Das Fenster Über" width="225">
 
+**Open-Source-Bibliotheken** listet die mit der Anwendung gelieferten Bibliotheken auf, jede mit ihrer Rolle und
+ihrer Lizenz; ein Klick auf ihren Namen öffnet ihre Website im Browser.
+
+<img src="images/de/libraries.png" alt="Die Open-Source-Bibliotheken" width="263">
+
 ## 3. Das Logo der Dokumente wählen
 
 Das Logo Ihres Vereins oder Ihres Turniers wird **oben links auf jedes Dokument** gedruckt (Spielplan, Plätze zum

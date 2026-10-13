@@ -87,6 +87,11 @@ quelque chose demandent toujours une confirmation.
 
 <img src="images/fr/about.png" alt="La fenêtre À propos" width="225">
 
+**Bibliothèques open source** liste les bibliothèques livrées avec l’application, chacune avec son rôle et sa
+licence ; un clic sur son nom ouvre son site dans le navigateur.
+
+<img src="images/fr/libraries.png" alt="Les bibliothèques open source" width="263">
+
 ## 3. Choisir le logo des documents
 
 Le logo de votre club ou de votre tournoi figure **en haut à gauche de chaque document imprimé** (tableau des

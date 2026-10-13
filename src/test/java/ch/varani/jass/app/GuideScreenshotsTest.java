@@ -14,6 +14,7 @@ import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Alert;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.DialogPane;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Spinner;
@@ -312,8 +313,8 @@ final class GuideScreenshotsTest {
   }
 
   /**
-   * Captures the directory, with a person selected, the settings, with the logo of the documents, and the window about
-   * the application.
+   * Captures the directory, with a person selected, the settings, with the logo of the documents, the window about
+   * the application and the window of its open-source libraries.
    *
    * @param robot the TestFX robot.
    *
@@ -335,6 +336,9 @@ final class GuideScreenshotsTest {
     capture(robot, pane, "settings");
     menu(robot, "aboutItem");
     capture(robot, natives.questions().getLast().getDialogPane(), "about");
+    final Hyperlink libraries = (Hyperlink) natives.questions().getLast().getDialogPane().lookup("#librariesLink");
+    robot.interact(libraries::fire);
+    capture(robot, natives.questions().getLast().getDialogPane(), "libraries");
   }
 
   /**

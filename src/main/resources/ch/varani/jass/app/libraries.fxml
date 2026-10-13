@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
+<!-- The open-source libraries shipped with the application (LibrariesController): one line per library. -->
+<VBox styleClass="panel-body, libraries" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+  <Label fx:id="introLabel" text="%libraries.intro" wrapText="true"/>
+  <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
+    <VBox fx:id="librariesBox" styleClass="libraries-list"/>
+  </ScrollPane>
+</VBox>

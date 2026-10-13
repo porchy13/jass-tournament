@@ -10,7 +10,8 @@ import java.net.URI;
 /**
  * The window about the application, shown from the Help menu: the icon and the name of the application, its version
  * (marked as a development version when it has a qualifier), its author with a link to the site of the author, its
- * licence, a link to its source code, and the button of the donations ({@link MainController#showAbout()}).
+ * licence, a link to its source code, a link to the open-source libraries it ships
+ * ({@link LibrariesController}), and the button of the donations ({@link MainController#showAbout()}).
  *
  * <p>The links are opened in the browser of the system only when the user clicks on them
  * ({@link MainController#browse(URI)}): the window itself calls no network.</p>
@@ -89,6 +90,14 @@ final class AboutController {
   @FXML
   void openSource() {
     main.browse(GitHubUpdater.REPOSITORY_URI);
+  }
+
+  /**
+   * Shows the open-source libraries shipped with the application.
+   */
+  @FXML
+  void openLibraries() {
+    main.showLibraries();
   }
 
 }

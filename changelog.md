@@ -18,6 +18,9 @@ All notable changes of the project are documented in this file.
   entered. The new participant takes its number and its places: the schedule is not computed again. Its score card
   and the score sheets of its games are exported alone from the registration; the schedule and the places, unchanged,
   are reprinted whole when needed. The participant replaced leaves the edition, but stays in the directory.
+- **About**: the link Open-source libraries lists the libraries shipped with the application (OR-Tools, JavaFX,
+  PDFBox, the font DejaVu Sans, the Java runtime…), each with its role and its licence; its name opens its site in
+  the browser.
 - **Update**: Help › Check for updates looks for a newer version at any time, and says when the application is up to
   date, is a development version, or when the check fails.
 

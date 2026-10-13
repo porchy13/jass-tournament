@@ -5,7 +5,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<!-- The window about the application (AboutController): icon, version, author, licence and source code. -->
+<!-- The window about the application (AboutController): icon, version, author, licence, source code and libraries. -->
 <VBox styleClass="panel-body, about" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
   <HBox styleClass="about-head">
     <ImageView fitWidth="64" fitHeight="64" preserveRatio="true">
@@ -16,4 +16,5 @@
   <Hyperlink fx:id="authorLink" text="%about.author" onAction="#openWebsite"/>
   <Label fx:id="licenceLabel" text="%about.licence"/>
   <Hyperlink fx:id="sourceLink" text="%about.source" onAction="#openSource"/>
+  <Hyperlink fx:id="librariesLink" text="%about.libraries" onAction="#openLibraries"/>
 </VBox>

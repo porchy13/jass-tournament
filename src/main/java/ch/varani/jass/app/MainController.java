@@ -1274,6 +1274,13 @@ final class MainController {
   }
 
   /**
+   * Shows the open-source libraries shipped with the application, from the window about the application.
+   */
+  void showLibraries() {
+    dialogs.panel("libraries.title", load("libraries.fxml", new LibrariesController(this)));
+  }
+
+  /**
    * Returns the version of the running application.
    *
    * @return the version.

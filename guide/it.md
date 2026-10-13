@@ -85,6 +85,11 @@ sorgente; **Fai una donazione** apre la pagina delle donazioni nel browser.
 
 <img src="images/it/about.png" alt="La finestra Informazioni" width="225">
 
+**Librerie open source** elenca le librerie fornite con l’applicazione, ciascuna con il suo ruolo e la sua licenza;
+un clic sul suo nome apre il suo sito nel browser.
+
+<img src="images/it/libraries.png" alt="Le librerie open source" width="263">
+
 ## 3. Scegliere il logo dei documenti
 
 Il logo della vostra società o del vostro torneo è stampato **in alto a sinistra di ogni documento** (tabellone degli

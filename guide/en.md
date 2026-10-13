@@ -82,6 +82,11 @@ a confirmation.
 
 <img src="images/en/about.png" alt="The About window" width="225">
 
+**Open-source libraries** lists the libraries shipped with the application, each with its role and its licence; a
+click on its name opens its site in the browser.
+
+<img src="images/en/libraries.png" alt="The open-source libraries" width="263">
+
 ## 3. Choose the logo of the documents
 
 The logo of your club or of your tournament is printed **at the top left of every document** (schedule, places to

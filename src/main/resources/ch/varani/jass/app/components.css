@@ -542,3 +542,21 @@
     -fx-text-fill: -c-accent;
     -fx-padding: 0;
 }
+
+/* The open-source libraries: a name in the accent colour above its role and its licence, a scroll beyond 360 px. */
+.libraries {
+    -fx-pref-width: 420;
+}
+
+.libraries .scroll-pane {
+    -fx-max-height: 360;
+}
+
+.libraries-list {
+    -fx-spacing: 10;
+}
+
+.library .hyperlink {
+    -fx-text-fill: -c-accent;
+    -fx-padding: 0;
+}

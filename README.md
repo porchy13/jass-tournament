@@ -50,7 +50,7 @@ saved, the selection and the notices.
 | Trash | Deleted editions: restore, empty after confirmation. |
 | Settings | "Settings…" in the File menu on macOS, "Options…" in the Tools menu elsewhere (Shortcut+,): theme (as the system, light, dark), accent colour of the system, reduced animations, and the logo of the documents — a PNG or JPEG image of at most 2 MB, printed at the top left of every document, shown in the panel. |
 | Update | At start-up, when a newer release is published on GitHub: its version and notes, Download and install or Not now; the download with its progress and Cancel; then the installer is opened and the application quits (see Automatic update). Help › Check for updates looks for it at any time, and says when the application is up to date, is a development version, or when the check fails. |
-| About | Help › About: the icon, the name and the version of the application (marked when it is a development version), "Made with ❤️ by Varani" with a link to https://www.varani.ch, the licence (Apache-2.0), a link to the source code on GitHub, and Make a donation (default button), which opens the page of the donations (PayPal) in the browser; Close. |
+| About | Help › About: the icon, the name and the version of the application (marked when it is a development version), "Made with ❤️ by Varani" with a link to https://www.varani.ch, the licence (Apache-2.0), a link to the source code on GitHub, a link to the open-source libraries shipped with the application (each with its role, its licence and a link to its site), and Make a donation (default button), which opens the page of the donations (PayPal) in the browser; Close. |
 | Menus | File: new element of the view (Shortcut+N), save of the form of the view in the registration, the accounting and the directory (Shortcut+S), import (Shortcut+O), export (Shortcut+E), move the edition to the trash, back up everything, quit (the application menu on macOS). View: editions, directory, trash (Shortcut+1, 2, 3), search (Shortcut+F), side bar (Shortcut+B), external display. Help: check for updates, about the application. F6 and Shift+F6 move the focus from a panel to the next. |
 
 The destructive actions are confirmed in a message box that names the action; the information that needs no decision
@@ -349,6 +349,10 @@ The versions are those of `pom.xml` (its `<properties>`), kept up to date with `
 | `org.junit.platform:junit-platform-commons` | unit tests | test |
 | `org.testfx:testfx-junit5` | user interface tests | test |
 | `org.testfx:openjfx-monocle` | headless user interface tests | test |
+
+Help › About › Open-source libraries lists the libraries shipped with the application (class `Library`): every
+runtime dependency above, the font DejaVu Sans and the Java runtime of the installers; a new runtime dependency gets
+its entry there.
 
 The profile `installer` uses the build plugins `org.codehaus.mojo:exec-maven-plugin` (runs `jlink` and `jpackage` of
 the JDK), `org.codehaus.mojo:build-helper-maven-plugin` (version of the installer) and

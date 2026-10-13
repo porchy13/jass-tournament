@@ -15,6 +15,7 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableColumn;
@@ -645,6 +646,39 @@ final class JassApplicationTest {
         () -> assertEquals(List.of("https://www.paypal.me/porchy13", "https://www.varani.ch",
                                    "https://github.com/porchy13/jass-tournament/"), links),
         () -> assertEquals(links, natives.opened()));
+  }
+
+  /**
+   * The window about the application links to the open-source libraries it ships: one line per library, its name, its
+   * role and its licence; the name opens the site of the library in the browser only when clicked.
+   *
+   * @param robot the TestFX robot.
+   *
+   * @throws Exception never.
+   */
+  @Test
+  @DisplayName("The window about the application lists the open-source libraries and opens their site")
+  void librariesTest(final FxRobot robot) throws Exception {
+    await(() -> names(robot).size() == 2);
+    menu(robot, "aboutItem");
+    final Pane about = (Pane) natives.questions().getLast().getDialogPane().getContent();
+    final Hyperlink link = (Hyperlink) about.lookup("#librariesLink");
+    robot.interact(link::fire);
+    final Alert alert = natives.questions().getLast();
+    final Pane libraries = (Pane) alert.getDialogPane().getContent();
+    final Pane list = (Pane) ((ScrollPane) libraries.getChildren().getLast()).getContent();
+    final Pane line = (Pane) list.lookup("#PDFBOX");
+    final Hyperlink name = (Hyperlink) line.getChildren().getFirst();
+    final List<String> before = List.copyOf(natives.opened());
+    robot.interact(name::fire);
+    assertAll(
+        () -> assertEquals("Bibliothèques open source", link.getText()),
+        () -> assertEquals("Bibliothèques open source", alert.getHeaderText()),
+        () -> assertEquals(Library.values().length, list.lookupAll(".library").size()),
+        () -> assertEquals("Apache PDFBox", name.getText()),
+        () -> assertEquals("Documents PDF · licence Apache-2.0", ((Label) line.getChildren().getLast()).getText()),
+        () -> assertEquals(List.of(), before),
+        () -> assertEquals(List.of("https://pdfbox.apache.org"), natives.opened()));
   }
 
 }
