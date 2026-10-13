@@ -226,11 +226,11 @@ Eine späte Anmeldung? Nach dem Schliessen kommt sie auf die Warteliste.
 Eine Abmeldung? Wählen Sie die Anmeldung unter **Anmeldungen**: **Durch die erste Anmeldung der Warteliste ersetzen**,
 oder tippen Sie andere Spielende und wählen Sie **Ersetzen**. Der Ersatz übernimmt die Nummer und die Plätze der
 abgemeldeten Teilnehmenden, ohne neue Berechnung des Spielplans; das ist möglich, solange kein Resultat ihrer Partien
-erfasst ist. Die ersetzten Teilnehmenden verlassen die Ausgabe, bleiben aber im Verzeichnis; muss ihr Startgeld
-zurückerstattet werden, erfassen Sie in der Buchhaltung eine Buchung vom Typ Ausgabe. Unter **Dokumente der
-Anmeldung** drucken **Punktekarte exportieren** und **Resultatblätter exportieren** nur die Dokumente, die sich
-ändern: die Karte des Ersatzes und die Blätter seiner Partien. Spielplan und Plätze zum Aushängen ändern ihre Form
-nicht; drucken Sie sie bei Bedarf ganz neu, zum Beispiel ohne Bildschirm im Saal.
+erfasst ist. Die ersetzten Teilnehmenden verlassen die Ausgabe, bleiben aber im Verzeichnis; das Startgeld wird am
+Turniertag bezahlt: Der Ersatz, als nicht bezahlt angemeldet, bezahlt seines, und wer sich abmeldet, bezahlt nichts.
+Unter **Dokumente der Anmeldung** drucken **Punktekarte exportieren** und **Resultatblätter exportieren** nur die
+Dokumente, die sich ändern: die Karte des Ersatzes und die Blätter seiner Partien. Spielplan und Plätze zum Aushängen
+ändern ihre Form nicht; drucken Sie sie bei Bedarf ganz neu, zum Beispiel ohne Bildschirm im Saal.
 
 Um alles neu zu berechnen, löscht **Anmeldung wieder öffnen** (solange keine Punkte erfasst sind) den Spielplan, der
 beim nächsten Schliessen neu berechnet wird. Drucken Sie dann alle Dokumente neu.

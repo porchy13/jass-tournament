@@ -215,13 +215,13 @@ receives, and the participants sitting out. It exports the following documents a
 A late registration? After the closing, it goes to the waiting list.
 
 A withdrawal? Select the participant in **Registration**: **Replace by the first of the waiting list**, or type other
-players and choose **Replace**. The new participant takes the number and the places of the one who withdraws,
-without computing the schedule again; the replacement is possible as long as no result of its games is entered. The
-participant replaced leaves the edition, but stays in the directory; if its registration fee must be refunded, enter
-an expense in the accounting. Under **Documents of the participant**, **Export the score card** and **Export the
-score sheets** print only the documents that change: its card and the sheets of its games. The schedule and the
-places to post do not change their form; print them again whole when needed, for instance without a screen in the
-hall.
+players and choose **Replace**. The new participant takes the number and the places of the one who withdraws, without
+computing the schedule again; the replacement is possible as long as no result of its games is entered. The
+participant replaced leaves the edition, but stays in the directory; the registration fees are paid on the day of the
+tournament: the new participant, registered as not paid, pays its fee, and the one who withdraws pays nothing. Under
+**Documents of the participant**, **Export the score card** and **Export the score sheets** print only the documents
+that change: its card and the sheets of its games. The schedule and the places to post do not change their form; print
+them again whole when needed, for instance without a screen in the hall.
 
 To compute everything again, **Reopen the registration** (as long as no score is entered) deletes the schedule, which
 is computed again at the next closing. Print all the documents again then.

@@ -223,11 +223,11 @@ Un’iscrizione tardiva? Dopo la chiusura, va nella lista d’attesa.
 Un ritiro? Selezionate l’iscritto in **Iscrizioni**: **Sostituisci con il primo della lista d’attesa**, oppure
 digitate altri giocatori e scegliete **Sostituisci**. Il sostituto prende il numero e i posti dell’iscritto che si
 ritira, senza ricalcolo degli incontri; la sostituzione è possibile finché nessun risultato delle sue partite è
-inserito. L’iscritto sostituito lascia l’edizione, ma resta nell’elenco; se la sua quota d’iscrizione va rimborsata,
-registrate una spesa nella contabilità. Sotto **Documenti del partecipante**, **Esporta la scheda dei punti** ed
-**Esporta i fogli dei risultati** stampano solo i documenti che cambiano: la sua scheda e i fogli delle sue partite.
-Il tabellone degli incontri e i posti da affiggere non cambiano forma; ristampateli interi se necessario, per esempio
-senza schermo in sala.
+inserito. L’iscritto sostituito lascia l’edizione, ma resta nell’elenco; le quote d’iscrizione si pagano il giorno del
+torneo: il sostituto, iscritto come non pagante, paga la sua, e chi si ritira non paga nulla. Sotto **Documenti del
+partecipante**, **Esporta la scheda dei punti** ed **Esporta i fogli dei risultati** stampano solo i documenti che
+cambiano: la sua scheda e i fogli delle sue partite. Il tabellone degli incontri e i posti da affiggere non cambiano
+forma; ristampateli interi se necessario, per esempio senza schermo in sala.
 
 Per ricalcolare tutto, **Riaprire le iscrizioni** (finché nessun punto è inserito) elimina gli incontri, che sono
 ricalcolati alla chiusura successiva. Ristampate poi tutti i documenti.

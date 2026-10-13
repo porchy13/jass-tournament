@@ -220,14 +220,14 @@ reçoit, et les participants au repos. Elle exporte en PDF les documents suivant
 
 Une inscription tardive ? Après la clôture, elle va en liste d’attente.
 
-Un désistement ? Sélectionnez l’inscrit dans **Inscriptions** : **Remplacer par le premier de la liste d’attente**,
-ou saisissez d’autres joueurs et choisissez **Remplacer**. Le remplaçant prend le numéro et les places de l’inscrit
-qui se désiste, sans recalcul des rencontres ; le remplacement est possible tant qu’aucun résultat de ses parties
-n’est saisi. L’inscrit remplacé quitte l’édition, mais reste dans l’annuaire ; si sa finance d’inscription doit être
-remboursée, saisissez une dépense dans la comptabilité. Sous **Documents du participant**, **Exporter la carte de
-points** et **Exporter les feuilles de résultats** n’impriment que les documents qui changent : sa carte et les
-feuilles de ses parties. Le tableau des rencontres et les places à afficher ne changent pas de forme ; réimprimez-les
-en entier au besoin, par exemple sans écran dans la salle.
+Un désistement ? Sélectionnez l’inscrit dans **Inscriptions** : **Remplacer par le premier de la liste d’attente**, ou
+saisissez d’autres joueurs et choisissez **Remplacer**. Le remplaçant prend le numéro et les places de l’inscrit qui
+se désiste, sans recalcul des rencontres ; le remplacement est possible tant qu’aucun résultat de ses parties n’est
+saisi. L’inscrit remplacé quitte l’édition, mais reste dans l’annuaire ; les finances d’inscription se paient le jour
+du tournoi : le remplaçant, inscrit comme n’ayant pas payé, paie la sienne, et l’inscrit qui se désiste ne paie rien.
+Sous **Documents du participant**, **Exporter la carte de points** et **Exporter les feuilles de résultats**
+n’impriment que les documents qui changent : sa carte et les feuilles de ses parties. Le tableau des rencontres et les
+places à afficher ne changent pas de forme ; réimprimez-les en entier au besoin, par exemple sans écran dans la salle.
 
 Pour tout recalculer, **Rouvrir les inscriptions** (tant qu’aucun point n’est saisi) supprime les rencontres, qui
 sont recalculées à la clôture suivante. Réimprimez alors tous les documents.
