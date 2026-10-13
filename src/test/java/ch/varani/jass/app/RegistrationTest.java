@@ -22,6 +22,7 @@ import ch.varani.jass.persistence.EditionHeader;
 import ch.varani.jass.persistence.EditionStore;
 import ch.varani.jass.solver.SolverOptions;
 import ch.varani.jass.solver.SolverResult;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
@@ -47,6 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -422,6 +424,38 @@ final class RegistrationTest {
         () -> assertTrue(hidden),
         () -> assertEquals(List.of("Bruno Rochat"), corrected),
         () -> assertEquals(List.of(), teamMate));
+  }
+
+  /**
+   * F5, F14: a proposal clicked with the mouse links the player without any error on the JavaFX thread, although
+   * linking it empties the list of the proposals.
+   *
+   * @param robot the TestFX robot.
+   *
+   * @throws Exception never.
+   */
+  @Test
+  @DisplayName("F5, F14: a proposal clicked with the mouse links the player without error")
+  void clickedTest(final FxRobot robot) throws Exception {
+    open(robot, "Match 2026");
+    final List<Throwable> errors = new CopyOnWriteArrayList<>();
+    final AtomicReference<Thread.UncaughtExceptionHandler> handler = new AtomicReference<>();
+    robot.interact(() -> {
+      handler.set(Thread.currentThread().getUncaughtExceptionHandler());
+      Thread.currentThread().setUncaughtExceptionHandler((thread, error) -> errors.add(error));
+    });
+    try {
+      type(robot, "first1", "ann");
+      robot.clickOn(robot.from(proposals(robot, "proposals1")).lookup(".list-cell").queryAs(Node.class));
+      WaitForAsyncUtils.waitForFxEvents();
+    } finally {
+      robot.interact(() -> Thread.currentThread().setUncaughtExceptionHandler(handler.get()));
+    }
+    final boolean hidden = !proposals(robot, "proposals1").isVisible();
+    assertAll(
+        () -> assertEquals(List.of(), errors),
+        () -> assertEquals("de l’annuaire", text(robot, "link1")),
+        () -> assertTrue(hidden));
   }
 
   /**

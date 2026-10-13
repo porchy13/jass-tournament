@@ -15,6 +15,7 @@ import ch.varani.jass.solver.SolverResult;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -376,7 +377,8 @@ final class RegistrationController {
 
   /**
    * Follows the fields of a player: typing changes the slot and the proposals of the directory; choosing a proposal
-   * links the player.
+   * links the player, once the list has notified the selection: emptying it while it notifies breaks its own
+   * listeners ({@link IndexOutOfBoundsException} on the JavaFX thread).
    *
    * @param index the index of the slot.
    * @param first the field of the first name.
@@ -393,8 +395,10 @@ final class RegistrationController {
     last.textProperty().addListener((property, before, after) -> typed(slot, first, last));
     proposals.getSelectionModel().selectedItemProperty().addListener((property, before, after) -> {
       if (after != null) {
-        slot.link(after);
-        refresh();
+        Platform.runLater(() -> {
+          slot.link(after);
+          refresh();
+        });
       }
     });
   }

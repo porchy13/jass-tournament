@@ -33,6 +33,10 @@ All notable changes of the project are documented in this file.
   versions are converted when opened: the maximum is the number of teams registered when the schedule is computed,
   otherwise 20, or the number of teams registered when it is greater.
 
+### Fixed
+- **Registration**: choosing a proposal of the directory with the mouse no longer raises an error on the JavaFX
+  thread (reported in the console only, the player was linked).
+
 ## [1.0.5] – 2026-10-13
 
 ### Added
