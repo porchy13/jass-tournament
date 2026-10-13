@@ -2,7 +2,7 @@
 
 All notable changes of the project are documented in this file.
 
-## [Unreleased]
+## [1.1.0] – 2026-10-13
 
 ### Added
 - **Maximum of teams and waiting list**: an edition has a maximum number of teams (20 by default, twice as many
