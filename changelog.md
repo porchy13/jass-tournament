@@ -2,7 +2,7 @@
 
 All notable changes of the project are documented in this file.
 
-## [Unreleased]
+## [1.0.5] – 2026-10-13
 
 ### Added
 - **About** (Help › About): the version of the application, its author with a link to the site of the author, its
