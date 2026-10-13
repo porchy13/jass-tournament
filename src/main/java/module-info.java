@@ -18,6 +18,7 @@ module ch.varani.jass {
   requires org.apache.pdfbox;
   requires org.apache.pdfbox.io;
   requires com.google.i18n.phonenumbers.libphonenumber;
+  requires org.commonmark;
   requires javafx.controls;
   requires javafx.fxml;
   requires ortools.java;

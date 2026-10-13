@@ -27,6 +27,17 @@ final class FakeUpdater implements Updater {
   static final FakeUpdater NONE = new FakeUpdater(null, null, null);
   /** The size of the installer of the tests, in bytes. */
   static final long SIZE = 5_000_000;
+  /** The notes of the release, written as a section of the changelog. */
+  static final String NOTES = """
+      ### Added
+      - **Maximum of teams and waiting list**: an edition has a maximum number of teams; once it is full, a new
+        registration goes to the waiting list, first in, first out.
+      - **Replacement**: once the schedule is computed, a participant who withdraws is replaced by the first
+        participant of the waiting list, without computing the schedule again.
+
+      ### Fixed
+      - **Registration**: choosing a proposal of the directory with the mouse no longer raises an error.
+      """;
   /** The number of hexadecimal digits of a SHA-256 digest. */
   private static final int DIGITS = 64;
   /** The interval between two checks of the cancellation, in milliseconds. */
@@ -74,12 +85,12 @@ final class FakeUpdater implements Updater {
   }
 
   /**
-   * Returns a release 1.1.0 with its notes.
+   * Returns a release 1.1.0 with its notes ({@link #NOTES}).
    *
    * @return the release.
    */
   static Release release() {
-    return new Release(Version.parse("1.1.0"), "### Added\n- The automatic update.\n",
+    return new Release(Version.parse("1.1.0"), NOTES,
                        URI.create("https://example.org/jass-tournament-1.1.0-macos-aarch64.dmg"),
                        "jass-tournament-1.1.0-macos-aarch64.dmg", "0".repeat(DIGITS));
   }

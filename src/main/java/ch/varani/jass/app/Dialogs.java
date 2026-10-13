@@ -9,7 +9,7 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
@@ -43,8 +43,8 @@ final class Dialogs {
   // Constants
   // *******************************************************************************************************************
 
-  /** The number of lines shown by the details of an offer. */
-  private static final int DETAIL_ROWS = 10;
+  /** The height of the frame showing the details of an offer, in pixels. */
+  private static final double DETAIL_HEIGHT = 240;
 
   // *******************************************************************************************************************
   // Inner types
@@ -268,30 +268,31 @@ final class Dialogs {
   /**
    * Proposes an operation that the user may postpone, with details to read before choosing (e.g. an update and its
    * notes): the question as header ({@code <key>.title}), its consequence as text ({@code <key>.text}), the details
-   * under their heading ({@code <key>.details}) in a read-only text, and two buttons in the order of the system: the
+   * under their heading ({@code <key>.details}) in a scrolling frame, and two buttons in the order of the system: the
    * action ({@code <key>.action}), default button, and the postponement ({@code <key>.decline}).
    *
    * @param key the prefix of the keys of the texts.
-   * @param details the details, shown as they are.
+   * @param details the details, e.g. the notes of a release shown by {@link Markdown}.
    * @param arguments the values inserted in the texts.
    *
    * @return {@code true} if the user chose the action.
    */
-  boolean offer(final String key, final String details, final Object... arguments) {
+  boolean offer(final String key, final Node details, final Object... arguments) {
     final Alert alert = alert(Alert.AlertType.CONFIRMATION, null);
     alert.setHeaderText(messages.get(key + ".title", arguments));
     final Label text = new Label(messages.get(key + ".text", arguments));
     text.setWrapText(true);
     text.getStyleClass().add("consequence");
-    final TextArea area = new TextArea(details);
-    area.setId("details");
-    area.setEditable(false);
-    area.setWrapText(true);
-    area.setPrefRowCount(DETAIL_ROWS);
+    final ScrollPane frame = new ScrollPane(details);
+    frame.setId("details");
+    frame.getStyleClass().add("details");
+    frame.setFitToWidth(true);
+    frame.setFocusTraversable(true);
+    frame.setPrefViewportHeight(DETAIL_HEIGHT);
     final Label heading = new Label(messages.get(key + ".details"));
     heading.getStyleClass().add("section-head");
-    heading.setLabelFor(area);
-    final VBox content = new VBox(text, heading, area);
+    heading.setLabelFor(frame);
+    final VBox content = new VBox(text, heading, frame);
     content.getStyleClass().addAll("panel-body", "offer");
     alert.getDialogPane().setContent(content);
     final ButtonType action = new ButtonType(messages.get(key + ".action", arguments), ButtonBar.ButtonData.OK_DONE);

@@ -38,6 +38,7 @@
         <ortools.version>9.15.6755</ortools.version>
         <libphonenumber.version>9.0.41</libphonenumber.version>
         <pdfbox.version>3.0.8</pdfbox.version>
+        <commonmark.version>0.30.1</commonmark.version>
         <!-- JVM option pointing to unpacked OR-Tools native libraries; set by the OS profiles below. -->
         <test.libraryPath />
     </properties>
@@ -71,6 +72,12 @@
             <groupId>com.googlecode.libphonenumber</groupId>
             <artifactId>libphonenumber</artifactId>
             <version>${libphonenumber.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.commonmark</groupId>
+            <artifactId>commonmark</artifactId>
+            <version>${commonmark.version}</version>
         </dependency>
 
         <dependency>

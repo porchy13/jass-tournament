@@ -8,8 +8,10 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -103,13 +105,14 @@ final class UpdateTest {
     UiSupport.await(() -> !natives.questions().isEmpty());
     final Alert offer = natives.questions().getFirst();
     final List<String> buttons = offer.getButtonTypes().stream().map(ButtonType::getText).toList();
+    final VBox notes = (VBox) ((ScrollPane) offer.getDialogPane().lookup("#details")).getContent();
     assertAll(
         () -> assertEquals(MESSAGES.get("update.offer.title", "1.1.0"), offer.getHeaderText()),
         () -> assertTrue(((Label) ((VBox) offer.getDialogPane().getContent()).getChildren().getFirst()).getText()
                              .contains("1.0.0")),
-        () -> assertEquals(FakeUpdater.release().notes(),
-                           ((TextArea) offer.getDialogPane().lookup("#details")).getText()),
-        () -> assertFalse(((TextArea) offer.getDialogPane().lookup("#details")).isEditable()),
+        () -> assertEquals("Added", ((Text) ((TextFlow) notes.getChildren().getFirst()).getChildren().getFirst())
+                                        .getText()),
+        () -> assertTrue(notes.getStyleClass().contains("markdown")),
         () -> assertEquals(List.of(MESSAGES.get("update.offer.action"), MESSAGES.get("update.offer.decline")),
                            buttons),
         () -> assertTrue(natives.notices().isEmpty()),

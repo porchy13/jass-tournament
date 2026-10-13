@@ -22,6 +22,8 @@ All notable changes of the project are documented in this file.
   date, is a development version, or when the check fails.
 
 ### Changed
+- **Update**: the notes of a release offered by the update are shown formatted (headings, lists, bold, code) instead
+  of their raw Markdown.
 - **Documents**: the PDF documents ask for one-sided printing, so that the score cards and the score sheets to cut
   have nothing on their back; the viewers that honour this preference (Adobe Acrobat Reader) preselect it, the
   others leave the choice to the print dialog, as the user guide explains.

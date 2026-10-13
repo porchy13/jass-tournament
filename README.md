@@ -99,7 +99,7 @@ cross-compile): `.dmg` on macOS (Apple Silicon or Intel), `.msi` on Windows (nee
 `dotnet tool install --global wix --version 5.0.2` and its extensions `WixToolset.Util.wixext` and
 `WixToolset.UI.wixext`), `.deb` on Linux (needs `fakeroot`), into `target/installer/dist/`. The steps are:
 
-1. the application jar and its automatic modules (OR-Tools, protobuf, JNA, PDFBox, libphonenumber) go to
+1. the application jar, its automatic modules (OR-Tools, protobuf, JNA, PDFBox, libphonenumber) and commonmark go to
    `target/installer/mods`;
 2. the native libraries of OR-Tools and of JavaFX of the platform are unpacked into `target/installer/native`; the
    application ships them and loads them through `java.library.path`, never from a temporary directory (on Windows,
@@ -342,6 +342,7 @@ The versions are those of `pom.xml` (its `<properties>`), kept up to date with `
 | `org.openjfx:javafx-controls`, `javafx-fxml` | user interface | compile |
 | `com.googlecode.libphonenumber:libphonenumber` | phone numbers of the directory | compile |
 | `org.apache.pdfbox:pdfbox` (with `fontbox`, `pdfbox-io`, `commons-logging`) | PDF documents | compile |
+| `org.commonmark:commonmark` | notes of a release, in Markdown, shown by the offer of an update | compile |
 | `org.junit.jupiter:junit-jupiter-api`, `-params`, `-engine` | unit tests | test |
 | `org.junit.platform:junit-platform-commons` | unit tests | test |
 | `org.testfx:testfx-junit5` | user interface tests | test |
@@ -358,7 +359,9 @@ At each start, the application looks in the background for a newer release on Gi
 shown. Help › Check for updates runs the same check when the user asks, and then reports its outcome. It reads `SHA256SUMS` of the latest release
 (`https://github.com/porchy13/jass-tournament/releases/latest/download/SHA256SUMS`), which names the installer of each platform with its version (`jass-tournament-<version>-<platform>.<extension>`), and,
 if this version is newer, the notes of the release (`release-notes.md`, checked against their digest). The user is
-offered to install it, with its notes, or to postpone it until the next start. Once accepted, the installer is
+offered to install it, with its notes, or to postpone it until the next start. The notes, in Markdown, are parsed by
+commonmark-java and shown as styled text (headings, lists, emphasis, code), never as HTML: nothing in them is
+interpreted, a link or an image shows its text only. Once accepted, the installer is
 downloaded with its progress (cancellable) into `updates/` of the data folder, its SHA-256 digest checked against
 `SHA256SUMS` (a damaged file is deleted and the failure explained); the pending saves are completed, the installer is
 opened with the application of the system (the system then asks for the installation) and the application quits.

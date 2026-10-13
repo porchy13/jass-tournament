@@ -132,7 +132,7 @@ final class UpdateController {
    * @param release the release.
    */
   private void offer(final Release release) {
-    if (main.dialogs().offer("update.offer", release.notes(), release.version().toString(),
+    if (main.dialogs().offer("update.offer", Markdown.render(release.notes()), release.version().toString(),
                              updater.current().toString())) {
       download(release);
     }

@@ -451,6 +451,73 @@
     -fx-text-fill: -c-text-2;
 }
 
+/* The notes of a release, in Markdown (Markdown.java): framed as a text area, one line and a half per line (§4). */
+.offer .details {
+    -fx-background-color: -c-border-strong, -c-surface;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 4, 3;
+    -fx-padding: 1;
+}
+
+.offer .details:focused {
+    -fx-background-color: -c-accent-subtle, -c-accent, -c-surface;
+    -fx-background-insets: -2, 0, 1;
+    -fx-background-radius: 6, 4, 3;
+}
+
+.markdown {
+    -fx-padding: 8 12 8 12;
+    -fx-spacing: 8;
+}
+
+.markdown .md-blocks {
+    -fx-spacing: 4;
+}
+
+.markdown .md-paragraph, .markdown .md-heading, .markdown .md-code-block {
+    -fx-line-spacing: 6;
+}
+
+.markdown .md-text {
+    -fx-fill: -c-text;
+}
+
+.markdown .md-heading .md-text {
+    -fx-fill: -c-text-2;
+    -fx-font-size: 0.92em;
+    -fx-font-weight: 600;
+}
+
+.markdown .md-heading {
+    -fx-padding: 6 0 0 0;
+}
+
+.markdown .md-strong {
+    -fx-font-weight: 600;
+}
+
+.markdown .md-emphasis {
+    -fx-font-style: italic;
+}
+
+.markdown .md-code {
+    -fx-font-family: "Monospaced";
+}
+
+.markdown .md-list {
+    -fx-spacing: 4;
+}
+
+.markdown .md-item {
+    -fx-spacing: 6;
+}
+
+.markdown .md-quote {
+    -fx-border-color: -c-border-strong;
+    -fx-border-width: 0 0 0 2;
+    -fx-padding: 0 0 0 10;
+}
+
 .download {
     -fx-padding: 12 20 12 20;
     -fx-spacing: 8;
