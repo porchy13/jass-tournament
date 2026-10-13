@@ -2,6 +2,7 @@ package ch.varani.jass.app;
 
 import ch.varani.jass.update.Release;
 import ch.varani.jass.update.Updater;
+import ch.varani.jass.update.Version;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
@@ -18,7 +19,9 @@ import java.util.Optional;
  *
  * <ol>
  *   <li>At start-up, a background task asks the {@link Updater} whether a newer release is published; the start is
- *       never blocked, and without network or on any error nothing is shown (the kind of the error is logged).</li>
+ *       never blocked, and without network or on any error nothing is shown (the kind of the error is logged). The
+ *       user can also ask for the check (Help › Check for updates, {@link #checkNow()}): it then says when the
+ *       application is up to date, is a development version, or when the check fails.</li>
  *   <li>If one is, the user is offered to install it, with its notes; the offer can be postponed until the next
  *       start.</li>
  *   <li>Once accepted, its installer is downloaded by a background task, whose progress is shown in a box with a
@@ -73,6 +76,25 @@ final class UpdateController {
    * it cannot be known.
    */
   void check() {
+    search(false);
+  }
+
+  /**
+   * Looks for a newer release in the background because the user asked for it: offers it, or says that the
+   * application is up to date, that it is a development version (which never looks for an update), or that the check
+   * failed (e.g. without network).
+   */
+  void checkNow() {
+    search(true);
+  }
+
+  /**
+   * Looks for a newer release in the background, and offers it when there is one.
+   *
+   * @param asked {@code true} when the user asked for the check: the absence of release and the failure are then
+   *              shown; at start-up they are not.
+   */
+  private void search(final boolean asked) {
     final Task<Optional<Release>> task = new Task<>() {
 
       /**
@@ -88,9 +110,19 @@ final class UpdateController {
       }
 
     };
-    task.setOnSucceeded(event -> task.getValue().ifPresent(this::offer));
-    task.setOnFailed(event -> LOGGER.log(Level.INFO, "No update found: {0}",
-                                         task.getException().getClass().getSimpleName()));
+    task.setOnSucceeded(event -> task.getValue().ifPresentOrElse(this::offer, () -> {
+      if (asked) {
+        final Version current = updater.current();
+        main.dialogs().information(current.development() ? "update.development" : "update.latest",
+                                   current.toString());
+      }
+    }));
+    task.setOnFailed(event -> {
+      LOGGER.log(Level.INFO, "No update found: {0}", task.getException().getClass().getSimpleName());
+      if (asked) {
+        main.dialogs().information("update.failed");
+      }
+    });
     Thread.ofPlatform().daemon().name("jass-update").start(task);
   }
 

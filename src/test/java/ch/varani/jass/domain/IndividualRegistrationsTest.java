@@ -78,4 +78,49 @@ final class IndividualRegistrationsTest {
         () -> assertEquals(MANY_GAMES + 1, registrations.minimumSize(MANY_GAMES)));
   }
 
+  /**
+   * The waiting list keeps its order: a player moves up when the first one is registered or removed, the last
+   * registered player moves to its head, and its first player replaces a registered player, who leaves.
+   */
+  @Test
+  @DisplayName("The waiting list is first in, first out, and its first player replaces a registered one")
+  void waitingListTest() {
+    final IndividualRegistrations registrations = IndividualRegistrations.empty().add(ANNE).addWaiting(BRUNO)
+                                                                         .addWaiting(CHLOE);
+    assertAll(
+        () -> assertEquals(1, registrations.size()),
+        () -> assertEquals(2, registrations.waitingSize()),
+        () -> assertEquals(BRUNO, registrations.waitingAt(1)),
+        () -> assertEquals(List.of(BRUNO), registrations.participant(1, true)),
+        () -> assertEquals(List.of(ANNE), registrations.participant(1, false)),
+        () -> assertEquals(List.of(BRUNO, CHLOE), registrations.waitingPlayers()),
+        () -> assertEquals(List.of(ANNE, BRUNO), registrations.promote().players()),
+        () -> assertEquals(List.of(ANNE, BRUNO, CHLOE), registrations.demote().waiting()),
+        () -> assertEquals(List.of(BRUNO), registrations.replaceByFirstWaiting(1).players()),
+        () -> assertEquals(List.of(CHLOE), registrations.removeWaiting(1).waiting()),
+        () -> assertEquals(List.of(new Player("Gaël", "Vuille"), CHLOE),
+                           registrations.replaceWaiting(1, new Player("Gaël", "Vuille")).waiting()),
+        () -> assertEquals(ValidationError.DUPLICATE_PLAYER,
+                           assertThrows(DomainException.class, () -> registrations.add(BRUNO)).getError()));
+  }
+
+  /**
+   * A player is registered or corrected from a list of one player, on the waiting list or not.
+   */
+  @Test
+  @DisplayName("A player is registered or corrected from a list of one player, on the waiting list or not")
+  void playersTest() {
+    final IndividualRegistrations registrations = IndividualRegistrations.empty().enrol(List.of(ANNE), false)
+                                                                         .enrol(List.of(BRUNO), true);
+    assertAll(
+        () -> assertEquals(List.of(ANNE), registrations.players()),
+        () -> assertEquals(List.of(BRUNO), registrations.waiting()),
+        () -> assertEquals(List.of(CHLOE), registrations.correct(1, List.of(CHLOE), false).players()),
+        () -> assertEquals(List.of(CHLOE), registrations.correct(1, List.of(CHLOE), true).waiting()),
+        () -> assertEquals(ValidationError.WRONG_TEAM_SIZE,
+                           assertThrows(DomainException.class,
+                                        () -> registrations.enrol(List.of(CHLOE, new Player("Gaël", "Vuille")),
+                                                                  false)).getError()));
+  }
+
 }

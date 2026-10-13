@@ -25,6 +25,7 @@ import ch.varani.jass.solver.SolverResult;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleButton;
@@ -280,7 +281,7 @@ final class RegistrationTest {
     robot.interact(() -> registrations(robot).getSelectionModel().clearSelection());
     press(robot, "newButton");
     assertAll(
-        () -> assertEquals("2 équipes inscrites (au moins 3 pour calculer les rencontres)", counted),
+        () -> assertEquals("2 équipes inscrites sur 20 au plus (au moins 3 pour calculer les rencontres)", counted),
         () -> assertTrue(solveDisabled),
         () -> assertEquals(List.of("Anne Fontaine"), offered),
         () -> assertEquals("de l’annuaire", linked),
@@ -470,7 +471,7 @@ final class RegistrationTest {
     final ToggleButton registration = robot.lookup("#registrationNav").queryAs(ToggleButton.class);
     robot.interact(registration::fire);
     await(() -> shown(robot, "addButton"));
-    final boolean addDisabled = disabled(robot, "addButton");
+    final boolean full = robot.lookup("#full").query().isVisible();
     natives.answer(false);
     press(robot, "reopenButton");
     natives.answer(true);
@@ -490,7 +491,7 @@ final class RegistrationTest {
             return false;
           }
         })),
-        () -> assertTrue(addDisabled),
+        () -> assertTrue(full),
         () -> assertFalse(robot.lookup("#reopenButton").query().isVisible()));
   }
 
@@ -587,20 +588,174 @@ final class RegistrationTest {
   }
 
   /**
-   * An edition with results cannot be reopened: its registration stays closed.
+   * An edition with results cannot be reopened: its registration stays closed, new teams go to the waiting list, and
+   * a team cannot be replaced once a result of its games is entered.
    *
    * @param robot the TestFX robot.
    *
    * @throws Exception never.
    */
   @Test
-  @DisplayName("An edition with results cannot be reopened")
+  @DisplayName("An edition with results cannot be reopened; a team with a result cannot be replaced")
   void playedTest(final FxRobot robot) throws Exception {
     open(robot, "Match joué");
+    robot.interact(() -> registrations(robot).getSelectionModel().select(0));
+    WaitForAsyncUtils.waitForFxEvents();
+    final boolean scored = disabled(robot, "replaceButton");
+    robot.interact(() -> registrations(robot).getSelectionModel().select(2));
+    WaitForAsyncUtils.waitForFxEvents();
     assertAll(
         () -> assertTrue(disabled(robot, "reopenButton")),
-        () -> assertTrue(disabled(robot, "addButton")),
-        () -> assertFalse(robot.lookup("#solveButton").query().isVisible()));
+        () -> assertTrue(robot.lookup("#full").query().isVisible()),
+        () -> assertTrue(disabled(robot, "maxSpinner")),
+        () -> assertFalse(robot.lookup("#solveButton").query().isVisible()),
+        () -> assertFalse(robot.lookup("#removeButton").query().isVisible()),
+        () -> assertTrue(scored),
+        () -> assertFalse(disabled(robot, "replaceButton")),
+        () -> assertTrue(disabled(robot, "waitingReplaceButton")),
+        () -> assertTrue(robot.lookup("#documents").query().isVisible()));
+  }
+
+  /**
+   * Returns the table of the waiting list.
+   *
+   * @param robot the TestFX robot.
+   *
+   * @return the table.
+   */
+  @SuppressWarnings("unchecked")
+  private static TableView<Integer> waiting(final FxRobot robot) {
+    return robot.lookup("#waitingTable").queryAs(TableView.class);
+  }
+
+  /**
+   * Types the names of the two players of a team in the entry.
+   *
+   * @param robot the TestFX robot.
+   * @param first the first name of both players.
+   * @param last the last names of the players.
+   */
+  private static void typeTeam(final FxRobot robot, final String first, final String... last) {
+    type(robot, "first1", first);
+    type(robot, "last1", last[0]);
+    type(robot, "first2", first + "2");
+    type(robot, "last2", last[1]);
+  }
+
+  /**
+   * Maximum of teams and waiting list: lowering the maximum moves the last team to the waiting list, in place; a new
+   * team waits once the edition is full; a waiting team is corrected and removed; a withdrawal registers the first
+   * team waiting.
+   *
+   * @param robot the TestFX robot.
+   *
+   * @throws Exception never.
+   */
+  @Test
+  @DisplayName("Waiting list: maximum of teams, teams waiting first in, first out, corrected and removed")
+  void waitingListTest(final FxRobot robot) throws Exception {
+    open(robot, "Match prêt");
+    final boolean hidden = !robot.lookup("#waitingTable").query().isVisible() && !robot.lookup("#full").query()
+                                                                                       .isVisible();
+    @SuppressWarnings("unchecked")
+    final Spinner<Integer> max = robot.lookup("#maxSpinner").queryAs(Spinner.class);
+    robot.interact(() -> max.getValueFactory().setValue(2));
+    await(() -> waiting(robot).getItems().size() == 1 && saved("Match prêt").maxTeams() == 2);
+    final String counted = text(robot, "count");
+    final String head = text(robot, "waitingHead");
+    final String fullHint = text(robot, "full");
+    typeTeam(robot, "Léa", "Attente", "Attente");
+    press(robot, "addButton");
+    await(() -> waiting(robot).getItems().size() == 2);
+    robot.interact(() -> waiting(robot).getSelectionModel().select(1));
+    WaitForAsyncUtils.waitForFxEvents();
+    final String selected = text(robot, "first1");
+    robot.interact(() -> registrations(robot).getSelectionModel().select(0));
+    robot.interact(() -> waiting(robot).getSelectionModel().select(1));
+    WaitForAsyncUtils.waitForFxEvents();
+    type(robot, "last1", "Patiente");
+    menu(robot, "saveItem");
+    await(() -> String.valueOf(waiting(robot).getColumns().get(1).getCellData(1)).equals("Léa Patiente"));
+    robot.interact(() -> waiting(robot).getSelectionModel().select(1));
+    natives.answer(false);
+    press(robot, "removeButton");
+    final int kept = waiting(robot).getItems().size();
+    natives.answer(true);
+    press(robot, "removeButton");
+    await(() -> waiting(robot).getItems().size() == 1);
+    robot.interact(() -> registrations(robot).getSelectionModel().select(0));
+    natives.answer(true);
+    press(robot, "removeButton");
+    await(() -> registrations(robot).getItems().size() == 2 && !robot.lookup("#waitingTable").query().isVisible());
+    assertAll(
+        () -> assertTrue(hidden),
+        () -> assertEquals("2 équipes inscrites sur 2 au plus (au moins 3 pour calculer les rencontres)", counted),
+        () -> assertEquals("Liste d’attente : 1", head),
+        () -> assertEquals("L’édition est complète : Inscrire place l’inscription en liste d’attente.", fullHint),
+        () -> assertEquals("Léa", selected),
+        () -> assertEquals(2, kept),
+        () -> assertEquals(List.of("Claire2 Dubois", "Claire3 Dubois"),
+                           List.of(cell(robot, 0, 1), cell(robot, 1, 1))),
+        () -> assertEquals(0, saved("Match prêt").registrations().waitingSize()));
+  }
+
+  /**
+   * Replacement: once the schedule is computed, a new team waits; a team who withdraws is replaced by the first team
+   * waiting, or by the entry, after confirmation; the documents of the new team are exported alone.
+   *
+   * @param robot the TestFX robot.
+   *
+   * @throws Exception never.
+   */
+  @Test
+  @DisplayName("Replacement: a team is replaced by the first one waiting or by the entry, its documents exported")
+  void replacementTest(final FxRobot robot) throws Exception {
+    open(robot, "Match prêt");
+    press(robot, "solveButton");
+    await(() -> shown(robot, "rounds"));
+    final Edition scheduled = saved("Match prêt");
+    final ToggleButton registration = robot.lookup("#registrationNav").queryAs(ToggleButton.class);
+    robot.interact(registration::fire);
+    await(() -> shown(robot, "addButton"));
+    typeTeam(robot, "Nina", "Attente", "Attente");
+    press(robot, "addButton");
+    await(() -> waiting(robot).getItems().size() == 1);
+    robot.interact(() -> registrations(robot).getSelectionModel().select(0));
+    WaitForAsyncUtils.waitForFxEvents();
+    natives.answer(false);
+    press(robot, "waitingReplaceButton");
+    final String question = natives.questions().getLast().getHeaderText();
+    natives.answer(true);
+    press(robot, "waitingReplaceButton");
+    await(() -> cell(robot, 0, 1).equals("Nina Attente"));
+    final String replaced = text(robot, "notice");
+    robot.interact(() -> registrations(robot).getSelectionModel().select(1));
+    WaitForAsyncUtils.waitForFxEvents();
+    typeTeam(robot, "Paul", "Remplaçant", "Remplaçant");
+    natives.answer(false);
+    press(robot, "replaceButton");
+    final String kept = cell(robot, 1, 1);
+    natives.answer(true);
+    press(robot, "replaceButton");
+    await(() -> cell(robot, 1, 1).equals("Paul Remplaçant"));
+    robot.interact(() -> registrations(robot).getSelectionModel().select(1));
+    WaitForAsyncUtils.waitForFxEvents();
+    final File card = other.resolve("card.pdf").toFile();
+    final File sheets = other.resolve("sheets.pdf").toFile();
+    natives.choose(card);
+    press(robot, "participantCardsButton");
+    natives.choose(sheets);
+    press(robot, "participantSheetsButton");
+    await(() -> card.isFile() && sheets.isFile());
+    final Edition edition = saved("Match prêt");
+    assertAll(
+        () -> assertEquals("Remplacer « Claire1 Dubois & David1 Petit » par « Nina Attente & Nina2 Attente » ?",
+                           question),
+        () -> assertEquals("« Nina Attente & Nina2 Attente » remplace « Claire1 Dubois & David1 Petit ».", replaced),
+        () -> assertEquals("Claire2 Dubois", kept),
+        () -> assertEquals(scheduled.schedule(), edition.schedule()),
+        () -> assertEquals(0, edition.registrations().waitingSize()),
+        () -> assertEquals("Paul Remplaçant", edition.teamRegistrations().get(2).players().get(0).fullName()));
   }
 
   /**

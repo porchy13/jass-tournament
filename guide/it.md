@@ -58,6 +58,9 @@ interrompe), poi l’applicazione salva tutto, apre il programma d’installazio
 dell’installazione come sopra. **Più tardi** rinvia l’aggiornamento al prossimo avvio. Senza Internet, l’applicazione
 si avvia normalmente e non mostra nulla.
 
+**Aiuto › Cerca aggiornamenti…** avvia la verifica in qualsiasi momento: l’applicazione propone la nuova versione,
+oppure indica che è già la più recente o che la verifica non è riuscita (per esempio senza Internet).
+
 <img src="images/it/update.png" alt="La proposta di una nuova versione" width="325">
 
 ## 2. Conoscere la finestra
@@ -140,6 +143,8 @@ In **Edizioni**, scegliete **Nuova edizione**:
   giocatori si incontrano come avversari);
 - **Partite per partecipante**: 4 secondo il regolamento; il numero deve essere pari, perché ogni squadra distribuisce
   per prima in metà delle sue partite;
+- **Numero massimo di squadre**: 20 come predefinito (il doppio di giocatori in modalità individuale); oltre, le
+  iscrizioni vanno nella lista d’attesa;
 - **Contenuto delle partite**: il tipo di ogni mano (briscola imposta ♥ ♣ ♦ ♠, _Schieber_, _Kreuz_, briscola
   obbligata). **Piano del regolamento** ripristina le 16 mani del regolamento; **Aggiungi 4 mani** e **Togli 4 mani**
   ne cambiano il numero, sempre un multiplo di 4.
@@ -147,9 +152,11 @@ In **Edizioni**, scegliete **Nuova edizione**:
 **Crea** resta disattivato finché manca un valore; il motivo è indicato.
 
 Per l’anno successivo, selezionate l’edizione precedente e scegliete **Duplica l’edizione**: la nuova riprende la
-modalità, le partite, il contenuto delle partite e la quota d’iscrizione, ma non le iscrizioni.
+modalità, le partite, il numero massimo di squadre, il contenuto delle partite e la quota d’iscrizione, ma non le
+iscrizioni.
 
-Aprite un’edizione con un doppio clic o con il tasto Invio.
+La lista delle edizioni indica per ognuna il numero di **Iscrizioni**, il numero di iscrizioni **In attesa** e il
+numero massimo di squadre (**Limite massimo**). Aprite un’edizione con un doppio clic o con il tasto Invio.
 
 <img src="images/it/edition-form.png" alt="Una nuova edizione" width="800">
 
@@ -173,8 +180,18 @@ la iscrive, altrimenti non viene iscritto nulla. Un’iscrizione il cui giocator
 frattempo è segnata _Persona deceduta nell’elenco_: per correggerla, sostituite questa persona (può sempre essere
 tolta).
 
-È indicato il numero di iscritti, con il minimo necessario per calcolare gli incontri (per esempio 5 squadre per
-4 partite).
+È indicato il numero di iscritti, con il massimo e il minimo necessario per calcolare gli incontri (per esempio
+5 squadre per 4 partite).
+
+### Lista d’attesa
+
+Il **Numero massimo di squadre** si cambia sopra la lista finché le iscrizioni sono aperte. Quando l’edizione è
+completa, il pannello lo segnala e **Iscrivere** mette l’iscrizione nella lista d’attesa: le iscrizioni seguenti
+attendono sotto la lista degli iscritti, nel loro ordine d’arrivo (il primo arrivato è il primo servito). Selezionate
+un’iscrizione in attesa per **Correggerla** o **Toglierla** dalla lista.
+
+Quando un iscritto è tolto, la prima iscrizione in attesa prende il suo posto. Aumentare il massimo iscrive le prime
+in attesa; diminuirlo rimette gli ultimi iscritti in testa alla lista d’attesa.
 
 <img src="images/it/registration.png" alt="Le iscrizioni: le persone dell’elenco proposte durante la digitazione" width="800">
 
@@ -201,8 +218,19 @@ quella che riceve, e i partecipanti a riposo. Esporta in PDF i documenti seguent
 | **Schede dei punti** | Una scheda per partecipante, quattro per pagina A4 da ritagliare: il suo posto in ogni partita e le caselle dove annota i punti e il totale. |
 | **Fogli dei risultati** | Un foglio per partita e per tavolo, due per pagina A4 orizzontale da ritagliare: le due squadre con il loro posto, poi le mani del contenuto delle partite, da compilare durante il gioco. |
 
-Un’iscrizione tardiva o un ritiro? **Riaprire le iscrizioni** (finché nessun punto è inserito) elimina gli incontri,
-che sono ricalcolati alla chiusura successiva. Ristampate poi i documenti.
+Un’iscrizione tardiva? Dopo la chiusura, va nella lista d’attesa.
+
+Un ritiro? Selezionate l’iscritto in **Iscrizioni**: **Sostituisci con il primo della lista d’attesa**, oppure
+digitate altri giocatori e scegliete **Sostituisci**. Il sostituto prende il numero e i posti dell’iscritto che si
+ritira, senza ricalcolo degli incontri; la sostituzione è possibile finché nessun risultato delle sue partite è
+inserito. L’iscritto sostituito lascia l’edizione, ma resta nell’elenco; se la sua quota d’iscrizione va rimborsata,
+registrate una spesa nella contabilità. Sotto **Documenti del partecipante**, **Esporta la scheda dei punti** ed
+**Esporta i fogli dei risultati** stampano solo i documenti che cambiano: la sua scheda e i fogli delle sue partite.
+Il tabellone degli incontri e i posti da affiggere non cambiano forma; ristampateli interi se necessario, per esempio
+senza schermo in sala.
+
+Per ricalcolare tutto, **Riaprire le iscrizioni** (finché nessun punto è inserito) elimina gli incontri, che sono
+ricalcolati alla chiusura successiva. Ristampate poi tutti i documenti.
 
 <img src="images/it/schedule.png" alt="Gli incontri" width="800">
 
@@ -326,6 +354,7 @@ scegliere.
 | Nessun tabellone è stato trovato in tempo. | Rilanciate il calcolo. |
 | Riaprite le iscrizioni prima di cambiare i partecipanti o le partite. | Gli incontri sono calcolati: **Riaprire le iscrizioni**. |
 | Il sorteggio ha chiuso il match. | **Annulla il sorteggio** nella classifica per correggere un foglio. |
+| File di edizione illeggibili | Un file è danneggiato, o proviene da una versione più recente dell’applicazione: **Aiuto › Cerca aggiornamenti…** e installate l’ultima versione. |
 | Non è stato possibile scaricare l’aggiornamento. | Verificate la connessione a Internet: l’aggiornamento è proposto di nuovo al prossimo avvio. |
 
 ## 15. Dati personali

@@ -43,6 +43,15 @@ final class EditionsController {
   /** The column of the modes. */
   @FXML
   private TableColumn<EditionHeader, String> modeColumn;
+  /** The column of the numbers of registered participants. */
+  @FXML
+  private TableColumn<EditionHeader, String> registrationsColumn;
+  /** The column of the numbers of participants on the waiting list. */
+  @FXML
+  private TableColumn<EditionHeader, String> waitingColumn;
+  /** The column of the maximums of teams. */
+  @FXML
+  private TableColumn<EditionHeader, String> maxTeamsColumn;
   /** The number of editions. */
   @FXML
   private Label count;
@@ -91,6 +100,10 @@ final class EditionsController {
     dateColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(messages.date(cell.getValue().date())));
     modeColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(
         messages.get("mode." + cell.getValue().mode().name())));
+    registrationsColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(
+        messages.number(cell.getValue().registrations())));
+    waitingColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(messages.number(cell.getValue().waiting())));
+    maxTeamsColumn.setCellValueFactory(cell -> new ReadOnlyStringWrapper(messages.number(cell.getValue().maxTeams())));
     table.getItems().setAll(editions.editions());
     table.setRowFactory(view -> {
       final TableRow<EditionHeader> row = new TableRow<>();

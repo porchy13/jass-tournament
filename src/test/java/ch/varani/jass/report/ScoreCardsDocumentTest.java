@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -159,6 +160,33 @@ final class ScoreCardsDocumentTest {
     assertAll(
         () -> assertEquals(game.start(), round.start(), Samples.TOLERANCE),
         () -> assertEquals(place.end(), line.get(1).end(), Samples.TOLERANCE));
+  }
+
+  /**
+   * The cards of some participants alone, e.g. of a team that replaces another one, are written in the order of their
+   * numbers; an empty or unknown selection is rejected.
+   *
+   * @throws Exception never.
+   */
+  @Test
+  @DisplayName("Replacement: the cards of the selected teams alone")
+  void selectionTest() throws Exception {
+    final Edition edition = Samples.teamEdition();
+    final byte[] pdf = Samples.pdf(out -> ScoreCardsDocument.write(edition, Samples.OPTIONS, Set.of(Samples.TEAMS, 2),
+                                                                   out));
+    final String text = Samples.text(pdf);
+    try (PDDocument document = Loader.loadPDF(pdf)) {
+      assertAll(
+          () -> assertEquals(1, document.getNumberOfPages()),
+          () -> assertTrue(text.indexOf("Équipe 2") < text.indexOf("Équipe 5"), text),
+          () -> assertFalse(text.contains("Équipe 1"), text),
+          () -> assertThrows(IllegalArgumentException.class, () -> ScoreCardsDocument.write(
+              edition, Samples.OPTIONS, Set.of(), new ByteArrayOutputStream())),
+          () -> assertThrows(IllegalArgumentException.class, () -> ScoreCardsDocument.write(
+              edition, Samples.OPTIONS, Set.of(0), new ByteArrayOutputStream())),
+          () -> assertThrows(IllegalArgumentException.class, () -> ScoreCardsDocument.write(
+              edition, Samples.OPTIONS, Set.of(Samples.TEAMS + 1), new ByteArrayOutputStream())));
+    }
   }
 
 }

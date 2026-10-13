@@ -97,6 +97,7 @@ final class PlacesDocumentTest {
     }
     final Edition edition = Edition.create("Grand match", Samples.DATE, TournamentMode.TEAM)
                                    .withGames(1)
+                                   .withMaxTeams(MANY_TEAMS)
                                    .withRegistrations(teams)
                                    .withSchedule(new TeamSchedule(MANY_TEAMS, 1, List.of(new TeamRound(1, games),
                                                                                        new TeamRound(2, games))));

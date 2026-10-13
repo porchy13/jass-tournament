@@ -6,6 +6,7 @@
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
@@ -15,8 +16,9 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <!--
-  The registration of an edition (RegistrationController): the registered participants at the left, the entry of the
-  players in the detail panel, the closing of the registration in the toolbar.
+  The registration of an edition (RegistrationController): the maximum of teams, the registered participants and the
+  waiting list at the left, the entry of the players, its replacement and its documents in the detail panel, the
+  closing of the registration in the toolbar.
 -->
 <VBox styleClass="view" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
   <HBox styleClass="toolbar">
@@ -34,8 +36,17 @@
       <VBox styleClass="view-body, panel">
         <Label fx:id="title" styleClass="title-view"/>
         <Label fx:id="settings" styleClass="caption"/>
+        <GridPane styleClass="form">
+          <Label styleClass="field-label" text="%registration.max.teams" labelFor="$maxSpinner"
+                 GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+          <Spinner fx:id="maxSpinner" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+        </GridPane>
         <Label fx:id="count" styleClass="section-head"/>
         <TableView fx:id="table" VBox.vgrow="ALWAYS">
+          <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/></columnResizePolicy>
+        </TableView>
+        <Label fx:id="waitingHead" styleClass="section-head"/>
+        <TableView fx:id="waitingTable" styleClass="waiting-list">
           <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/></columnResizePolicy>
         </TableView>
       </VBox>
@@ -76,10 +87,13 @@
                   minHeight="-Infinity" onAction="#previousTeam"/>
           <Label fx:id="outdated" styleClass="warning" text="%registration.outdated.hint" wrapText="true"
                  visible="false" managed="false"/>
+          <Label fx:id="full" styleClass="caption" text="%registration.full.hint" wrapText="true"/>
           <Label fx:id="problem" styleClass="error" wrapText="true"/>
           <ButtonBar>
             <buttons>
               <Button fx:id="removeButton" styleClass="danger" text="%registration.remove" onAction="#remove"
+                      ButtonBar.buttonData="LEFT" ButtonBar.buttonUniformSize="false"/>
+              <Button fx:id="replaceButton" styleClass="danger" text="%registration.replace" onAction="#replace"
                       ButtonBar.buttonData="LEFT" ButtonBar.buttonUniformSize="false"/>
               <Button fx:id="modifyButton" text="%registration.modify" onAction="#modify"
                       ButtonBar.buttonData="OTHER" ButtonBar.buttonUniformSize="false"/>
@@ -87,6 +101,16 @@
                       ButtonBar.buttonData="OK_DONE" ButtonBar.buttonUniformSize="false"/>
             </buttons>
           </ButtonBar>
+          <Button fx:id="waitingReplaceButton" styleClass="danger" text="%registration.replace.waiting"
+                  onAction="#replaceByWaiting" maxWidth="Infinity"/>
+          <VBox fx:id="documents" styleClass="slot">
+            <Label styleClass="section-head" text="%registration.documents"/>
+            <Label styleClass="caption" text="%registration.documents.hint" wrapText="true"/>
+            <HBox styleClass="buttons">
+              <Button fx:id="participantCardsButton" text="%registration.export.cards" onAction="#exportCards"/>
+              <Button fx:id="participantSheetsButton" text="%registration.export.sheets" onAction="#exportSheets"/>
+            </HBox>
+          </VBox>
         </VBox>
       </ScrollPane>
     </SplitPane>

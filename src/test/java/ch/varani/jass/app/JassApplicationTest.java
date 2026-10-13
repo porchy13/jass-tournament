@@ -17,6 +17,7 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TableRow;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
@@ -240,7 +241,14 @@ final class JassApplicationTest {
     assertAll(
         () -> assertEquals("Tournoi de Jass", stage.getTitle()),
         () -> assertEquals(List.of("Match 2026", "Match 2025"), names(robot)),
-        () -> assertEquals("Fichiers d’édition illisibles : 1", text(robot, "unreadable")),
+        () -> assertEquals(List.of("Nom", "Mode", "Inscriptions", "En attente", "Limite maximale", "Date"),
+                           table(robot).getColumns().stream().map(TableColumn::getText).toList()),
+        () -> assertEquals(List.of("Match 2026", "Individuel", "0", "0", "20", "20 nov. 2026"),
+                           table(robot).getColumns().stream().map(column -> String.valueOf(column.getCellData(0)))
+                                       .toList()),
+        () -> assertEquals("Fichiers d’édition illisibles : 1. S’ils viennent d’une version plus récente de "
+                           + "l’application, vérifiez que vous utilisez la dernière version (Aide › Rechercher les "
+                           + "mises à jour…).", text(robot, "unreadable")),
         () -> assertTrue(robot.lookup("#openButton").queryButton().isDisabled()),
         () -> assertTrue(item(robot, "exportItem").isDisable()),
         () -> assertTrue(item(robot, "deleteItem").isDisable()));
@@ -269,6 +277,7 @@ final class JassApplicationTest {
     robot.interact(() -> robot.lookup("#datePicker").queryAs(DatePicker.class).setValue(TODAY));
     robot.interact(() -> robot.lookup("#modeBox").queryAs(ChoiceBox.class).setValue(TournamentMode.INDIVIDUAL));
     robot.interact(() -> robot.lookup("#gamesSpinner").queryAs(Spinner.class).increment());
+    robot.interact(() -> robot.lookup("#maxSpinner").queryAs(Spinner.class).increment());
     press(robot, "addBlockButton");
     final String longer = text(robot, "summary");
     press(robot, "removeBlockButton");

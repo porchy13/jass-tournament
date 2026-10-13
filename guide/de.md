@@ -59,6 +59,9 @@ angezeigt, **Abbrechen** unterbricht ihn), dann speichert die Anwendung alles, �
 beendet sich; folgen Sie den Schritten der Installation wie oben. **Später** verschiebt die Aktualisierung auf den
 nächsten Start. Ohne Internet startet die Anwendung normal und zeigt nichts an.
 
+**Hilfe › Nach Updates suchen…** startet die Prüfung jederzeit: Die Anwendung bietet die neue Version an, oder meldet,
+dass sie bereits die neueste ist oder dass die Prüfung fehlgeschlagen ist (zum Beispiel ohne Internet).
+
 <img src="images/de/update.png" alt="Das Angebot einer neuen Version" width="325">
 
 ## 2. Das Fenster kennenlernen
@@ -144,6 +147,8 @@ Wählen Sie unter **Ausgaben** die Schaltfläche **Neue Ausgabe**:
   als Gegner treffen);
 - **Partien pro Teilnehmende**: 4 gemäss Reglement; die Zahl muss gerade sein, weil jedes Team in der Hälfte seiner
   Partien zuerst gibt;
+- **Höchstzahl der Teams**: 20 als Vorgabe (doppelt so viele Spielende im Einzelmodus); darüber hinaus kommen die
+  Anmeldungen auf die Warteliste;
 - **Inhalt der Partien**: die Art jedes Spiels (vorgegebener Trumpf ♥ ♣ ♦ ♠, _Schieber_, _Kreuz_, gezwungener
   Trumpf). **Plan des Reglements** stellt die 16 Spiele des Reglements wieder her; **4 Spiele hinzufügen** und
   **4 Spiele entfernen** ändern ihre Anzahl, immer ein Vielfaches von 4.
@@ -151,9 +156,10 @@ Wählen Sie unter **Ausgaben** die Schaltfläche **Neue Ausgabe**:
 **Erstellen** bleibt gesperrt, solange ein Wert fehlt; der Grund wird angezeigt.
 
 Für das nächste Jahr wählen Sie die vorherige Ausgabe und **Ausgabe duplizieren**: Die neue übernimmt Modus, Partien,
-Inhalt der Partien und Startgeld, aber nicht die Anmeldungen.
+Höchstzahl der Teams, Inhalt der Partien und Startgeld, aber nicht die Anmeldungen.
 
-Öffnen Sie eine Ausgabe mit einem Doppelklick oder der Eingabetaste.
+Die Liste der Ausgaben zeigt für jede die Zahl der **Anmeldungen**, die Zahl der Anmeldungen auf der **Warteliste**
+und die Höchstzahl der Teams (**Höchstgrenze**). Öffnen Sie eine Ausgabe mit einem Doppelklick oder der Eingabetaste.
 
 <img src="images/de/edition-form.png" alt="Eine neue Ausgabe" width="800">
 
@@ -177,8 +183,18 @@ Verzeichnis auf und meldet sie an, sonst wird nichts angemeldet. Eine Anmeldung,
 vermerkt wurde, ist mit _Verstorbene Person im Verzeichnis_ markiert: Um sie zu korrigieren, ersetzen Sie diese
 Person (sie kann jederzeit entfernt werden).
 
-Die Zahl der Anmeldungen wird angezeigt, mit dem nötigen Minimum für den Spielplan (zum Beispiel 5 Teams für
-4 Partien).
+Die Zahl der Anmeldungen wird angezeigt, mit der Höchstzahl und dem nötigen Minimum für den Spielplan (zum Beispiel
+5 Teams für 4 Partien).
+
+### Warteliste
+
+Die **Höchstzahl der Teams** wird oberhalb der Liste geändert, solange die Anmeldung offen ist. Ist die Ausgabe voll,
+zeigt das Feld es an, und **Anmelden** setzt die Anmeldung auf die Warteliste: Die folgenden Anmeldungen warten unter
+der Liste der Angemeldeten, in der Reihenfolge ihres Eingangs (wer zuerst kommt, kommt zuerst dran). Wählen Sie eine
+wartende Anmeldung, um sie zu **Korrigieren** oder von der Liste zu **Entfernen**.
+
+Wird eine angemeldete Person entfernt, nimmt die erste wartende Anmeldung ihren Platz ein. Eine höhere Höchstzahl
+meldet die ersten Wartenden an; eine tiefere setzt die zuletzt Angemeldeten an die Spitze der Warteliste.
 
 <img src="images/de/registration.png" alt="Die Anmeldungen: die Personen des Verzeichnisses werden beim Tippen vorgeschlagen" width="800">
 
@@ -205,8 +221,19 @@ empfängt, sowie die pausierenden Teilnehmenden. Er exportiert die folgenden Dok
 | **Punktekarten** | Eine Karte pro Teilnehmende, vier pro A4-Seite zum Ausschneiden: der Platz in jeder Partie und die Felder für die Punkte und das Total. |
 | **Resultatblätter** | Ein Blatt pro Partie und Tisch, zwei pro A4-Seite quer zum Ausschneiden: beide Teams mit ihren Plätzen, dann die Spiele des Inhalts der Partien, während des Spiels auszufüllen. |
 
-Eine späte Anmeldung oder eine Abmeldung? **Anmeldung wieder öffnen** (solange keine Punkte erfasst sind) löscht den
-Spielplan, der beim nächsten Schliessen neu berechnet wird. Drucken Sie die Dokumente dann neu.
+Eine späte Anmeldung? Nach dem Schliessen kommt sie auf die Warteliste.
+
+Eine Abmeldung? Wählen Sie die Anmeldung unter **Anmeldungen**: **Durch die erste Anmeldung der Warteliste ersetzen**,
+oder tippen Sie andere Spielende und wählen Sie **Ersetzen**. Der Ersatz übernimmt die Nummer und die Plätze der
+abgemeldeten Teilnehmenden, ohne neue Berechnung des Spielplans; das ist möglich, solange kein Resultat ihrer Partien
+erfasst ist. Die ersetzten Teilnehmenden verlassen die Ausgabe, bleiben aber im Verzeichnis; muss ihr Startgeld
+zurückerstattet werden, erfassen Sie in der Buchhaltung eine Buchung vom Typ Ausgabe. Unter **Dokumente der
+Anmeldung** drucken **Punktekarte exportieren** und **Resultatblätter exportieren** nur die Dokumente, die sich
+ändern: die Karte des Ersatzes und die Blätter seiner Partien. Spielplan und Plätze zum Aushängen ändern ihre Form
+nicht; drucken Sie sie bei Bedarf ganz neu, zum Beispiel ohne Bildschirm im Saal.
+
+Um alles neu zu berechnen, löscht **Anmeldung wieder öffnen** (solange keine Punkte erfasst sind) den Spielplan, der
+beim nächsten Schliessen neu berechnet wird. Drucken Sie dann alle Dokumente neu.
 
 <img src="images/de/schedule.png" alt="Der Spielplan" width="800">
 
@@ -331,6 +358,7 @@ Die Ausgaben und das Verzeichnis werden im Datenordner der Anwendung aufbewahrt;
 | Kein Spielplan wurde rechtzeitig gefunden. | Die Berechnung erneut starten. |
 | Öffnen Sie die Anmeldung wieder, bevor Sie Teilnehmende oder Partien ändern. | Der Spielplan ist berechnet: **Anmeldung wieder öffnen**. |
 | Die Auslosung hat den Match abgeschlossen. | In der Rangliste **Auslosung aufheben**, um ein Blatt zu korrigieren. |
+| Unlesbare Ausgabedateien | Eine Datei ist beschädigt oder stammt aus einer neueren Version der Anwendung: **Hilfe › Nach Updates suchen…** und installieren Sie die neueste Version. |
 | Die Aktualisierung konnte nicht heruntergeladen werden. | Prüfen Sie die Internetverbindung: Die Aktualisierung wird beim nächsten Start erneut angeboten. |
 
 ## 15. Personendaten

@@ -47,7 +47,7 @@ final class EditionWriterTest {
           () -> assertEquals(ZipEntry.DEFLATED, entry.getMethod()),
           () -> assertNull(zip.getNextEntry()),
           () -> assertTrue(xml.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edition xmlns=\""
-                                          + EditionXml.NAMESPACE + "\" formatVersion=\"1\" id=\"" + Fixtures.ID
+                                          + EditionXml.NAMESPACE + "\" formatVersion=\"2\" id=\"" + Fixtures.ID
                                           + "\">\n  <settings>\n    <name>"), xml));
     }
   }

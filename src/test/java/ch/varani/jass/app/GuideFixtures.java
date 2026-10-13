@@ -58,7 +58,7 @@ final class GuideFixtures {
   static final String NEXT = "Match aux cartes 2027";
   /** The number of teams of the edition shown in the guide. */
   static final int TEAMS = 12;
-  /** The number of teams registered so far for the next edition. */
+  /** The number of teams registered so far for the next edition, one more than its maximum: the last one waits. */
   private static final int NEXT_TEAMS = 7;
   /** The number of teams of the past editions. */
   private static final int PAST_TEAMS = 10;
@@ -152,7 +152,8 @@ final class GuideFixtures {
         .withLedger(ledger(locale));
     directory = directory.recordParticipations(store.create(edition), edition);
     store.create(Edition.create(NEXT, LocalDate.of(YEAR + 1, Month.NOVEMBER, DAY - 1), TournamentMode.TEAM)
-                        .withGames(GAMES).withRegistrations(teams(persons, 0, NEXT_TEAMS, true)));
+                        .withGames(GAMES).withRegistrations(teams(persons, 0, NEXT_TEAMS, true))
+                        .withMaxTeams(NEXT_TEAMS - 1));
     for (final String[] former : FORMER) {
       directory = directory.add(Person.create(former[0], former[1])
                                       .withStatus(ContactStatus.valueOf(former[2]), UiSupport.TODAY));

@@ -21,9 +21,9 @@ import java.util.Arrays;
 
 /**
  * The form of a new edition or of the duplication of an edition (F2, F4, F15, F16): name, date, tournament mode,
- * number of games and plan of the deals, edited deal by deal (the type of each deal chosen in a list, the suits
- * shown as ♥ ♣ ♦ ♠) or by blocks of {@link ch.varani.jass.domain.Regulation#DEALS_PER_BLOCK} deals; the plan of
- * the regulation can be restored at any time.
+ * number of games, maximum of teams and plan of the deals, edited deal by deal (the type of each deal chosen in a
+ * list, the suits shown as ♥ ♣ ♦ ♠) or by blocks of {@link ch.varani.jass.domain.Regulation#DEALS_PER_BLOCK} deals;
+ * the plan of the regulation can be restored at any time.
  *
  * <p>The values are kept in an {@link EditionForm}; the number of deals, of blocks and the points of a game are shown,
  * and the reason why the edition cannot be created yet (blank name, missing date…) is shown instead of the creation
@@ -65,6 +65,9 @@ final class EditionFormController {
   /** The number of games. */
   @FXML
   private Spinner<Integer> gamesSpinner;
+  /** The maximum number of teams. */
+  @FXML
+  private Spinner<Integer> maxSpinner;
   /** The deals of the plan. */
   @FXML
   private ListView<DealType> dealList;
@@ -118,6 +121,9 @@ final class EditionFormController {
     modeBox.valueProperty().addListener((property, before, after) -> form.setMode(after));
     gamesSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, MAX_GAMES, form.games()));
     gamesSpinner.valueProperty().addListener((property, before, after) -> form.setGames(after));
+    maxSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, RegistrationController.MAX_TEAMS,
+                                                                                 form.maxTeams()));
+    maxSpinner.valueProperty().addListener((property, before, after) -> form.setMaxTeams(after));
     dealList.setCellFactory(view -> new DealCell());
     refreshDeals();
   }

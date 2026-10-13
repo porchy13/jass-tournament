@@ -5,6 +5,9 @@ import ch.varani.jass.domain.Pairing;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Helpers shared by the documents.
@@ -42,6 +45,35 @@ final class Documents {
       throw new IllegalStateException("The edition has no schedule.");
     }
     return edition.schedule().pairings();
+  }
+
+  /**
+   * Returns the numbers of every registered participant of an edition.
+   *
+   * @param edition the edition.
+   *
+   * @return the numbers from 1 to the number of participants.
+   */
+  static Set<Integer> everyone(final Edition edition) {
+    return IntStream.rangeClosed(1, edition.registrations().size()).boxed().collect(Collectors.toSet());
+  }
+
+  /**
+   * Checks a selection of participants and sorts it.
+   *
+   * @param edition the edition.
+   * @param selected the numbers of the selected participants.
+   *
+   * @return the numbers, in increasing order.
+   *
+   * @throws IllegalArgumentException if no participant is selected, or a number is not a registered participant.
+   */
+  static List<Integer> selection(final Edition edition, final Set<Integer> selected) {
+    if (selected.isEmpty()
+        || selected.stream().anyMatch(number -> number < 1 || number > edition.registrations().size())) {
+      throw new IllegalArgumentException("The selection of participants is not valid.");
+    }
+    return selected.stream().sorted().toList();
   }
 
   /**

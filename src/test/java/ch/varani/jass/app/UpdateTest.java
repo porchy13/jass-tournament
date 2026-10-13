@@ -2,6 +2,7 @@ package ch.varani.jass.app;
 
 import ch.varani.jass.update.UpdateError;
 import ch.varani.jass.update.UpdateException;
+import ch.varani.jass.update.Version;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -204,6 +205,53 @@ final class UpdateTest {
     assertAll(
         () -> assertTrue(natives.questions().isEmpty()),
         () -> assertTrue(natives.notices().isEmpty()));
+  }
+
+  /**
+   * Starts the application, waits for the check of the start-up, then checks for updates from the Help menu and
+   * waits until a box or an offer is shown.
+   *
+   * @param robot the TestFX robot.
+   * @param updater the update.
+   *
+   * @throws Exception if nothing is shown in time.
+   */
+  private void checkNow(final FxRobot robot, final FakeUpdater updater) throws Exception {
+    start(robot, updater);
+    updater.awaitCheck();
+    WaitForAsyncUtils.waitForFxEvents();
+    final int before = natives.notices().size() + natives.questions().size();
+    UiSupport.menu(robot, "updatesItem");
+    UiSupport.await(() -> natives.notices().size() + natives.questions().size() > before);
+  }
+
+  /**
+   * F17: asked from the Help menu, the check offers a newer release, or says that the application is up to date, that
+   * it is a development version, or that the check failed.
+   *
+   * @param robot the TestFX robot.
+   *
+   * @throws Exception if nothing is shown in time.
+   */
+  @Test
+  @DisplayName("F17: Help › Check for updates offers a release or tells why there is none")
+  void checkNowTest(final FxRobot robot) throws Exception {
+    checkNow(robot, new FakeUpdater(null, null, null));
+    final Alert latest = natives.notices().getLast();
+    checkNow(robot, new FakeUpdater(Version.parse("1.1.0-SNAPSHOT"), null, null, null));
+    final String development = natives.notices().getLast().getHeaderText();
+    checkNow(robot, new FakeUpdater(null, null, new IOException("offline")));
+    final String failed = natives.notices().getLast().getHeaderText();
+    final int offers = natives.questions().size();
+    checkNow(robot, new FakeUpdater(FakeUpdater.release(), null, null));
+    UiSupport.await(() -> natives.questions().size() == offers + 2);
+    assertAll(
+        () -> assertEquals("Vous utilisez la dernière version", latest.getHeaderText()),
+        () -> assertEquals("Jass Tournament 1.0.0 est la version la plus récente.", latest.getContentText()),
+        () -> assertEquals("Version de développement", development),
+        () -> assertEquals("La recherche des mises à jour a échoué", failed),
+        () -> assertEquals(MESSAGES.get("update.offer.title", "1.1.0"),
+                           natives.questions().getLast().getHeaderText()));
   }
 
 }

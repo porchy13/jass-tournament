@@ -321,6 +321,19 @@ final class Dialogs {
   }
 
   /**
+   * Shows an information to the user, without waiting: its header ({@code <key>.title}) and its text
+   * ({@code <key>.text}).
+   *
+   * @param key the prefix of the keys of the texts.
+   * @param arguments the values inserted in the texts.
+   */
+  void information(final String key, final Object... arguments) {
+    final Alert alert = alert(Alert.AlertType.INFORMATION, messages.get(key + ".text", arguments));
+    alert.setHeaderText(messages.get(key + ".title", arguments));
+    natives.notice().accept(alert);
+  }
+
+  /**
    * Shows an error to the user, without waiting: what happened and how to correct it.
    *
    * @param error the error, explained by {@link Messages#error(Throwable)}.

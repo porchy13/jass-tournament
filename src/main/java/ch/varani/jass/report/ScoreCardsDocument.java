@@ -94,7 +94,26 @@ public final class ScoreCardsDocument {
    */
   public static void write(final Edition edition, final DocumentOptions options, final OutputStream out)
       throws IOException {
+    write(edition, options, Documents.everyone(edition), out);
+  }
+
+  /**
+   * Writes the score cards of some participants of an edition as a PDF document, e.g. of a participant who replaces
+   * another one.
+   *
+   * @param edition the edition, with its schedule.
+   * @param options the options of the documents.
+   * @param selected the numbers of the participants whose cards are written, in increasing order.
+   * @param out the stream to which the document is written, not closed.
+   *
+   * @throws IllegalStateException if the edition has no schedule.
+   * @throws IllegalArgumentException if no participant is selected, or a number is not a registered participant.
+   * @throws IOException if the document cannot be written.
+   */
+  public static void write(final Edition edition, final DocumentOptions options, final Set<Integer> selected,
+                           final OutputStream out) throws IOException {
     final List<Pairing> pairings = Documents.pairings(edition);
+    final List<Integer> numbers = Documents.selection(edition, selected);
     final Texts texts = new Texts(options.locale());
     final Participants participants = new Participants(edition, texts);
     final String title = texts.get("cards.title");
@@ -102,8 +121,8 @@ public final class ScoreCardsDocument {
     final float height = PdfCanvas.PORTRAIT.getHeight() / PER_SIDE;
     final int perPage = PER_SIDE * PER_SIDE;
     try (PdfCanvas canvas = new PdfCanvas(options)) {
-      for (int number = 1; number <= participants.count(); number++) {
-        final int slot = (number - 1) % perPage;
+      for (int i = 0; i < numbers.size(); i++) {
+        final int slot = i % perPage;
         if (slot == 0) {
           canvas.newPage(PdfCanvas.PORTRAIT);
           canvas.cutMark(width, 0, width, PdfCanvas.PORTRAIT.getHeight(), CUT);
@@ -113,7 +132,8 @@ public final class ScoreCardsDocument {
         final int row = slot / PER_SIDE;
         final float left = column * width;
         final float top = PdfCanvas.PORTRAIT.getHeight() - row * height;
-        card(canvas, new Card(texts, title, edition, participants, pairings), number, left, top, width, height);
+        card(canvas, new Card(texts, title, edition, participants, pairings), numbers.get(i), left, top, width,
+             height);
       }
       canvas.save(Documents.title(title, edition), out);
     }

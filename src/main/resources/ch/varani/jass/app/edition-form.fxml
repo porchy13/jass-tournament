@@ -27,6 +27,9 @@
       <Label styleClass="field-label" text="%form.games" labelFor="$gamesSpinner"
              GridPane.rowIndex="3" GridPane.columnIndex="0"/>
       <Spinner fx:id="gamesSpinner" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+      <Label styleClass="field-label" text="%form.max.teams" labelFor="$maxSpinner"
+             GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+      <Spinner fx:id="maxSpinner" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
     </GridPane>
     <HBox styleClass="view-head">
       <Label styleClass="section-head" text="%form.deals"/>

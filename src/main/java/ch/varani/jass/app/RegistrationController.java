@@ -5,13 +5,12 @@ import ch.varani.jass.directory.Directory;
 import ch.varani.jass.directory.Person;
 import ch.varani.jass.domain.DomainException;
 import ch.varani.jass.domain.Edition;
-import ch.varani.jass.domain.IndividualRegistrations;
 import ch.varani.jass.domain.Player;
 import ch.varani.jass.domain.Registrations;
 import ch.varani.jass.domain.Schedule;
-import ch.varani.jass.domain.Team;
-import ch.varani.jass.domain.TeamRegistrations;
 import ch.varani.jass.domain.TournamentMode;
+import ch.varani.jass.report.ScoreCardsDocument;
+import ch.varani.jass.report.ScoreSheetsDocument;
 import ch.varani.jass.solver.SolverResult;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -23,7 +22,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -41,11 +43,13 @@ import java.util.UUID;
 import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
- * The registration of an open edition (F5, F6, F14): the registered teams (or players in individual mode), the entry
- * of the players, chosen from the directory or typed, the closing of the registration by the computation of the
- * schedule, and its reopening.
+ * The registration of an open edition (F5, F6, F14): the registered teams (or players in individual mode), their
+ * maximum and the waiting list, the entry of the players, chosen from the directory or typed, the closing of the
+ * registration by the computation of the schedule, its reopening, and the replacement of a participant who withdraws
+ * once the schedule is computed.
  *
  * <p><b>Entry</b>: for each player, the user types the names; the persons of the directory matching them (accents and
  * case ignored, the deceased left out) are proposed, and choosing one links the player to it. In team mode, once the
@@ -58,6 +62,19 @@ import java.util.stream.IntStream;
  * corrected names, and says that Correct takes them. A registration of a person declared deceased in the directory
  * since is marked too: selecting it says so, and it cannot be corrected until the person is replaced (it can still be
  * removed). Shortcut+S registers the entry: it corrects the selected registration, or adds a new one.</p>
+ *
+ * <p><b>Maximum and waiting list</b>: the maximum of teams of the edition is changed while the registration is open,
+ * in place ({@link MainController#update(MainController.OpenEdition)}), so that the field keeps the focus; the
+ * participants move between the registrations and the waiting list ({@link Edition#withMaxTeams(int)}). A new
+ * registration goes to the waiting list once the edition is full or the schedule computed ({@link Edition#isFull()}).
+ * The waiting list is shown under the registrations when it is not empty; selecting one of its rows fills the entry,
+ * to correct it or to remove it from the list. Removing a registered participant while the registration is open
+ * registers the first one waiting ({@link Edition#withdraw(int)}).</p>
+ *
+ * <p><b>Replacement</b>: once the schedule is computed, a registered participant who withdraws is replaced, as long as
+ * no result concerns it ({@link Edition#canReplace(int)}), by the first participant waiting or by the entry, after
+ * confirmation; the new participant takes its number, so the schedule is kept. The score cards and the score sheets
+ * of the selected participant can then be exported alone, the other documents being unchanged.</p>
  *
  * <p><b>Layout</b> (DESIGN.md §6): the registered participants at the left, the entry in the detail panel
  * ({@link DetailLayout}), floating when the window is narrow; the closing of the registration is the primary action of
@@ -81,6 +98,8 @@ final class RegistrationController {
 
   /** The greatest number of persons proposed for a player. */
   static final int PROPOSALS = 8;
+  /** The greatest maximum of teams that can be chosen. */
+  static final int MAX_TEAMS = 500;
   /** The interval between two updates of the progress of the computation, in seconds. */
   private static final double TICK = 1;
 
@@ -90,8 +109,8 @@ final class RegistrationController {
 
   /** The main window. */
   private final MainController main;
-  /** The open edition. */
-  private final MainController.OpenEdition open;
+  /** The open edition; changed in place by the maximum of teams. */
+  private MainController.OpenEdition open;
   /** The players being registered: two in team mode, one in individual mode. */
   private final List<PlayerSlot> slots = new ArrayList<>();
   /** The solving in progress, or {@code null}. */
@@ -116,6 +135,15 @@ final class RegistrationController {
   /** The registered teams or players, by number. */
   @FXML
   private TableView<Integer> table;
+  /** The maximum number of teams. */
+  @FXML
+  private Spinner<Integer> maxSpinner;
+  /** The title of the waiting list and its size. */
+  @FXML
+  private Label waitingHead;
+  /** The teams or players of the waiting list, by position. */
+  @FXML
+  private TableView<Integer> waitingTable;
   /** The first names of the players being registered. */
   @FXML
   private TextField first1;
@@ -146,6 +174,9 @@ final class RegistrationController {
   /** The button registering the previous team mate. */
   @FXML
   private Button previousButton;
+  /** Tells that the edition is full: a new registration goes to the waiting list. */
+  @FXML
+  private Label full;
   /** Why the entry cannot be registered. */
   @FXML
   private Label problem;
@@ -161,6 +192,15 @@ final class RegistrationController {
   /** The button removing the selected registration. */
   @FXML
   private Button removeButton;
+  /** The button replacing the selected registration by the entry, once the schedule is computed. */
+  @FXML
+  private Button replaceButton;
+  /** The button replacing the selected registration by the first one waiting, once the schedule is computed. */
+  @FXML
+  private Button waitingReplaceButton;
+  /** The documents of the selected registration, once the schedule is computed. */
+  @FXML
+  private Pane documents;
   /** The button computing the schedule. */
   @FXML
   private Button solveButton;
@@ -225,58 +265,112 @@ final class RegistrationController {
     layout = new DetailLayout(main, body, split, detail, closeDetail);
     table.setPlaceholder(Views.emptyState(messages.get("registration.empty"), null));
     Views.keys(table, null, edition.isScheduled() ? null : this::remove);
-    count.setText(messages.get(isTeam() ? "registration.count.teams" : "registration.count.players",
-                               edition.registrations().size(),
-                               edition.registrations().minimumSize(edition.games())));
-    Views.warnings(table, column(messages.get("column.number"), String::valueOf, true),
-                   number -> outdated(number) || !deceased(players(number)).isEmpty(),
+    Views.keys(waitingTable, null, this::remove);
+    Views.warnings(table, column(table, messages.get("column.number"), String::valueOf, true),
+                   number -> outdated(players(number)) || !deceased(players(number)).isEmpty(),
                    number -> messages.get(deceased(players(number)).isEmpty() ? "registration.outdated"
                                                                               : "registration.deceased"));
+    column(waitingTable, messages.get("column.waiting"), String::valueOf, true);
     for (int i = 0; i < slots.size(); i++) {
       final int player = i;
-      column(messages.get(isTeam() ? "column.player" : "column.name", player + 1),
-             number -> players(number).get(player).fullName(), false);
+      final String header = messages.get(isTeam() ? "column.player" : "column.name", player + 1);
+      column(table, header, number -> players(number).get(player).fullName(), false);
+      column(waitingTable, header, position -> waiting(position).get(player).fullName(), false);
     }
-    table.getItems().setAll(IntStream.rangeClosed(1, edition.registrations().size()).boxed().toList());
-    table.getSelectionModel().selectedItemProperty().addListener((property, before, after) -> select(after));
+    table.getSelectionModel().selectedItemProperty().addListener((property, before, after) -> {
+      if (after != null) {
+        waitingTable.getSelectionModel().clearSelection();
+      }
+      select(after, false);
+    });
+    waitingTable.getSelectionModel().selectedItemProperty().addListener((property, before, after) -> {
+      if (after != null) {
+        table.getSelectionModel().clearSelection();
+      }
+      select(after, true);
+    });
+    maxSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, MAX_TEAMS, edition.maxTeams()));
+    maxSpinner.setDisable(edition.isScheduled());
+    maxSpinner.valueProperty().addListener((property, before, after) -> changeMax(after));
     slot2.setVisible(isTeam());
     slot2.setManaged(isTeam());
     watch(0, first1, last1, proposals1);
     watch(1, first2, last2, proposals2);
-    modifyButton.disableProperty().bind(table.getSelectionModel().selectedItemProperty().isNull());
-    if (edition.isScheduled()) {
-      removeButton.setDisable(true);
-    } else {
-      removeButton.disableProperty().bind(table.getSelectionModel().selectedItemProperty().isNull());
-    }
-    addButton.setDisable(edition.isScheduled());
     solveButton.setVisible(!edition.isScheduled());
     solveButton.setManaged(!edition.isScheduled());
-    solveButton.setDisable(!edition.hasEnoughRegistrations());
     reopenButton.setVisible(edition.isScheduled());
     reopenButton.setManaged(edition.isScheduled());
     reopenButton.setDisable(edition.hasResults());
+    removeButton.setVisible(!edition.isScheduled());
+    removeButton.setManaged(!edition.isScheduled());
+    replaceButton.setVisible(edition.isScheduled());
+    replaceButton.setManaged(edition.isScheduled());
+    waitingReplaceButton.setVisible(edition.isScheduled());
+    waitingReplaceButton.setManaged(edition.isScheduled());
     ticks.getKeyFrames().setAll(new KeyFrame(Duration.seconds(TICK), event -> tick()));
     ticks.setCycleCount(Animation.INDEFINITE);
     showSolving(false);
+    showLists();
     refresh();
   }
 
   /**
-   * Adds a column to the table.
+   * Shows the registrations and the waiting list of the edition, their numbers and the actions they allow.
+   */
+  private void showLists() {
+    final Edition edition = open.edition();
+    final Messages messages = main.messages();
+    count.setText(messages.get(isTeam() ? "registration.count.teams" : "registration.count.players",
+                               edition.registrations().size(), edition.registrations().minimumSize(edition.games()),
+                               edition.capacity()));
+    table.getItems().setAll(IntStream.rangeClosed(1, edition.registrations().size()).boxed().toList());
+    final int waiting = edition.registrations().waitingSize();
+    waitingTable.getItems().setAll(IntStream.rangeClosed(1, waiting).boxed().toList());
+    waitingHead.setText(messages.get("registration.waiting", waiting));
+    for (final Node node : List.of(waitingHead, waitingTable)) {
+      node.setVisible(waiting > 0);
+      node.setManaged(waiting > 0);
+    }
+    full.setVisible(edition.isFull());
+    full.setManaged(edition.isFull());
+    solveButton.setDisable(!edition.hasEnoughRegistrations());
+    showActions();
+  }
+
+  /**
+   * Enables the actions of the entry that the selection allows: correcting needs a selection; removing a registered
+   * participant needs an open registration; replacing one needs a computed schedule and no result concerning it, and
+   * a participant waiting for the replacement by the waiting list; its documents need a computed schedule.
+   */
+  private void showActions() {
+    final Edition edition = open.edition();
+    final Integer number = table.getSelectionModel().getSelectedItem();
+    final boolean waiting = !waitingTable.getSelectionModel().isEmpty();
+    final boolean replaceable = number != null && edition.isScheduled() && edition.canReplace(number);
+    modifyButton.setDisable(number == null && !waiting);
+    removeButton.setDisable(number == null && !waiting);
+    replaceButton.setDisable(!replaceable);
+    waitingReplaceButton.setDisable(!replaceable || edition.registrations().waitingSize() == 0);
+    documents.setVisible(number != null && edition.isScheduled());
+    documents.setManaged(documents.isVisible());
+  }
+
+  /**
+   * Adds a column to a table.
    *
+   * @param view the table of the registrations or of the waiting list.
    * @param titleText the title of the column.
    * @param text gives the text of a registration.
    * @param number {@code true} for a column of numbers, aligned to the right.
    *
    * @return the column.
    */
-  private TableColumn<Integer, String> column(final String titleText, final IntFunction<String> text,
-                                              final boolean number) {
+  private static TableColumn<Integer, String> column(final TableView<Integer> view, final String titleText,
+                                                     final IntFunction<String> text, final boolean number) {
     final TableColumn<Integer, String> column = new TableColumn<>(titleText);
     column.setCellValueFactory(cell -> new ReadOnlyStringWrapper(text.apply(cell.getValue())));
     Views.style(column, Views.NUMBER, number);
-    table.getColumns().add(column);
+    view.getColumns().add(column);
     return column;
   }
 
@@ -381,17 +475,18 @@ final class RegistrationController {
 
   /**
    * Returns the persons that cannot be proposed for a slot, as they already play in the edition: the persons of the
-   * registered players, except those of the registration being corrected, and the person chosen in the other slot.
+   * registered and waiting players, except those of the registration being corrected, and the person chosen in the
+   * other slot.
    *
    * @param slot the slot whose proposals are shown.
    *
    * @return the identifiers of the persons.
    */
   private Set<UUID> taken(final PlayerSlot slot) {
-    final Integer number = table.getSelectionModel().getSelectedItem();
-    final List<Player> corrected = number == null ? List.of() : players(number);
+    final List<Player> corrected = selection();
     final Set<UUID> taken = new HashSet<>();
-    open.edition().registrations().allPlayers().stream()
+    final Registrations registrations = open.edition().registrations();
+    Stream.concat(registrations.allPlayers().stream(), registrations.waitingPlayers().stream())
         .filter(player -> player.personId() != null && !corrected.contains(player))
         .forEach(player -> taken.add(player.personId()));
     slots.stream().filter(other -> other != slot && other.person() != null)
@@ -415,22 +510,25 @@ final class RegistrationController {
   }
 
   /**
-   * Fills the entry with a registered row, to correct it.
+   * Fills the entry with a registered or waiting row, to correct it.
    *
-   * @param number the number of the registration, or {@code null} without selection.
+   * @param number the number of the registration or its position on the waiting list, or {@code null} without
+   *               selection.
+   * @param waiting {@code true} for a row of the waiting list.
    */
-  private void select(final Integer number) {
+  private void select(final Integer number, final boolean waiting) {
+    showActions();
     if (number == null) {
       outdated.setVisible(false);
       outdated.setManaged(false);
       return;
     }
-    final String dead = deceased(players(number));
+    final List<Player> players = waiting ? waiting(number) : players(number);
+    final String dead = deceased(players);
     outdated.setText(dead.isEmpty() ? main.messages().get("registration.outdated.hint")
                                     : main.messages().get("registration.deceased.hint", dead));
-    outdated.setVisible(outdated(number) || !dead.isEmpty());
+    outdated.setVisible(outdated(players) || !dead.isEmpty());
     outdated.setManaged(outdated.isVisible());
-    final List<Player> players = players(number);
     final Directory directory = main.directory();
     for (int i = 0; i < slots.size(); i++) {
       final Player player = players.get(i);
@@ -445,13 +543,13 @@ final class RegistrationController {
    * Tells whether the players of a registration were corrected in the directory since they were registered: the
    * person of one of them has other names.
    *
-   * @param number the number of the registration.
+   * @param players the players of the registration.
    *
    * @return {@code true} if the names of a player differ from those of its person in the directory.
    */
-  private boolean outdated(final int number) {
+  private boolean outdated(final List<Player> players) {
     final Directory directory = main.directory();
-    return directory != null && players(number).stream().anyMatch(
+    return directory != null && players.stream().anyMatch(
         player -> player.personId() != null && directory.find(player.personId())
             .filter(person -> !List.of(person.firstName(), person.lastName())
                                    .equals(List.of(player.firstName(), player.lastName()))).isPresent());
@@ -528,49 +626,114 @@ final class RegistrationController {
   }
 
   /**
-   * Registers the entry as a new team or player.
+   * Registers the entry as a new team or player, on the waiting list when the edition is full.
    */
   @FXML
   void add() {
-    register(null);
+    register(Entry.ADD, null);
   }
 
   /**
-   * Registers the entry from the keyboard (Shortcut+S): corrects the selected registration, or adds a new one while
-   * the registration is open.
+   * Registers the entry from the keyboard (Shortcut+S): corrects the selected registration, or adds a new one.
    */
   void save() {
-    final Integer number = table.getSelectionModel().getSelectedItem();
-    if (number != null) {
-      register(number);
-    } else if (!addButton.isDisabled()) {
-      register(null);
+    if (table.getSelectionModel().isEmpty() && waitingTable.getSelectionModel().isEmpty()) {
+      register(Entry.ADD, null);
+    } else {
+      modify();
     }
   }
 
   /**
-   * Replaces the selected registration by the entry, e.g. to correct a name.
+   * Replaces the selected registration, or the selected participant of the waiting list, by the entry, e.g. to
+   * correct a name.
    */
   @FXML
   void modify() {
-    register(table.getSelectionModel().getSelectedItem());
+    final Integer number = table.getSelectionModel().getSelectedItem();
+    if (number != null) {
+      register(Entry.CORRECT, number);
+    } else {
+      register(Entry.CORRECT_WAITING, waitingTable.getSelectionModel().getSelectedItem());
+    }
   }
 
   /**
-   * Removes the selected registration, after confirmation; the following ones are renumbered.
+   * Removes the selected registration, after confirmation: a registered participant while the registration is open
+   * (the following ones are renumbered and the first one waiting is registered), or a participant of the waiting
+   * list.
    */
   @FXML
   void remove() {
-    final Integer number = table.getSelectionModel().getSelectedItem();
-    final String name = players(number).stream().map(Player::fullName).reduce((a, b) -> a + " & " + b).orElse("");
+    final Integer waiting = waitingTable.getSelectionModel().getSelectedItem();
+    final String name = names(selection());
+    if (waiting != null) {
+      if (main.dialogs().confirmDestructive("confirm.remove.waiting", name)) {
+        save(open.edition().withRegistrations(open.edition().registrations().removeWaiting(waiting)));
+        main.notify("info.registration.removed", name);
+      }
+      return;
+    }
     if (main.dialogs().confirmDestructive("confirm.remove.registration", name)) {
-      final Registrations registrations = switch (open.edition().registrations()) {
-        case final TeamRegistrations teams -> teams.remove(number);
-        case final IndividualRegistrations players -> players.remove(number);
-      };
-      main.save(new MainController.OpenEdition(open.id(), open.edition().withRegistrations(registrations)));
+      save(open.edition().withdraw(table.getSelectionModel().getSelectedItem()));
       main.notify("info.registration.removed", name);
     }
+  }
+
+  /**
+   * Replaces the selected registration by the entry, after confirmation, once the schedule is computed: the
+   * participant who withdraws leaves the edition, the new one takes its number and its places.
+   */
+  @FXML
+  void replace() {
+    register(Entry.REPLACE, table.getSelectionModel().getSelectedItem());
+  }
+
+  /**
+   * Replaces the selected registration by the first participant of the waiting list, after confirmation, once the
+   * schedule is computed.
+   */
+  @FXML
+  void replaceByWaiting() {
+    final int number = table.getSelectionModel().getSelectedItem();
+    final String leaving = names(players(number));
+    final String coming = names(waiting(1));
+    if (main.dialogs().confirmDestructive("confirm.replace", leaving, coming)) {
+      save(open.edition().replaceByFirstWaiting(number));
+      main.notify("info.registration.replaced", coming, leaving);
+    }
+  }
+
+  /**
+   * Exports the score cards of the selected registration alone, e.g. after a replacement.
+   */
+  @FXML
+  void exportCards() {
+    final Set<Integer> selected = Set.of(table.getSelectionModel().getSelectedItem());
+    main.exportDocument("document.cards", open.edition(),
+                        (edition, options, out) -> ScoreCardsDocument.write(edition, options, selected, out));
+  }
+
+  /**
+   * Exports the score sheets of the games of the selected registration alone, e.g. after a replacement.
+   */
+  @FXML
+  void exportSheets() {
+    final Set<Integer> selected = Set.of(table.getSelectionModel().getSelectedItem());
+    main.exportDocument("document.sheets", open.edition(),
+                        (edition, options, out) -> ScoreSheetsDocument.write(edition, options, selected, out));
+  }
+
+  /**
+   * Changes the maximum of teams in place, while the registration is open: the participants move between the
+   * registrations and the waiting list, and the field keeps the focus.
+   *
+   * @param value the new maximum.
+   */
+  private void changeMax(final int value) {
+    open = new MainController.OpenEdition(open.id(), open.edition().withMaxTeams(value));
+    main.update(open);
+    showLists();
   }
 
   /**
@@ -580,6 +743,7 @@ final class RegistrationController {
   void clear() {
     slots.forEach(PlayerSlot::clear);
     table.getSelectionModel().clearSelection();
+    waitingTable.getSelectionModel().clearSelection();
     refresh();
     layout.open();
     first1.requestFocus();
@@ -587,13 +751,15 @@ final class RegistrationController {
 
   /**
    * Registers the entry: the players typed become persons of the directory (or the existing person when the user
-   * says so), then the registration is added or replaced and the edition saved. Nothing is registered when a player
-   * is linked to a person declared deceased in the directory, or when the user does not confirm a homonym of a
-   * deceased person.
+   * says so), then the registration is added, corrected or replaced and the edition saved. Nothing is registered when
+   * a player is linked to a person declared deceased in the directory, when the user does not confirm a homonym of a
+   * deceased person, or when the user does not confirm a replacement.
    *
-   * @param number the number of the replaced registration, or {@code null} to add one.
+   * @param entry what the entry does.
+   * @param number the number of the corrected or replaced registration, or the position of the corrected
+   *               participant of the waiting list; {@code null} to add one.
    */
-  private void register(final Integer number) {
+  private void register(final Entry entry, final Integer number) {
     final String dead = deceased(slots.stream().map(PlayerSlot::person).filter(Objects::nonNull)
                                       .map(Person::asPlayer).toList());
     if (!dead.isEmpty()) {
@@ -610,11 +776,18 @@ final class RegistrationController {
         }
         players.add(player);
       }
-      final Edition edition = open.edition().withRegistrations(registrations(players, number));
+      final Edition edition = registered(entry, number, players);
+      if (entry == Entry.REPLACE
+          && !main.dialogs().confirmDestructive("confirm.replace", names(players(number)), names(players))) {
+        return;
+      }
       if (!created.isEmpty()) {
         main.updateDirectory(directory -> directory.addAll(created), directory -> { });
       }
-      main.save(new MainController.OpenEdition(open.id(), edition));
+      save(edition);
+      if (entry == Entry.REPLACE) {
+        main.notify("info.registration.replaced", names(players), names(players(number)));
+      }
     } catch (final DomainException e) {
       problem.setText(main.messages().error(e));
     }
@@ -658,22 +831,24 @@ final class RegistrationController {
   }
 
   /**
-   * Adds or replaces a registration.
+   * Adds, corrects or replaces a registration.
    *
+   * @param entry what the entry does.
+   * @param number the number of the corrected or replaced registration, or the position of the corrected
+   *               participant of the waiting list; {@code null} to add one.
    * @param players the players of the registration.
-   * @param number the number of the replaced registration, or {@code null} to add one.
    *
-   * @return the new registrations.
+   * @return the new edition.
    *
-   * @throws DomainException if the registration is not valid (same person twice…).
+   * @throws DomainException if the registration is not valid (same person twice, replacement refused…).
    */
-  private Registrations registrations(final List<Player> players, final Integer number) {
-    return switch (open.edition().registrations()) {
-      case final TeamRegistrations teams -> number == null ? teams.add(new Team(players))
-                                                           : teams.replace(number, new Team(players));
-      case final IndividualRegistrations individuals -> number == null ? individuals.add(players.getFirst())
-                                                                       : individuals.replace(number,
-                                                                                             players.getFirst());
+  private Edition registered(final Entry entry, final Integer number, final List<Player> players) {
+    final Edition edition = open.edition();
+    return switch (entry) {
+      case ADD -> edition.register(players);
+      case CORRECT -> edition.withRegistrations(edition.registrations().correct(number, players, false));
+      case CORRECT_WAITING -> edition.withRegistrations(edition.registrations().correct(number, players, true));
+      case REPLACE -> edition.replace(number, players);
     };
   }
 
@@ -765,10 +940,75 @@ final class RegistrationController {
    * @return the two players of a team, or the player.
    */
   private List<Player> players(final int number) {
-    return switch (open.edition().registrations()) {
-      case final TeamRegistrations teams -> teams.get(number).players();
-      case final IndividualRegistrations players -> List.of(players.get(number));
-    };
+    return open.edition().registrations().participant(number, false);
+  }
+
+  /**
+   * Returns the players of a participant of the waiting list.
+   *
+   * @param position the position on the waiting list.
+   *
+   * @return the two players of a team, or the player.
+   */
+  private List<Player> waiting(final int position) {
+    return open.edition().registrations().participant(position, true);
+  }
+
+  /**
+   * Returns the players of the selected registration or participant of the waiting list.
+   *
+   * @return the players, empty without selection.
+   */
+  private List<Player> selection() {
+    final Integer number = table.getSelectionModel().getSelectedItem();
+    final Integer position = waitingTable.getSelectionModel().getSelectedItem();
+    if (number != null) {
+      return players(number);
+    }
+    return position == null ? List.of() : waiting(position);
+  }
+
+  /**
+   * Names the players of a participant.
+   *
+   * @param players the players.
+   *
+   * @return their full names, joined by " &amp; ".
+   */
+  private static String names(final List<Player> players) {
+    return players.stream().map(Player::fullName).collect(Collectors.joining(" & "));
+  }
+
+  /**
+   * Saves a changed edition and shows it again.
+   *
+   * @param edition the changed edition.
+   */
+  private void save(final Edition edition) {
+    main.save(new MainController.OpenEdition(open.id(), edition));
+  }
+
+  // *******************************************************************************************************************
+  // Inner types
+  // *******************************************************************************************************************
+
+  /**
+   * What the entry does with its players.
+   */
+  private enum Entry {
+
+    /** Registers a new participant, on the waiting list when the edition is full. */
+    ADD,
+
+    /** Corrects the selected registration (same participant). */
+    CORRECT,
+
+    /** Corrects the selected participant of the waiting list. */
+    CORRECT_WAITING,
+
+    /** Replaces the selected registration by another participant, once the schedule is computed. */
+    REPLACE
+
   }
 
 }

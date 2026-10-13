@@ -184,7 +184,8 @@ public final class EditionWriter {
   }
 
   /**
-   * Writes the settings of the edition: name, date (ISO 8601), mode, number of games and time of a game.
+   * Writes the settings of the edition: name, date (ISO 8601), mode, number of games, time of a game and maximum of
+   * teams.
    *
    * @param edition the edition.
    *
@@ -197,6 +198,7 @@ public final class EditionWriter {
     xml.text(ITEM, EditionXml.MODE, edition.mode().name());
     xml.text(ITEM, EditionXml.GAMES, Integer.toString(edition.games()));
     xml.text(ITEM, EditionXml.GAME_MINUTES, Integer.toString(edition.gameMinutes()));
+    xml.text(ITEM, EditionXml.MAX_TEAMS, Integer.toString(edition.maxTeams()));
     xml.close(SECTION);
   }
 
@@ -217,7 +219,8 @@ public final class EditionWriter {
   }
 
   /**
-   * Writes the registrations, in their order: the teams and their two players, or the players.
+   * Writes the registrations, in their order: the teams and their two players, or the players; then the waiting list,
+   * when it is not empty.
    *
    * @param registrations the registrations of the edition.
    *
@@ -226,22 +229,54 @@ public final class EditionWriter {
   private void writeRegistrations(final Registrations registrations) throws XMLStreamException {
     xml.open(SECTION, EditionXml.REGISTRATIONS);
     switch (registrations) {
-      case TeamRegistrations(final List<Team> teams) -> {
-        for (final Team team : teams) {
-          xml.open(ITEM, EditionXml.TEAM);
-          for (final Player player : team.players()) {
-            writePlayer(DETAIL, player);
-          }
+      case TeamRegistrations(final List<Team> teams, final List<Team> waiting) -> {
+        writeTeams(ITEM, teams);
+        if (!waiting.isEmpty()) {
+          xml.open(ITEM, EditionXml.WAITING);
+          writeTeams(DETAIL, waiting);
           xml.close(ITEM);
         }
       }
-      case IndividualRegistrations(final List<Player> players) -> {
-        for (final Player player : players) {
-          writePlayer(ITEM, player);
+      case IndividualRegistrations(final List<Player> players, final List<Player> waiting) -> {
+        writePlayers(ITEM, players);
+        if (!waiting.isEmpty()) {
+          xml.open(ITEM, EditionXml.WAITING);
+          writePlayers(DETAIL, waiting);
+          xml.close(ITEM);
         }
       }
     }
     xml.close(SECTION);
+  }
+
+  /**
+   * Writes teams and their two players.
+   *
+   * @param depth the depth of the elements of the teams, for the indentation.
+   * @param teams the teams.
+   *
+   * @throws XMLStreamException if the document cannot be written.
+   */
+  private void writeTeams(final int depth, final List<Team> teams) throws XMLStreamException {
+    for (final Team team : teams) {
+      xml.open(depth, EditionXml.TEAM);
+      writePlayers(depth + 1, team.players());
+      xml.close(depth);
+    }
+  }
+
+  /**
+   * Writes players.
+   *
+   * @param depth the depth of the elements, for the indentation.
+   * @param players the players.
+   *
+   * @throws XMLStreamException if the document cannot be written.
+   */
+  private void writePlayers(final int depth, final List<Player> players) throws XMLStreamException {
+    for (final Player player : players) {
+      writePlayer(depth, player);
+    }
   }
 
   /**

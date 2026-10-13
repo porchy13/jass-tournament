@@ -21,7 +21,12 @@ final class EditionXml {
   /** The XML namespace of the elements of {@code edition.xml}. */
   static final String NAMESPACE = "urn:ch:varani:jass:edition";
   /** The current version of the format, written in {@link #FORMAT_VERSION_ATTRIBUTE}. */
-  static final String FORMAT_VERSION = "1";
+  static final String FORMAT_VERSION = "2";
+  /**
+   * The first version of the format (application 1.0.0 to 1.0.5), without maximum of teams nor waiting list; read
+   * and converted by {@link EditionReader}.
+   */
+  static final String FORMAT_VERSION_1 = "1";
 
   /** The root element. */
   static final String EDITION = "edition";
@@ -41,6 +46,8 @@ final class EditionXml {
   static final String GAMES = "games";
   /** The element of the time given to play a game, in minutes; optional, 60 when absent. */
   static final String GAME_MINUTES = "gameMinutes";
+  /** The maximum number of teams of an edition (format version 2). */
+  static final String MAX_TEAMS = "maxTeams";
   /** The element of the plan of the deals of every game. */
   static final String DEALS = "deals";
   /** The element of a deal of the plan. */
@@ -53,6 +60,8 @@ final class EditionXml {
   static final String TEAM = "team";
   /** The element of a player of the registrations. */
   static final String PLAYER = "player";
+  /** The waiting list of the registrations (format version 2). */
+  static final String WAITING = "waiting";
   /** The attribute of the first name of a player. */
   static final String FIRST_NAME = "firstName";
   /** The attribute of the last name of a player. */

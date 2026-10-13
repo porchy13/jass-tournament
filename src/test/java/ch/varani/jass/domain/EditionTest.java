@@ -31,6 +31,10 @@ final class EditionTest {
   private static final LocalDate DATE = LocalDate.of(2026, Month.NOVEMBER, 20);
   /** A number of games different from the regulation. */
   private static final int OTHER_GAMES = 6;
+  /** The number of the third team. */
+  private static final int THIRD = 3;
+  /** The number of the fourth team. */
+  private static final int FOURTH = 4;
   /** A time of a game other than the default one, in minutes. */
   private static final int OTHER_MINUTES = 90;
   /** A plan of deals different from the regulation: 16 deals of forced trump. */
@@ -371,6 +375,191 @@ final class EditionTest {
         () -> assertEquals(ledger, edition.withName("Other").ledger()),
         () -> assertEquals(Ledger.EMPTY.withFee(Money.of("30")), edition.duplicate("Other", DATE).ledger()),
         () -> assertThrows(NullPointerException.class, () -> edition.withLedger(null)));
+  }
+
+  /**
+   * Returns the players of a fictitious team, distinct for each number.
+   *
+   * @param number the number of the team.
+   *
+   * @return the two players.
+   */
+  private static List<Player> team(final int number) {
+    return List.of(new Player("First" + number, "A"), new Player("First" + number, "B"));
+  }
+
+  /**
+   * Registers fictitious teams one after the other.
+   *
+   * @param edition the edition.
+   * @param from the number of the first team.
+   * @param to the number of the last team.
+   *
+   * @return the edition with the teams registered.
+   */
+  private static Edition register(final Edition edition, final int from, final int to) {
+    Edition registered = edition;
+    for (int i = from; i <= to; i++) {
+      registered = registered.register(team(i));
+    }
+    return registered;
+  }
+
+  /**
+   * A new edition accepts {@value Edition#DEFAULT_MAX_TEAMS} teams, or twice as many players in individual mode; a
+   * maximum lower than 1 is rejected.
+   */
+  @Test
+  @DisplayName("Maximum of teams: 20 teams by default, twice as many players in individual mode, at least 1")
+  void maxTeamsTest() {
+    final Edition teams = Edition.create(NAME, DATE, TournamentMode.TEAM);
+    final Edition players = Edition.create(NAME, DATE, TournamentMode.INDIVIDUAL);
+    assertAll(
+        () -> assertEquals(Edition.DEFAULT_MAX_TEAMS, teams.maxTeams()),
+        () -> assertEquals(Edition.DEFAULT_MAX_TEAMS, teams.capacity()),
+        () -> assertEquals(Edition.DEFAULT_MAX_TEAMS * Regulation.PLAYERS_PER_TEAM, players.capacity()),
+        () -> assertEquals(OTHER_GAMES, teams.withMaxTeams(OTHER_GAMES).duplicate("Other", DATE).maxTeams()),
+        () -> assertEquals(ValidationError.INVALID_MAX_TEAMS,
+                           assertThrows(DomainException.class, () -> teams.withMaxTeams(0)).getError()),
+        () -> assertEquals(ValidationError.TOO_MANY_REGISTRATIONS,
+                           assertThrows(DomainException.class,
+                                        () -> teams.withMaxTeams(1).withRegistrations(teams(2))).getError()));
+  }
+
+  /**
+   * The teams registered once the edition is full go to the waiting list, in their order; a withdrawal registers the
+   * first one waiting.
+   */
+  @Test
+  @DisplayName("Waiting list: the teams registered once the edition is full wait, first in, first out")
+  void waitingListTest() {
+    final Edition full = register(Edition.create(NAME, DATE, TournamentMode.TEAM).withMaxTeams(2), 1, FOURTH);
+    final Edition withdrawn = full.withdraw(1);
+    final Edition nobodyWaiting = Edition.create(NAME, DATE, TournamentMode.TEAM).register(team(1)).withdraw(1);
+    assertAll(
+        () -> assertTrue(full.isFull()),
+        () -> assertEquals(2, full.registrations().size()),
+        () -> assertEquals(2, full.registrations().waitingSize()),
+        () -> assertEquals(team(THIRD), full.registrations().participant(1, true)),
+        () -> assertEquals(List.of(team(2), team(THIRD)),
+                           List.of(withdrawn.registrations().participant(1, false),
+                                   withdrawn.registrations().participant(2, false))),
+        () -> assertEquals(List.of(team(FOURTH).getFirst(), team(FOURTH).getLast()),
+                           withdrawn.registrations().waitingPlayers()),
+        () -> assertEquals(0, nobodyWaiting.registrations().size()),
+        () -> assertFalse(nobodyWaiting.isFull()));
+  }
+
+  /**
+   * Raising the maximum registers the first teams waiting; lowering it moves the last registered teams to the head of
+   * the waiting list, in their order.
+   */
+  @Test
+  @DisplayName("Waiting list: raising the maximum registers the first ones waiting, lowering it moves the last ones")
+  void changeMaxTeamsTest() {
+    final Edition full = register(Edition.create(NAME, DATE, TournamentMode.TEAM).withMaxTeams(2), 1, FOURTH);
+    final Edition raised = full.withMaxTeams(THIRD);
+    final Edition lowered = full.withMaxTeams(1);
+    assertAll(
+        () -> assertEquals(THIRD, raised.registrations().size()),
+        () -> assertEquals(team(THIRD), raised.registrations().participant(THIRD, false)),
+        () -> assertEquals(1, raised.registrations().waitingSize()),
+        () -> assertEquals(1, lowered.registrations().size()),
+        () -> assertEquals(List.of(team(2), team(THIRD), team(FOURTH)),
+                           List.of(lowered.registrations().participant(1, true),
+                                   lowered.registrations().participant(2, true),
+                                   lowered.registrations().participant(THIRD, true))),
+        () -> assertEquals(FOURTH, full.withMaxTeams(OTHER_GAMES).registrations().size()));
+  }
+
+  /**
+   * Once the schedule is computed, a new team waits even when the edition is not full; the maximum cannot be lowered
+   * under the teams registered; reopening the registration registers the first teams waiting.
+   */
+  @Test
+  @DisplayName("Waiting list: once the schedule is computed, new teams wait and the maximum cannot drop under them")
+  void scheduledWaitingListTest() {
+    final Edition edition = scheduledEdition().register(team(OTHER_GAMES));
+    final Edition reopened = edition.withoutSchedule();
+    assertAll(
+        () -> assertTrue(edition.isFull()),
+        () -> assertEquals(1, edition.registrations().waitingSize()),
+        () -> assertEquals(Regulation.GAMES + 2, reopened.registrations().size()),
+        () -> assertEquals(0, reopened.registrations().waitingSize()),
+        () -> assertEquals(ValidationError.TOO_MANY_REGISTRATIONS,
+                           assertThrows(DomainException.class, () -> edition.withMaxTeams(1)).getError()),
+        () -> assertEquals(Regulation.GAMES + 1, edition.withMaxTeams(OTHER_GAMES).registrations().size()),
+        () -> assertEquals(ValidationError.REPLACEMENT_REFUSED,
+                           assertThrows(DomainException.class, () -> edition.withdraw(1)).getError()));
+  }
+
+  /**
+   * Once the schedule is computed, a team who withdraws is replaced by the first team waiting or by another team,
+   * which takes its number; the schedule is kept.
+   */
+  @Test
+  @DisplayName("Replacement: the new team takes the number of the team who withdraws, the schedule is kept")
+  void replaceTest() {
+    final Edition edition = scheduledEdition().register(team(OTHER_GAMES)).register(team(OTHER_GAMES + 1));
+    final Edition byWaiting = edition.replaceByFirstWaiting(2);
+    final Edition byOther = edition.replace(2, team(OTHER_GAMES + 2));
+    assertAll(
+        () -> assertTrue(edition.canReplace(2)),
+        () -> assertEquals(team(OTHER_GAMES), byWaiting.registrations().participant(2, false)),
+        () -> assertEquals(team(OTHER_GAMES + 1), byWaiting.registrations().participant(1, true)),
+        () -> assertEquals(edition.schedule(), byWaiting.schedule()),
+        () -> assertEquals(team(OTHER_GAMES + 2), byOther.registrations().participant(2, false)),
+        () -> assertEquals(2, byOther.registrations().waitingSize()),
+        () -> assertEquals(ValidationError.UNKNOWN_REGISTRATION,
+                           assertThrows(DomainException.class,
+                                        () -> scheduledEdition().replaceByFirstWaiting(1)).getError()));
+  }
+
+  /**
+   * A team cannot be replaced once a result concerns it: a score sheet of one of its games, its exclusion, or the
+   * drawing of lots; the other teams can still be replaced.
+   */
+  @Test
+  @DisplayName("Replacement: refused once a result of one of the games of the team is entered")
+  void replaceRefusedTest() {
+    final Edition edition = oneGameEdition().register(team(OTHER_GAMES));
+    final Edition sheet = edition.withResults(Results.EMPTY.withSheet(ScoreSheet.empty(1, 1, DealPlan.REGULATION)));
+    final Edition excluded = edition.withResults(Results.EMPTY.withExclusion(THIRD, true));
+    final Edition drawn = edition.withResults(Results.EMPTY.withTieBreak(new TieBreak(1L, List.of(1, 2))));
+    assertAll(
+        () -> assertFalse(sheet.canReplace(1)),
+        () -> assertFalse(sheet.canReplace(2)),
+        () -> assertTrue(sheet.canReplace(THIRD)),
+        () -> assertFalse(excluded.canReplace(THIRD)),
+        () -> assertFalse(drawn.canReplace(THIRD)),
+        () -> assertTrue(Edition.create(NAME, DATE, TournamentMode.TEAM).canReplace(1)),
+        () -> assertEquals(ValidationError.REPLACEMENT_REFUSED,
+                           assertThrows(DomainException.class, () -> sheet.replaceByFirstWaiting(1)).getError()),
+        () -> assertEquals(ValidationError.REPLACEMENT_REFUSED,
+                           assertThrows(DomainException.class, () -> sheet.replace(2, team(OTHER_GAMES + 1)))
+                               .getError()));
+  }
+
+  /**
+   * In individual mode, the waiting list holds the players registered beyond twice the maximum of teams, and a player
+   * replaces another one; the number of teams of registrations is their players divided by two, rounded up.
+   */
+  @Test
+  @DisplayName("Individual mode: players wait beyond twice the maximum of teams, a player replaces another one")
+  void individualWaitingListTest() {
+    Edition edition = Edition.create(NAME, DATE, TournamentMode.INDIVIDUAL).withMaxTeams(1);
+    for (int i = 1; i <= Regulation.PLAYERS_PER_TABLE; i++) {
+      edition = edition.register(List.of(new Player("First" + i, "A")));
+    }
+    final Edition full = edition;
+    final Edition replaced = full.replace(1, List.of(new Player("Other", "A")));
+    assertAll(
+        () -> assertEquals(Regulation.PLAYERS_PER_TEAM, full.registrations().size()),
+        () -> assertEquals(Regulation.PLAYERS_PER_TEAM, full.registrations().waitingSize()),
+        () -> assertEquals(List.of(new Player("Other", "A")), replaced.registrations().participant(1, false)),
+        () -> assertEquals(1, Edition.teamsOf(full.registrations())),
+        () -> assertEquals(2, Edition.teamsOf(full.withMaxTeams(2).withdraw(1).registrations())),
+        () -> assertEquals(Regulation.GAMES + 1, Edition.teamsOf(teams(Regulation.GAMES + 1))));
   }
 
 }

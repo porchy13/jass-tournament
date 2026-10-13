@@ -44,6 +44,7 @@ final class EditionFormTest {
         () -> assertEquals(DATE, form.date()),
         () -> assertEquals(TournamentMode.TEAM, form.mode()),
         () -> assertEquals(Regulation.GAMES, form.games()),
+        () -> assertEquals(Edition.DEFAULT_MAX_TEAMS, form.maxTeams()),
         () -> assertEquals(DealPlan.REGULATION.deals(), form.deals()),
         () -> assertEquals(Optional.of("error.validation.BLANK_EDITION_NAME"), form.problem()));
   }
@@ -59,16 +60,22 @@ final class EditionFormTest {
     form.setName("Match");
     form.setMode(TournamentMode.INDIVIDUAL);
     form.setGames(SIX);
+    form.setMaxTeams(SIX);
     form.setDeal(0, DealType.SCHIEBER);
     final Edition edition = form.build();
     form.setGames(0);
     final Optional<String> games = form.problem();
     form.setGames(SIX);
+    form.setMaxTeams(0);
+    final Optional<String> maxTeams = form.problem();
+    form.setMaxTeams(SIX);
     form.setDate(null);
     assertAll(
         () -> assertEquals("Match", edition.name()),
         () -> assertEquals(TournamentMode.INDIVIDUAL, edition.mode()),
         () -> assertEquals(SIX, edition.games()),
+        () -> assertEquals(SIX, edition.maxTeams()),
+        () -> assertEquals(Optional.of("error.validation.INVALID_MAX_TEAMS"), maxTeams),
         () -> assertEquals(DealType.SCHIEBER, edition.deals().deals().get(0)),
         () -> assertEquals(Optional.of("error.validation.INVALID_GAMES"), games),
         () -> assertEquals(Optional.of(EditionForm.MISSING_DATE), form.problem()),
@@ -97,15 +104,16 @@ final class EditionFormTest {
   }
 
   /**
-   * F16: a duplicate takes over the mode (fixed), the games, the plan and the fee, with an empty name and the date
-   * one year later.
+   * F16: a duplicate takes over the mode (fixed), the games, the maximum of teams, the plan and the fee, with an empty
+   * name and the date one year later.
    */
   @Test
-  @DisplayName("F16: a duplicate keeps the mode, the games, the plan and the fee")
+  @DisplayName("F16: a duplicate keeps the mode, the games, the maximum of teams, the plan and the fee")
   void duplicateTest() {
     final DealPlan forced = new DealPlan(Collections.nCopies(Regulation.DEALS_PER_BLOCK,
                                                             DealType.FORCED_TRUMP));
-    final Edition source = Edition.create("2026", DATE, TournamentMode.INDIVIDUAL).withGames(SIX).withDeals(forced)
+    final Edition source = Edition.create("2026", DATE, TournamentMode.INDIVIDUAL).withGames(SIX).withMaxTeams(SIX)
+                                  .withDeals(forced)
                                   .withLedger(Ledger.EMPTY.withFee(Money.of("30")));
     final EditionForm form = EditionForm.duplicate(source);
     form.setMode(TournamentMode.TEAM);
@@ -117,6 +125,7 @@ final class EditionFormTest {
         () -> assertEquals(DATE.plusYears(1), copy.date()),
         () -> assertEquals(TournamentMode.INDIVIDUAL, copy.mode()),
         () -> assertEquals(SIX, copy.games()),
+        () -> assertEquals(SIX, copy.maxTeams()),
         () -> assertEquals(forced, copy.deals()),
         () -> assertEquals(Money.of("30"), copy.ledger().fee()),
         () -> assertEquals("2027", copy.name()));

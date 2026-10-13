@@ -31,11 +31,30 @@ public enum ValidationError {
   /** The first name of a player is blank. */
   BLANK_FIRST_NAME,
 
-  /** A team does not have exactly {@link Regulation#PLAYERS_PER_TEAM} players. */
+  /**
+   * A team does not have exactly {@link Regulation#PLAYERS_PER_TEAM} players, or a participant of the individual mode
+   * is not one player.
+   */
   WRONG_TEAM_SIZE,
 
   /** The same person is registered twice in an edition (same first and last names, accents and case ignored). */
   DUPLICATE_PLAYER,
+
+  /** The maximum number of teams of an edition is lower than 1. */
+  INVALID_MAX_TEAMS,
+
+  /**
+   * More participants are registered than the maximum of the edition allows ({@link Edition#capacity()}), e.g. when
+   * the maximum is lowered once the schedule is computed.
+   */
+  TOO_MANY_REGISTRATIONS,
+
+  /**
+   * A participant cannot be replaced, nor a participant withdraw, at this stage: a result is entered for one of the
+   * games of the participant (it is excluded, absent or has a score sheet), or the drawing of lots is done; or a
+   * participant withdraws once the schedule is computed (it must then be replaced).
+   */
+  REPLACEMENT_REFUSED,
 
   /** No registration has the given number. */
   UNKNOWN_REGISTRATION,

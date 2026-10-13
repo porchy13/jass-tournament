@@ -15,10 +15,11 @@ import java.util.Optional;
 
 /**
  * The values of the form of a new edition (F2, F4, F15) or of the duplication of an edition (F16), and their check:
- * name, date, tournament mode, number of games and plan of the deals.
+ * name, date, tournament mode, number of games, maximum of teams and plan of the deals.
  *
- * <p>A new form proposes the settings of the regulation (4 games, plan of rules 3 and 8 to 11); a duplicate takes over
- * the mode (fixed), the games, the plan and the registration fee of the duplicated edition, with an empty name. The
+ * <p>A new form proposes the settings of the regulation (4 games, plan of rules 3 and 8 to 11) and
+ * {@value Edition#DEFAULT_MAX_TEAMS} teams at most; a duplicate takes over the mode (fixed), the games, the maximum of
+ * teams, the plan and the registration fee of the duplicated edition, with an empty name. The
  * plan is edited deal by deal, and by blocks of {@link Regulation#DEALS_PER_BLOCK} deals so that it stays valid.</p>
  *
  * <p>{@link #problem()} tells why the values cannot make an edition yet: the key of the message of the user interface,
@@ -52,6 +53,8 @@ final class EditionForm {
   private TournamentMode mode = TournamentMode.TEAM;
   /** The number of games of each participant. */
   private int games = Regulation.GAMES;
+  /** The maximum number of teams. */
+  private int maxTeams = Edition.DEFAULT_MAX_TEAMS;
 
   // *******************************************************************************************************************
   // Construction & Initialization
@@ -82,8 +85,8 @@ final class EditionForm {
   }
 
   /**
-   * Creates the form of the duplication of an edition: its mode, games and plan, an empty name, and its date one year
-   * later.
+   * Creates the form of the duplication of an edition: its mode, games, maximum of teams and plan, an empty name,
+   * and its date one year later.
    *
    * @param edition the duplicated edition.
    *
@@ -93,6 +96,7 @@ final class EditionForm {
     final EditionForm form = new EditionForm(edition, edition.deals().deals());
     form.mode = edition.mode();
     form.games = edition.games();
+    form.maxTeams = edition.maxTeams();
     form.date = edition.date().plusYears(1);
     return form;
   }
@@ -185,6 +189,24 @@ final class EditionForm {
   }
 
   /**
+   * Returns the maximum number of teams.
+   *
+   * @return the maximum of teams.
+   */
+  int maxTeams() {
+    return maxTeams;
+  }
+
+  /**
+   * Changes the maximum number of teams.
+   *
+   * @param newMaxTeams the maximum of teams.
+   */
+  void setMaxTeams(final int newMaxTeams) {
+    maxTeams = newMaxTeams;
+  }
+
+  /**
    * Returns the deals of the plan.
    *
    * @return an unmodifiable copy of the deals, in their order.
@@ -259,11 +281,12 @@ final class EditionForm {
    * @return the edition, without registration nor schedule.
    *
    * @throws NullPointerException if the date is missing.
-   * @throws DomainException if a value is not valid (blank name, invalid character, number of games lower than 1).
+   * @throws DomainException if a value is not valid (blank name, invalid character, number of games or maximum of
+   *                         teams lower than 1).
    */
   Edition build() {
     final Edition created = isDuplicate() ? source.duplicate(name, date) : Edition.create(name, date, mode);
-    return created.withGames(games).withDeals(new DealPlan(deals));
+    return created.withGames(games).withMaxTeams(maxTeams).withDeals(new DealPlan(deals));
   }
 
 }

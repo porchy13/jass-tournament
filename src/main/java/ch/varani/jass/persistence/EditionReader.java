@@ -62,8 +62,8 @@ import java.util.zip.ZipInputStream;
  *       read ({@link EditionStore#exportAttachment(UUID, Attachment, java.nio.file.Path)}); a damaged or truncated
  *       archive gives {@link FormatError#INVALID_ARCHIVE};</li>
  *   <li>root element: UTF-8 only, no document type declaration ({@link XmlCursor}), format version
- *       {@link EditionXml#FORMAT_VERSION} ({@link FormatError#UNSUPPORTED_VERSION}), before the schema, so that a
- *       newer file is reported as such;</li>
+ *       {@link EditionXml#FORMAT_VERSION} or {@link EditionXml#FORMAT_VERSION_1}
+ *       ({@link FormatError#UNSUPPORTED_VERSION}), before the schema, so that a newer file is reported as such;</li>
  *   <li>validation against the schema {@code edition.xsd} ({@link XmlSchema},
  *       {@link FormatError#INVALID_XML});</li>
  *   <li>conversion into the domain model, which checks the values (names, number of deals, duplicate persons,
@@ -72,12 +72,17 @@ import java.util.zip.ZipInputStream;
  *       ({@link FormatError#INVALID_CONTENT}).</li>
  * </ol>
  *
- * <p><b>Header reading</b>: the same first two steps, then the settings only; the deals, the registrations, the
- * schedule and the other entries are not read. It is not validated against the schema, but its values are checked
- * (with the plan of the deals of the regulation in place of the one of the file, which is not read).</p>
+ * <p><b>Header reading</b>: the same first two steps, then the settings, the deals and the registrations, to count
+ * them, and whether a schedule follows (for the conversion of the maximum of teams of version
+ * {@link EditionXml#FORMAT_VERSION_1}); the schedule, the results, the accounting and the other entries are not read.
+ * It is not validated against the schema, but its structure and its values are checked.</p>
  *
- * <p>Format migration: version {@link EditionXml#FORMAT_VERSION} is the first one; a later version will convert the
- * older documents explicitly here.</p>
+ * <p><b>Format migration</b>: version {@link EditionXml#FORMAT_VERSION_1} has neither maximum of teams nor waiting
+ * list. Its maximum of teams is set to the number of teams registered when the schedule is computed (the
+ * registration is closed), otherwise to {@link Edition#DEFAULT_MAX_TEAMS} or to the number of teams registered when
+ * it is greater ({@link Edition#teamsOf(Registrations)}: players divided by two, rounded up, in individual mode); its
+ * waiting list is empty. From version {@link EditionXml#FORMAT_VERSION}, the maximum of teams is required
+ * ({@link FormatError#INVALID_CONTENT}).</p>
  *
  * <p>The streams are not closed. Utility class without state, safe for concurrent use.</p>
  */
@@ -131,10 +136,10 @@ public final class EditionReader {
     readRoot(XmlCursor.of(xml));
     XmlSchema.EDITION.validate(xml);
     final XmlCursor cursor = XmlCursor.of(xml);
-    final UUID id = readRoot(cursor);
+    final Root root = readRoot(cursor);
     final Edition edition;
     try {
-      edition = readEdition(cursor);
+      edition = readEdition(cursor, root.firstVersion());
     } catch (DomainException _) {
       throw new FileFormatException(FormatError.INVALID_CONTENT);
     }
@@ -143,11 +148,11 @@ public final class EditionReader {
         throw new FileFormatException(FormatError.INVALID_CONTENT);
       }
     }
-    return new StoredEdition(id, edition);
+    return new StoredEdition(root.id(), edition);
   }
 
   /**
-   * Reads the header of an edition file: its identifier and its settings.
+   * Reads the header of an edition file: its identifier, its settings and the number of its registrations.
    *
    * @param in the stream of the archive, not closed.
    *
@@ -158,13 +163,16 @@ public final class EditionReader {
    */
   public static EditionHeader readHeader(final InputStream in) throws FileFormatException, IOException {
     final XmlCursor cursor = XmlCursor.of(readEntry(new ZipInputStream(in, StandardCharsets.UTF_8)));
-    final UUID id = readRoot(cursor);
-    final Settings settings = readSettings(cursor);
+    final Root root = readRoot(cursor);
     try {
-      final Edition edition = settings.edition(DealPlan.REGULATION, settings.mode() == TournamentMode.TEAM
-                                               ? TeamRegistrations.empty() : IndividualRegistrations.empty(), null,
-                                               Results.EMPTY, Ledger.EMPTY);
-      return new EditionHeader(id, edition.name(), edition.date(), edition.mode(), edition.games());
+      final Settings settings = readSettings(cursor);
+      final DealPlan deals = readDeals(cursor);
+      cursor.open(EditionXml.REGISTRATIONS);
+      final Registrations registrations = readRegistrations(cursor, settings.mode() == TournamentMode.TEAM);
+      final boolean scheduled = EditionXml.SCHEDULE.equals(cursor.nextSection());
+      return EditionHeader.of(root.id(), settings.edition(deals, registrations, null, Results.EMPTY, Ledger.EMPTY,
+                                                          maxTeams(settings, root.firstVersion(), registrations,
+                                                                   scheduled)));
     } catch (DomainException _) {
       throw new FileFormatException(FormatError.INVALID_CONTENT);
     }
@@ -233,26 +241,28 @@ public final class EditionReader {
   }
 
   /**
-   * Reads the root element: checks the format version and returns the identifier of the file.
+   * Reads the root element: checks the format version and returns it with the identifier of the file.
    *
    * @param cursor the cursor, before the root element.
    *
-   * @return the identifier of the file.
+   * @return the identifier of the file and its format version.
    *
    * @throws FileFormatException with {@link FormatError#UNSUPPORTED_VERSION} for another format version, with
    *                             {@link FormatError#INVALID_CONTENT} for an identifier that is not a UUID in its
    *                             canonical form, or with {@link FormatError#INVALID_XML}.
    */
-  private static UUID readRoot(final XmlCursor cursor) throws FileFormatException {
+  private static Root readRoot(final XmlCursor cursor) throws FileFormatException {
     cursor.open(EditionXml.EDITION);
-    if (!EditionXml.FORMAT_VERSION.equals(cursor.attribute(EditionXml.FORMAT_VERSION_ATTRIBUTE))) {
+    final String version = cursor.attribute(EditionXml.FORMAT_VERSION_ATTRIBUTE);
+    final boolean firstVersion = EditionXml.FORMAT_VERSION_1.equals(version);
+    if (!firstVersion && !EditionXml.FORMAT_VERSION.equals(version)) {
       throw new FileFormatException(FormatError.UNSUPPORTED_VERSION);
     }
     final String value = cursor.attribute(EditionXml.ID);
     try {
       final UUID id = UUID.fromString(value);
       if (id.toString().equals(value)) {
-        return id;
+        return new Root(id, firstVersion);
       }
     } catch (IllegalArgumentException _) {
       throw new FileFormatException(FormatError.INVALID_CONTENT);
@@ -261,8 +271,9 @@ public final class EditionReader {
   }
 
   /**
-   * Reads the settings: name, date, mode, number of games and time of a game ({@link Edition#DEFAULT_GAME_MINUTES}
-   * when absent, e.g. in the files written before it existed).
+   * Reads the settings: name, date, mode, number of games, time of a game ({@link Edition#DEFAULT_GAME_MINUTES}
+   * when absent, e.g. in the files written before it existed) and maximum of teams ({@code null} when absent, e.g. in
+   * the files of version {@link EditionXml#FORMAT_VERSION_1}).
    *
    * @param cursor the cursor, at the start of the root element.
    *
@@ -278,13 +289,15 @@ public final class EditionReader {
     final String mode = cursor.text(EditionXml.MODE);
     final int games = number(cursor.text(EditionXml.GAMES), Integer.MAX_VALUE);
     final String minutes = cursor.optionalText(EditionXml.GAME_MINUTES);
-    if (minutes != null) {
+    final String maxTeams = minutes == null ? null : cursor.optionalText(EditionXml.MAX_TEAMS);
+    if (maxTeams != null) {
       cursor.close();
     }
     final int gameMinutes = minutes == null ? Edition.DEFAULT_GAME_MINUTES
                                             : number(minutes, Edition.MAX_GAME_MINUTES);
     try {
-      return new Settings(name, LocalDate.parse(date), TournamentMode.valueOf(mode), games, gameMinutes);
+      return new Settings(name, LocalDate.parse(date), TournamentMode.valueOf(mode), games, gameMinutes,
+                          maxTeams == null ? null : number(maxTeams, Integer.MAX_VALUE));
     } catch (DateTimeParseException | IllegalArgumentException _) {
       throw new FileFormatException(FormatError.INVALID_CONTENT);
     }
@@ -292,21 +305,23 @@ public final class EditionReader {
 
   /**
    * Reads the edition after its root element: settings, plan of the deals, registrations, schedule, results and
-   * accounting.
+   * accounting; converts a file of version {@link EditionXml#FORMAT_VERSION_1}.
    *
    * @param cursor the cursor, at the start of the root element.
+   * @param firstVersion whether the file has the format version {@link EditionXml#FORMAT_VERSION_1}.
    *
    * @return the edition.
    *
-   * @throws FileFormatException with {@link FormatError#INVALID_CONTENT} or {@link FormatError#INVALID_XML}.
+   * @throws FileFormatException with {@link FormatError#INVALID_CONTENT} (e.g. a maximum of teams missing from a
+   *                             file of the current version) or {@link FormatError#INVALID_XML}.
    * @throws DomainException if the domain model rejects a value.
    */
-  private static Edition readEdition(final XmlCursor cursor) throws FileFormatException {
+  private static Edition readEdition(final XmlCursor cursor, final boolean firstVersion) throws FileFormatException {
     final Settings settings = readSettings(cursor);
     final DealPlan deals = readDeals(cursor);
     final boolean team = settings.mode() == TournamentMode.TEAM;
     cursor.open(EditionXml.REGISTRATIONS);
-    final Registrations registrations = team ? readTeams(cursor) : readPlayers(cursor);
+    final Registrations registrations = readRegistrations(cursor, team);
     Schedule schedule = null;
     Results results = Results.EMPTY;
     String section = cursor.nextSection();
@@ -320,7 +335,35 @@ public final class EditionReader {
       section = cursor.nextSection();
     }
     final Ledger ledger = EditionXml.LEDGER.equals(section) ? readLedger(cursor) : Ledger.EMPTY;
-    return settings.edition(deals, registrations, schedule, results, ledger);
+    return settings.edition(deals, registrations, schedule, results, ledger,
+                            maxTeams(settings, firstVersion, registrations, schedule != null));
+  }
+
+  /**
+   * Returns the maximum of teams of an edition: the one of the file, or the one given by the conversion of a file of
+   * version {@link EditionXml#FORMAT_VERSION_1}: the number of teams registered when the schedule is computed,
+   * otherwise {@link Edition#DEFAULT_MAX_TEAMS} or the number of teams registered when it is greater.
+   *
+   * @param settings the settings read.
+   * @param firstVersion whether the file has the format version {@link EditionXml#FORMAT_VERSION_1}.
+   * @param registrations the registrations read.
+   * @param scheduled whether the file has a schedule.
+   *
+   * @return the maximum of teams.
+   *
+   * @throws FileFormatException with {@link FormatError#INVALID_CONTENT} if a file of the current version has no
+   *                             maximum of teams.
+   */
+  private static int maxTeams(final Settings settings, final boolean firstVersion, final Registrations registrations,
+                              final boolean scheduled) throws FileFormatException {
+    if (!firstVersion) {
+      if (settings.maxTeams() == null) {
+        throw new FileFormatException(FormatError.INVALID_CONTENT);
+      }
+      return settings.maxTeams();
+    }
+    final int registered = Edition.teamsOf(registrations);
+    return scheduled ? registered : Math.max(Edition.DEFAULT_MAX_TEAMS, registered);
   }
 
   /**
@@ -463,45 +506,81 @@ public final class EditionReader {
   }
 
   /**
-   * Reads the teams of the registrations, up to the end of the registrations.
+   * Reads the registrations, up to their end: the teams (or the players in individual mode), then the waiting list,
+   * when it is present.
    *
    * @param cursor the cursor, at the start of the registrations.
+   * @param team whether the edition is in team mode.
    *
-   * @return the team registrations.
+   * @return the registrations.
    *
-   * @throws FileFormatException with {@link FormatError#INVALID_XML}.
+   * @throws FileFormatException with {@link FormatError#INVALID_XML} if a participant does not match the mode.
    * @throws DomainException if the domain model rejects a team or a player.
    */
-  private static TeamRegistrations readTeams(final XmlCursor cursor) throws FileFormatException {
-    final List<Team> teams = new ArrayList<>();
-    while (cursor.openOrClose(EditionXml.TEAM)) {
-      teams.add(new Team(readPlayers(cursor).players()));
+  private static Registrations readRegistrations(final XmlCursor cursor, final boolean team)
+      throws FileFormatException {
+    final String participant = team ? EditionXml.TEAM : EditionXml.PLAYER;
+    final List<List<Player>> registered = new ArrayList<>();
+    final List<List<Player>> waiting = new ArrayList<>();
+    for (String element = cursor.nextSection(); element != null; element = cursor.nextSection()) {
+      if (EditionXml.WAITING.equals(element)) {
+        while (cursor.openOrClose(participant)) {
+          waiting.add(readParticipant(cursor, team));
+        }
+      } else if (participant.equals(element)) {
+        registered.add(readParticipant(cursor, team));
+      } else {
+        throw new FileFormatException(FormatError.INVALID_XML);
+      }
     }
-    return new TeamRegistrations(teams);
+    if (team) {
+      return new TeamRegistrations(registered.stream().map(Team::new).toList(),
+                                   waiting.stream().map(Team::new).toList());
+    }
+    return new IndividualRegistrations(registered.stream().map(List::getFirst).toList(),
+                                       waiting.stream().map(List::getFirst).toList());
   }
 
   /**
-   * Reads players up to the end of the current element (the registrations, or a team), with the identifier of their
-   * person of the directory when they are linked to one (a UUID, as the document follows the schema) and whether
-   * their fee is paid (absent: not paid; {@code 1} is read as not paid, the writer always writes {@code true}).
+   * Reads a participant, up to the end of its element: the two players of a team, or a player.
    *
-   * @param cursor the cursor, at the start of the element holding the players.
+   * @param cursor the cursor, at the start of the team or of the player.
+   * @param team whether the participant is a team.
    *
-   * @return the players, as individual registrations.
+   * @return the players of the participant.
    *
    * @throws FileFormatException with {@link FormatError#INVALID_XML}.
-   * @throws DomainException if the domain model rejects a player.
    */
-  private static IndividualRegistrations readPlayers(final XmlCursor cursor) throws FileFormatException {
+  private static List<Player> readParticipant(final XmlCursor cursor, final boolean team) throws FileFormatException {
+    if (!team) {
+      return List.of(readPlayer(cursor));
+    }
     final List<Player> players = new ArrayList<>();
     while (cursor.openOrClose(EditionXml.PLAYER)) {
-      final String person = cursor.optionalAttribute(EditionXml.PERSON);
-      players.add(new Player(cursor.attribute(EditionXml.FIRST_NAME), cursor.attribute(EditionXml.LAST_NAME),
-                             person == null ? null : UUID.fromString(person),
-                             Boolean.parseBoolean(cursor.optionalAttribute(EditionXml.PAID))));
-      cursor.close();
+      players.add(readPlayer(cursor));
     }
-    return new IndividualRegistrations(players);
+    return players;
+  }
+
+  /**
+   * Reads a player, up to the end of its element, with the identifier of its person of the directory when it is
+   * linked to one (a UUID, as the document follows the schema) and whether its fee is paid (absent: not paid;
+   * {@code 1} is read as not paid, the writer always writes {@code true}).
+   *
+   * @param cursor the cursor, at the start of the player.
+   *
+   * @return the player.
+   *
+   * @throws FileFormatException with {@link FormatError#INVALID_XML}.
+   * @throws DomainException if the domain model rejects the player.
+   */
+  private static Player readPlayer(final XmlCursor cursor) throws FileFormatException {
+    final String person = cursor.optionalAttribute(EditionXml.PERSON);
+    final Player player = new Player(cursor.attribute(EditionXml.FIRST_NAME), cursor.attribute(EditionXml.LAST_NAME),
+                                     person == null ? null : UUID.fromString(person),
+                                     Boolean.parseBoolean(cursor.optionalAttribute(EditionXml.PAID)));
+    cursor.close();
+    return player;
   }
 
   /**
@@ -613,6 +692,17 @@ public final class EditionReader {
   // *******************************************************************************************************************
 
   /**
+   * The root element of an edition file: the identifier of the file and its format version.
+   *
+   * <p>Immutable, safe for concurrent use.</p>
+   *
+   * @param id the identifier of the file.
+   * @param firstVersion whether the file has the format version {@link EditionXml#FORMAT_VERSION_1}, to convert.
+   */
+  private record Root(UUID id, boolean firstVersion) {
+  }
+
+  /**
    * The settings of an edition, as read from the file, before their check by the domain model.
    *
    * <p>Immutable, safe for concurrent use.</p>
@@ -622,8 +712,10 @@ public final class EditionReader {
    * @param mode the tournament mode.
    * @param games the number of games of each participant.
    * @param gameMinutes the time given to play a game, in minutes.
+   * @param maxTeams the maximum number of teams, or {@code null} when the file has none.
    */
-  private record Settings(String name, LocalDate date, TournamentMode mode, int games, int gameMinutes) {
+  private record Settings(String name, LocalDate date, TournamentMode mode, int games, int gameMinutes,
+                          Integer maxTeams) {
 
     /**
      * Creates the edition of these settings.
@@ -633,14 +725,15 @@ public final class EditionReader {
      * @param schedule the schedule, or {@code null}.
      * @param results the results.
      * @param ledger the accounting.
+     * @param teams the maximum number of teams.
      *
      * @return the edition.
      *
      * @throws DomainException if the domain model rejects a value.
      */
     Edition edition(final DealPlan deals, final Registrations registrations, final Schedule schedule,
-                    final Results results, final Ledger ledger) {
-      return new Edition(name, date, games, deals, registrations, schedule, results, ledger, gameMinutes);
+                    final Results results, final Ledger ledger, final int teams) {
+      return new Edition(name, date, games, deals, registrations, schedule, results, ledger, gameMinutes, teams);
     }
 
   }

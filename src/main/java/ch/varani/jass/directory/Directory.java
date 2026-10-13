@@ -366,7 +366,7 @@ public record Directory(List<Person> persons) {
   private static Map<UUID, UUID> teamMates(final Edition edition) {
     final Map<UUID, UUID> teamMates = new HashMap<>();
     switch (edition.registrations()) {
-      case TeamRegistrations(final List<Team> teams) -> {
+      case TeamRegistrations(final List<Team> teams, List<Team> _) -> {
         for (final Team team : teams) {
           final Player first = team.players().get(0);
           final Player second = team.players().get(1);
@@ -374,7 +374,7 @@ public record Directory(List<Person> persons) {
           putLinked(teamMates, second, first.personId());
         }
       }
-      case IndividualRegistrations(final List<Player> players) -> {
+      case IndividualRegistrations(final List<Player> players, List<Player> _) -> {
         for (final Player player : players) {
           putLinked(teamMates, player, null);
         }

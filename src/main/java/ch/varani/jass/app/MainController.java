@@ -1256,6 +1256,14 @@ final class MainController {
   // *******************************************************************************************************************
 
   /**
+   * Looks for a newer release of the application because the user asked for it (Help › Check for updates).
+   */
+  @FXML
+  void checkUpdates() {
+    new UpdateController(this, context.updater()).checkNow();
+  }
+
+  /**
    * Shows the window about the application; opens the page of the donations when the user chooses to make one.
    */
   @FXML
@@ -1390,8 +1398,7 @@ final class MainController {
   @FXML
   void deleteEdition() {
     final OpenEdition open = current.get();
-    delete(new EditionHeader(open.id(), open.edition().name(), open.edition().date(), open.edition().mode(),
-                             open.edition().games()));
+    delete(EditionHeader.of(open.id(), open.edition()));
   }
 
   /**

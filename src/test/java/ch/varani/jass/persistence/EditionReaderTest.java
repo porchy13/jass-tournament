@@ -4,7 +4,10 @@ import ch.varani.jass.domain.Attachment;
 import ch.varani.jass.domain.DealPlan;
 import ch.varani.jass.domain.DealType;
 import ch.varani.jass.domain.Edition;
+import ch.varani.jass.domain.Player;
 import ch.varani.jass.domain.Results;
+import ch.varani.jass.domain.Team;
+import ch.varani.jass.domain.TeamRegistrations;
 import ch.varani.jass.domain.TournamentMode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,6 +50,10 @@ final class EditionReaderTest {
   private static final int MAX = 3;
   /** A time of a game other than the default one, in minutes. */
   private static final int GAME_MINUTES = 90;
+  /** A maximum of teams lower than the participants of the fixtures, which fills the waiting list. */
+  private static final int WAITING_MAX = 2;
+  /** A number of teams greater than the default maximum. */
+  private static final int MANY_TEAMS = 25;
 
   /**
    * Provides the editions of the round trip tests.
@@ -62,7 +69,11 @@ final class EditionReaderTest {
                          Fixtures.scoredTeamEdition().results().sheets().getFirst()))),
                      Arguments.of(Fixtures.teamEdition().withDeals(new DealPlan(List.of(
                          DealType.IMPOSED_SPADES, DealType.FORCED_TRUMP, DealType.FORCED_TRUMP, DealType.KREUZ)))),
-                     Arguments.of(Fixtures.teamEdition().withGameMinutes(GAME_MINUTES)));
+                     Arguments.of(Fixtures.teamEdition().withGameMinutes(GAME_MINUTES)),
+                     Arguments.of(Fixtures.teamEdition().withMaxTeams(WAITING_MAX)),
+                     Arguments.of(Fixtures.scheduledIndividualEdition()
+                                          .register(List.of(new Player("Gaël", "Vuille")))),
+                     Arguments.of(Fixtures.individualEdition().withMaxTeams(WAITING_MAX)));
   }
 
   /**
@@ -74,8 +85,60 @@ final class EditionReaderTest {
   @DisplayName("F18: a file without the time of a game is read with 60 minutes")
   void defaultGameMinutesTest() throws Exception {
     final Edition edition = Fixtures.teamEdition().withGameMinutes(GAME_MINUTES);
-    final String xml = Fixtures.xml(edition).replace("<gameMinutes>" + GAME_MINUTES + "</gameMinutes>", "");
+    final String xml = version1(Fixtures.xml(edition)).replace("<gameMinutes>" + GAME_MINUTES + "</gameMinutes>", "");
     assertEquals(Edition.DEFAULT_GAME_MINUTES, read(Fixtures.archive(xml)).edition().gameMinutes());
+  }
+
+  /**
+   * Converts a document of the current format version into a document of version 1: without maximum of teams.
+   *
+   * @param xml the document of the current version, without waiting list.
+   *
+   * @return the document of version 1.
+   */
+  private static String version1(final String xml) {
+    return xml.replaceFirst("<maxTeams>\\d+</maxTeams>", "")
+              .replace("formatVersion=\"" + EditionXml.FORMAT_VERSION + "\"", "formatVersion=\"1\"");
+  }
+
+  /**
+   * Provides editions written in version 1 of the format and the maximum of teams of their conversion.
+   *
+   * @return the editions and the expected maximum of teams.
+   */
+  static Stream<Arguments> version1Editions() {
+    TeamRegistrations many = TeamRegistrations.empty();
+    for (int i = 1; i <= MANY_TEAMS; i++) {
+      many = many.add(new Team(new Player("First" + i, "A"), new Player("First" + i, "B")));
+    }
+    return Stream.of(Arguments.of("open", Fixtures.teamEdition(), Edition.DEFAULT_MAX_TEAMS),
+                     Arguments.of("open with more teams than the default", Edition.create("Big", Fixtures.DATE,
+                         TournamentMode.TEAM).withMaxTeams(MANY_TEAMS).withRegistrations(many), MANY_TEAMS),
+                     Arguments.of("scheduled", Fixtures.scheduledTeamEdition(), Fixtures.PARTICIPANTS),
+                     Arguments.of("scheduled individual", Fixtures.scheduledIndividualEdition(),
+                                  Math.ceilDiv(Fixtures.PARTICIPANTS, 2)));
+  }
+
+  /**
+   * A file of version 1 of the format is converted: the maximum of teams is the number of teams registered once the
+   * schedule is computed, otherwise 20 or the number of teams registered when it is greater; the waiting list is
+   * empty.
+   *
+   * @param description the description of the edition.
+   * @param edition the edition, without waiting list.
+   * @param maxTeams the expected maximum of teams.
+   *
+   * @throws Exception never.
+   */
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("version1Editions")
+  @DisplayName("A file of format version 1 is converted with a maximum of teams")
+  void version1Test(final String description, final Edition edition, final int maxTeams) throws Exception {
+    final Edition converted = read(Fixtures.archive(version1(Fixtures.xml(edition)))).edition();
+    assertAll(
+        () -> assertEquals(maxTeams, converted.maxTeams()),
+        () -> assertEquals(edition.withMaxTeams(maxTeams), converted),
+        () -> assertEquals(0, converted.registrations().waitingSize()));
   }
 
   /**
@@ -101,10 +164,32 @@ final class EditionReaderTest {
    */
   @ParameterizedTest
   @MethodSource("editions")
-  @DisplayName("The header gives the identifier and the settings")
+  @DisplayName("The header gives the identifier, the settings and the number of registrations")
   void headerTest(final Edition edition) throws Exception {
-    assertEquals(new EditionHeader(Fixtures.ID, edition.name(), edition.date(), edition.mode(), edition.games()),
+    assertEquals(EditionHeader.of(Fixtures.ID, edition),
                  EditionReader.readHeader(new ByteArrayInputStream(Fixtures.file(edition))));
+  }
+
+  /**
+   * The header of a file of version 1 of the format has the maximum of teams of its conversion: the number of teams
+   * registered once the schedule is computed, otherwise 20 at least.
+   *
+   * @param description the description of the edition.
+   * @param edition the edition, without waiting list.
+   * @param maxTeams the expected maximum of teams.
+   *
+   * @throws Exception never.
+   */
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("version1Editions")
+  @DisplayName("The header of a file of format version 1 has the converted maximum of teams")
+  void version1HeaderTest(final String description, final Edition edition, final int maxTeams) throws Exception {
+    final EditionHeader header = EditionReader.readHeader(new ByteArrayInputStream(
+        Fixtures.archive(version1(Fixtures.xml(edition)))));
+    assertAll(
+        () -> assertEquals(maxTeams, header.maxTeams()),
+        () -> assertEquals(edition.registrations().size(), header.registrations()),
+        () -> assertEquals(0, header.waiting()));
   }
 
   /**
@@ -187,7 +272,7 @@ final class EditionReaderTest {
   @Test
   @DisplayName("A newer format version is reported")
   void unsupportedVersionTest() {
-    final String xml = Fixtures.xml(Fixtures.teamEdition()).replace("formatVersion=\"1\"", "formatVersion=\"2\"");
+    final String xml = Fixtures.xml(Fixtures.teamEdition()).replace("formatVersion=\"2\"", "formatVersion=\"3\"");
     assertError(FormatError.UNSUPPORTED_VERSION, Fixtures.archive(xml));
   }
 
@@ -272,7 +357,14 @@ final class EditionReaderTest {
                      individual.replace("<individualGame table=\"1\">", "<teamGame table=\"1\" giver=\"1\" "
                                         + "receiver=\"2\"/><individualGame table=\"1\">")),
         Arguments.of("teams in individual mode", individual.replace(">INDIVIDUAL<", ">TEAM<")),
-        Arguments.of("players in team mode", team.replace(">TEAM<", ">INDIVIDUAL<")));
+        Arguments.of("players in team mode", team.replace(">TEAM<", ">INDIVIDUAL<")),
+        Arguments.of("waiting players in team mode",
+                     Fixtures.xml(Fixtures.teamEdition().withMaxTeams(WAITING_MAX)).replaceFirst(
+                         "(?s)<waiting>.*</waiting>", "<waiting><player firstName=\"X\" lastName=\"Y\"/></waiting>")),
+        Arguments.of("maximum of teams without time of a game",
+                     team.replaceFirst("<gameMinutes>\\d+</gameMinutes>", "")),
+        Arguments.of("maximum of teams zero", team.replaceFirst("<maxTeams>\\d+", "<maxTeams>0")),
+        Arguments.of("maximum of teams too large", team.replaceFirst("<maxTeams>\\d+", "<maxTeams>99999999999")));
   }
 
   /**
@@ -322,7 +414,9 @@ final class EditionReaderTest {
         Arguments.of("results without schedule", scored.replaceFirst("(?s)<schedule>.*</schedule>", "")),
         Arguments.of("deals not a multiple of 4", team.replaceFirst("<deal type=\"KREUZ\"/>", "")),
         Arguments.of("unknown team", team.replace("giver=\"5\"", "giver=\"6\"")),
-        Arguments.of("unknown player", individual.replace("second=\"5\"", "second=\"6\"")));
+        Arguments.of("unknown player", individual.replace("second=\"5\"", "second=\"6\"")),
+        Arguments.of("no maximum of teams", team.replaceFirst("<maxTeams>\\d+</maxTeams>", "")),
+        Arguments.of("more teams than the maximum", team.replaceFirst("<maxTeams>\\d+", "<maxTeams>2")));
   }
 
   /**
@@ -355,6 +449,8 @@ final class EditionReaderTest {
         Arguments.of(FormatError.INVALID_XML, xml.replace("<gameMinutes>", "<gameMinutes><b/>")),
         Arguments.of(FormatError.INVALID_XML, xml.replace("</gameMinutes>", "</gameMinutes><extra/>")),
         Arguments.of(FormatError.INVALID_CONTENT, xml.replaceFirst("<gameMinutes>\\d+", "<gameMinutes>0")),
+        Arguments.of(FormatError.INVALID_CONTENT, xml.replaceFirst("<maxTeams>\\d+", "<maxTeams>0")),
+        Arguments.of(FormatError.INVALID_XML, xml.replace("</maxTeams>", "</maxTeams><extra/>")),
         Arguments.of(FormatError.INVALID_XML,
                      xml.replaceFirst("(?s)<settings>.*</settings>", "<settings></settings>")),
         Arguments.of(FormatError.INVALID_CONTENT, xml.replace(Fixtures.ID.toString(), "not-a-uuid")),

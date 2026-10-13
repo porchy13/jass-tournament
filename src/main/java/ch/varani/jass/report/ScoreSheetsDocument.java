@@ -10,6 +10,7 @@ import ch.varani.jass.domain.TrumpMode;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The score sheets of the games (F10, rule 7), modelled on the former sheet {@code F-MAT-1}: two sheets per A4
@@ -101,7 +102,30 @@ public final class ScoreSheetsDocument {
    */
   public static void write(final Edition edition, final DocumentOptions options, final OutputStream out)
       throws IOException {
-    final List<Pairing> pairings = Documents.pairings(edition);
+    write(edition, options, Documents.everyone(edition), out);
+  }
+
+  /**
+   * Writes the score sheets of the games of some participants of an edition as a PDF document, e.g. of a participant
+   * who replaces another one: the games where one of them plays, sorted by round then table.
+   *
+   * @param edition the edition, with its schedule.
+   * @param options the options of the documents.
+   * @param selected the numbers of the participants whose games are written.
+   * @param out the stream to which the document is written, not closed.
+   *
+   * @throws IllegalStateException if the edition has no schedule.
+   * @throws IllegalArgumentException if no participant is selected, or a number is not a registered participant.
+   * @throws IOException if the document cannot be written.
+   */
+  public static void write(final Edition edition, final DocumentOptions options, final Set<Integer> selected,
+                           final OutputStream out) throws IOException {
+    final List<Pairing> all = Documents.pairings(edition);
+    Documents.selection(edition, selected);
+    final List<Pairing> pairings = all.stream()
+        .filter(pairing -> pairing.giver().stream().anyMatch(selected::contains)
+                           || pairing.receiver().stream().anyMatch(selected::contains))
+        .toList();
     final Texts texts = new Texts(options.locale());
     final Sheet sheet = new Sheet(texts, edition, new Participants(edition, texts));
     final float width = PdfCanvas.LANDSCAPE.getWidth() / PER_PAGE;

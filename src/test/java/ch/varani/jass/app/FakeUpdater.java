@@ -21,10 +21,10 @@ import java.util.function.BooleanSupplier;
  */
 final class FakeUpdater implements Updater {
 
-  /** An update that never finds a newer release. */
-  static final FakeUpdater NONE = new FakeUpdater(null, null, null);
   /** The version of the running application in the tests. */
   static final Version CURRENT = Version.parse("1.0.0");
+  /** An update that never finds a newer release. */
+  static final FakeUpdater NONE = new FakeUpdater(null, null, null);
   /** The size of the installer of the tests, in bytes. */
   static final long SIZE = 5_000_000;
   /** The number of hexadecimal digits of a SHA-256 digest. */
@@ -38,6 +38,8 @@ final class FakeUpdater implements Updater {
   private final Path installer;
   /** The failure of the check or of the download, or {@code null}. */
   private final IOException failure;
+  /** The version of the application. */
+  private final Version version;
   /** Released when the check is done. */
   private final CountDownLatch checked = new CountDownLatch(1);
   /** Released when the download has started. */
@@ -53,6 +55,19 @@ final class FakeUpdater implements Updater {
    * @param failure the failure of the check (without release) or of the download, or {@code null}.
    */
   FakeUpdater(final Release release, final Path installer, final IOException failure) {
+    this(CURRENT, release, installer, failure);
+  }
+
+  /**
+   * Creates an update of another version of the application.
+   *
+   * @param version the version of the application.
+   * @param release the release found, or {@code null} for none.
+   * @param installer the installer given by the download, or {@code null} to wait until it is cancelled.
+   * @param failure the failure of the check (without release) or of the download, or {@code null}.
+   */
+  FakeUpdater(final Version version, final Release release, final Path installer, final IOException failure) {
+    this.version = version;
     this.release = release;
     this.installer = installer;
     this.failure = failure;
@@ -72,11 +87,11 @@ final class FakeUpdater implements Updater {
   /**
    * Returns the version of the application of the tests.
    *
-   * @return {@link #CURRENT}.
+   * @return the version given at the creation, {@link #CURRENT} by default.
    */
   @Override
   public Version current() {
-    return CURRENT;
+    return version;
   }
 
   /**

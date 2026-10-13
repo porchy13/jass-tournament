@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -239,6 +240,29 @@ final class ScoreSheetsDocumentTest {
     final Edition edition = Samples.teamEdition().withoutSchedule();
     assertThrows(IllegalStateException.class,
                  () -> ScoreSheetsDocument.write(edition, Samples.OPTIONS, new ByteArrayOutputStream()));
+  }
+
+  /**
+   * The sheets of the games of some participants alone, e.g. of a team that replaces another one: team 5 plays only
+   * the first game of the second round.
+   *
+   * @throws Exception never.
+   */
+  @Test
+  @DisplayName("Replacement: the sheets of the games of the selected teams alone")
+  void selectionTest() throws Exception {
+    final Edition edition = Samples.teamEdition();
+    final byte[] pdf = Samples.pdf(out -> ScoreSheetsDocument.write(edition, Samples.OPTIONS, Set.of(Samples.TEAMS),
+                                                                    out));
+    final String text = Samples.text(pdf);
+    try (PDDocument document = Loader.loadPDF(pdf)) {
+      assertAll(
+          () -> assertEquals(1, document.getNumberOfPages()),
+          () -> assertTrue(text.contains("Partie 2 – Table 1"), text),
+          () -> assertFalse(text.contains("Partie 1 – Table"), text),
+          () -> assertThrows(IllegalArgumentException.class, () -> ScoreSheetsDocument.write(
+              edition, Samples.OPTIONS, Set.of(), new ByteArrayOutputStream())));
+    }
   }
 
 }

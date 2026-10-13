@@ -213,6 +213,11 @@
     -fx-pref-height: 132;
 }
 
+/* The waiting list of the registration, under the registered participants. */
+.waiting-list {
+    -fx-pref-height: 160;
+}
+
 /* The progress of the computation of the schedule: a bar filled as the time limit of the solver passes. */
 .progress {
     -fx-pref-width: 160;

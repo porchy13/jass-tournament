@@ -40,10 +40,13 @@ final class ValueTypesTest {
     final UUID id = Fixtures.ID;
     final TournamentMode mode = TournamentMode.TEAM;
     assertAll(
-        () -> assertThrows(NullPointerException.class, () -> new EditionHeader(null, "n", Fixtures.DATE, mode, 1)),
-        () -> assertThrows(NullPointerException.class, () -> new EditionHeader(id, null, Fixtures.DATE, mode, 1)),
-        () -> assertThrows(NullPointerException.class, () -> new EditionHeader(id, "n", null, mode, 1)),
-        () -> assertThrows(NullPointerException.class, () -> new EditionHeader(id, "n", Fixtures.DATE, null, 1)));
+        () -> assertThrows(NullPointerException.class,
+                           () -> new EditionHeader(null, "n", Fixtures.DATE, mode, 1, 1, 0, 0)),
+        () -> assertThrows(NullPointerException.class,
+                           () -> new EditionHeader(id, null, Fixtures.DATE, mode, 1, 1, 0, 0)),
+        () -> assertThrows(NullPointerException.class, () -> new EditionHeader(id, "n", null, mode, 1, 1, 0, 0)),
+        () -> assertThrows(NullPointerException.class,
+                           () -> new EditionHeader(id, "n", Fixtures.DATE, null, 1, 1, 0, 0)));
   }
 
   /**

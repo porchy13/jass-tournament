@@ -59,6 +59,9 @@ l’interrompt), puis l’application enregistre tout, ouvre l’installateur et
 l’installation comme ci-dessus. **Plus tard** reporte la mise à jour au prochain démarrage. Sans Internet,
 l’application démarre normalement et n’affiche rien.
 
+**Aide › Rechercher les mises à jour…** lance la vérification à tout moment : l’application propose la nouvelle
+version, ou indique qu’elle est déjà la plus récente, ou que la vérification a échoué (par exemple sans Internet).
+
 <img src="images/fr/update.png" alt="La proposition d’une nouvelle version" width="325">
 
 ## 2. Découvrir la fenêtre
@@ -142,6 +145,8 @@ Dans **Éditions**, choisissez **Nouvelle édition** :
   où deux joueurs se rencontrent comme adversaires) ;
 - **Parties par participant** : 4 selon le règlement ; le nombre doit être pair, car chaque équipe donne en premier
   dans la moitié de ses parties ;
+- **Nombre maximum d’équipes** : 20 par défaut (le double de joueurs en mode individuel) ; au-delà, les inscriptions
+  vont en liste d’attente ;
 - **Contenu des parties** : le type de chaque donne (atout imposé ♥ ♣ ♦ ♠, _Schieber_, _Kreuz_, atout forcé).
   **Plan du règlement** remet les 16 donnes du règlement ; **Ajouter 4 donnes** et **Retirer 4 donnes** changent leur
   nombre, toujours un multiple de 4.
@@ -149,9 +154,11 @@ Dans **Éditions**, choisissez **Nouvelle édition** :
 **Créer** reste indisponible tant qu’une valeur manque ; la raison est affichée.
 
 Pour l’année suivante, sélectionnez l’édition précédente et choisissez **Dupliquer l’édition** : la nouvelle reprend
-le mode, les parties, le contenu des parties et la finance d’inscription, mais pas les inscriptions.
+le mode, les parties, le nombre maximum d’équipes, le contenu des parties et la finance d’inscription, mais pas les
+inscriptions.
 
-Ouvrez une édition par un double-clic ou la touche Entrée.
+La liste des éditions indique pour chacune le nombre d’**Inscriptions**, le nombre d’inscriptions **En attente** et le
+nombre maximum d’équipes (**Limite maximale**). Ouvrez une édition par un double-clic ou la touche Entrée.
 
 <img src="images/fr/edition-form.png" alt="Une nouvelle édition" width="800">
 
@@ -173,8 +180,18 @@ demande s’il s’agit d’une autre personne du même nom : **Autre personne**
 rien n’est inscrit. Une inscription dont un joueur a été déclaré décédé depuis est marquée _Personne décédée dans
 l’annuaire_ : pour la corriger, remplacez cette personne (elle peut toujours être retirée).
 
-Le nombre d’inscrits est affiché, avec le minimum nécessaire pour calculer les rencontres (par exemple 5 équipes pour
-4 parties).
+Le nombre d’inscrits est affiché, avec le maximum et le minimum nécessaire pour calculer les rencontres (par exemple
+5 équipes pour 4 parties).
+
+### Liste d’attente
+
+Le **Nombre maximum d’équipes** se change en haut de la liste tant que les inscriptions sont ouvertes. Une fois
+l’édition complète, le panneau le signale et **Inscrire** place l’inscription en liste d’attente : les inscriptions
+suivantes attendent sous la liste des inscrits, dans leur ordre d’arrivée (premier arrivé, premier servi).
+Sélectionnez une inscription en attente pour la **Corriger** ou la **Retirer** de la liste.
+
+Quand un inscrit est retiré, la première inscription en attente prend sa place. Augmenter le maximum inscrit les
+premières en attente ; le diminuer remet les derniers inscrits en tête de la liste d’attente.
 
 <img src="images/fr/registration.png" alt="Les inscriptions : les personnes de l’annuaire proposées pendant la saisie" width="800">
 
@@ -201,8 +218,19 @@ reçoit, et les participants au repos. Elle exporte en PDF les documents suivant
 | **Cartes de points** | Une carte par participant, quatre par page A4 à découper : sa place à chaque partie, et les cases où il note ses points et son total. |
 | **Feuilles de résultats** | Une feuille par partie et par table, deux par page A4 paysage à découper : les deux équipes avec leur place, puis les donnes du contenu des parties, à remplir pendant le jeu. |
 
-Une inscription tardive ou un désistement ? **Rouvrir les inscriptions** (tant qu’aucun point n’est saisi) supprime les
-rencontres, qui sont recalculées à la clôture suivante. Réimprimez alors les documents.
+Une inscription tardive ? Après la clôture, elle va en liste d’attente.
+
+Un désistement ? Sélectionnez l’inscrit dans **Inscriptions** : **Remplacer par le premier de la liste d’attente**,
+ou saisissez d’autres joueurs et choisissez **Remplacer**. Le remplaçant prend le numéro et les places de l’inscrit
+qui se désiste, sans recalcul des rencontres ; le remplacement est possible tant qu’aucun résultat de ses parties
+n’est saisi. L’inscrit remplacé quitte l’édition, mais reste dans l’annuaire ; si sa finance d’inscription doit être
+remboursée, saisissez une dépense dans la comptabilité. Sous **Documents du participant**, **Exporter la carte de
+points** et **Exporter les feuilles de résultats** n’impriment que les documents qui changent : sa carte et les
+feuilles de ses parties. Le tableau des rencontres et les places à afficher ne changent pas de forme ; réimprimez-les
+en entier au besoin, par exemple sans écran dans la salle.
+
+Pour tout recalculer, **Rouvrir les inscriptions** (tant qu’aucun point n’est saisi) supprime les rencontres, qui
+sont recalculées à la clôture suivante. Réimprimez alors tous les documents.
 
 <img src="images/fr/schedule.png" alt="Les rencontres" width="800">
 
@@ -328,6 +356,7 @@ Les éditions et l’annuaire sont gardés dans le dossier de l’application ; 
 | Aucun tableau n’a été trouvé à temps. | Relancez le calcul. |
 | Rouvrez les inscriptions avant de changer les participants ou les parties. | Les rencontres sont calculées : **Rouvrir les inscriptions**. |
 | Le tirage au sort a clos le match. | **Annuler le tirage** dans le classement pour corriger une feuille. |
+| Fichiers d’édition illisibles | Un fichier est endommagé, ou vient d’une version plus récente de l’application : **Aide › Rechercher les mises à jour…** et installez la dernière version. |
 | La mise à jour n’a pas pu être téléchargée. | Vérifiez la connexion à Internet : la mise à jour est proposée à nouveau au prochain démarrage. |
 
 ## 15. Données personnelles

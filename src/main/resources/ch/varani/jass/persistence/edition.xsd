@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Schema of edition.xml, the main entry of an edition file (.jass), format version 1.
+  Schema of edition.xml, the main entry of an edition file (.jass), format version 2; it accepts the files of
+  version 1 too, which have neither maximum of teams nor waiting list, and are converted by the reader.
 
   The settings come first, so that the list of the editions can read them alone. The deals give the content of every
   game (the domain checks that their number is a multiple of 4). The registrations are teams in team
-  mode and players in individual mode; the schedule, absent while the registration is open, has the games of the same
+  mode and players in individual mode, followed by the waiting list (the participants registered once the edition
+  was full, first in, first out) when it is not empty; the schedule, absent while the registration is open, has the games of the same
   mode. The numbers of the teams and of the players are their position in the registrations, starting at 1. A player
   may refer to a person of the directory by its identifier; the contact details of the person are never stored here.
   The results, absent until the first one is entered, hold the raw input only: the score sheets (one score per deal,
@@ -28,7 +30,7 @@
         <xs:element name="results" type="e:results" minOccurs="0"/>
         <xs:element name="ledger" type="e:ledger" minOccurs="0"/>
       </xs:sequence>
-      <xs:attribute name="formatVersion" type="xs:int" use="required" fixed="1"/>
+      <xs:attribute name="formatVersion" type="e:formatVersion" use="required"/>
       <xs:attribute name="id" type="e:uuid" use="required"/>
     </xs:complexType>
   </xs:element>
@@ -39,10 +41,21 @@
       <xs:element name="date" type="xs:date"/>
       <xs:element name="mode" type="e:mode"/>
       <xs:element name="games" type="e:number"/>
-      <!-- The time given to play a game, in minutes (60 when absent). -->
-      <xs:element name="gameMinutes" type="e:gameMinutes" minOccurs="0"/>
+      <xs:sequence minOccurs="0">
+        <!-- The time given to play a game, in minutes (60 when absent). -->
+        <xs:element name="gameMinutes" type="e:gameMinutes"/>
+        <!-- The maximum number of teams (twice as many players in individual mode); required from version 2. -->
+        <xs:element name="maxTeams" type="e:number" minOccurs="0"/>
+      </xs:sequence>
     </xs:sequence>
   </xs:complexType>
+
+  <xs:simpleType name="formatVersion">
+    <xs:restriction base="xs:int">
+      <xs:minInclusive value="1"/>
+      <xs:maxInclusive value="2"/>
+    </xs:restriction>
+  </xs:simpleType>
 
   <xs:simpleType name="gameMinutes">
     <xs:restriction base="xs:int">
@@ -62,11 +75,22 @@
   </xs:complexType>
 
   <xs:complexType name="registrations">
+    <xs:sequence>
+      <xs:group ref="e:participants"/>
+      <xs:element name="waiting" type="e:waiting" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="waiting">
+    <xs:group ref="e:participants"/>
+  </xs:complexType>
+
+  <xs:group name="participants">
     <xs:choice>
       <xs:element name="team" type="e:team" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="player" type="e:player" minOccurs="0" maxOccurs="unbounded"/>
     </xs:choice>
-  </xs:complexType>
+  </xs:group>
 
   <xs:complexType name="team">
     <xs:sequence>

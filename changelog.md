@@ -2,6 +2,32 @@
 
 All notable changes of the project are documented in this file.
 
+## [Unreleased]
+
+### Added
+- **Maximum of teams and waiting list**: an edition has a maximum number of teams (20 by default, twice as many
+  players in individual mode), set in the form of a new edition and changed in the registration while it is open.
+  Once the edition is full, or once the schedule is computed, a new registration goes to the waiting list, first in,
+  first out, shown under the registrations; a waiting participant can be corrected or removed. Removing a registered
+  participant registers the first one waiting; raising the maximum registers the first ones waiting, lowering it
+  moves the last registered participants to the head of the waiting list. A duplicated edition keeps the maximum.
+  The list of the editions shows the number of registrations, the number of participants on the waiting list and
+  the maximum of teams (column Maximum) of each edition.
+- **Replacement**: once the schedule is computed, a participant who withdraws is replaced, after confirmation, by the
+  first participant of the waiting list or by the players typed in the entry, as long as no result of its games is
+  entered. The new participant takes its number and its places: the schedule is not computed again. Its score card
+  and the score sheets of its games are exported alone from the registration; the schedule and the places, unchanged,
+  are reprinted whole when needed. The participant replaced leaves the edition, but stays in the directory.
+- **Update**: Help › Check for updates looks for a newer version at any time, and says when the application is up to
+  date, is a development version, or when the check fails.
+
+### Changed
+- **Editions**: the report of the unreadable edition files suggests checking that the latest version of the
+  application is used, as they may come from a newer version.
+- **Edition files**: format version 2, with the maximum of teams and the waiting list. The files of the earlier
+  versions are converted when opened: the maximum is the number of teams registered when the schedule is computed,
+  otherwise 20, or the number of teams registered when it is greater.
+
 ## [1.0.5] – 2026-10-13
 
 ### Added

@@ -85,7 +85,7 @@ final class EditionStoreTest {
     assertAll(
         () -> assertEquals(Fixtures.teamEdition(), created),
         () -> assertEquals(changed, store.open(id)),
-        () -> assertEquals(List.of(new EditionHeader(id, "Renamed", Fixtures.DATE, changed.mode(), changed.games())),
+        () -> assertEquals(List.of(EditionHeader.of(id, changed)),
                            store.list().editions()),
         () -> assertEquals(List.of(id + EditionStore.EXTENSION), names(folder.resolve(EditionStore.EDITIONS_FOLDER))));
   }

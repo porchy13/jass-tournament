@@ -55,6 +55,9 @@ At each start, the application checks whether a newer version is published. If s
 saves everything, opens the installer and closes; follow the steps of the installation as above. **Not now** postpones
 the update to the next start. Without Internet, the application starts normally and shows nothing.
 
+**Help › Check for updates…** starts the check at any time: the application offers the new version, or says that it is
+already the latest one, or that the check failed (for instance without Internet).
+
 <img src="images/en/update.png" alt="The offer of a new version" width="325">
 
 ## 2. Get to know the window
@@ -136,6 +139,8 @@ In **Editions**, choose **New edition**:
   opponents);
 - **Games per participant**: 4 according to the regulation; the number must be even, as each team deals first in
   half of its games;
+- **Maximum of teams**: 20 by default (twice as many players in individual mode); beyond it, the registrations go to
+  the waiting list;
 - **Content of the games**: the type of each deal (imposed trump ♥ ♣ ♦ ♠, _Schieber_, _Kreuz_, forced trump).
   **Plan of the regulation** restores the 16 deals of the regulation; **Add 4 deals** and **Remove 4 deals** change
   their number, always a multiple of 4.
@@ -143,9 +148,10 @@ In **Editions**, choose **New edition**:
 **Create** stays unavailable while a value is missing; the reason is shown.
 
 For the next year, select the previous edition and choose **Duplicate the edition**: the new one takes over the mode,
-the games, the content of the games and the registration fee, but not the registrations.
+the games, the maximum of teams, the content of the games and the registration fee, but not the registrations.
 
-Open an edition with a double click or the Enter key.
+The list of the editions shows for each one its number of **Registrations**, its number of registrations **Waiting**
+and its maximum of teams (**Maximum**). Open an edition with a double click or the Enter key.
 
 <img src="images/en/edition-form.png" alt="A new edition" width="800">
 
@@ -168,8 +174,19 @@ application asks whether it is another person with the same names: **Another per
 registers them, otherwise nothing is registered. A registration whose player has been marked as deceased since is
 marked _Person deceased in the directory_: to correct it, replace this person (it can still be removed).
 
-The number of registrations is shown, with the minimum needed to compute the schedule (for instance 5 teams for 4
-games).
+The number of registrations is shown, with the maximum and the minimum needed to compute the schedule (for instance
+5 teams for 4 games).
+
+### Waiting list
+
+The **Maximum of teams** is changed above the list while the registration is open. Once the edition is full, the panel
+says so and **Register** adds the entry to the waiting list: the next registrations wait under the list of the
+registered participants, in their order of arrival (first come, first served). Select a waiting registration to
+**Correct** it or **Remove** it from the list.
+
+When a registered participant is removed, the first waiting registration takes its place. Raising the maximum
+registers the first ones waiting; lowering it puts the last registered participants back at the head of the waiting
+list.
 
 <img src="images/en/registration.png" alt="The registration: the persons of the directory proposed while typing" width="800">
 
@@ -195,8 +212,19 @@ receives, and the participants sitting out. It exports the following documents a
 | **Score cards** | One card per participant, four per A4 page to cut: its place in each round, and the boxes where it writes its points and its total. |
 | **Score sheets** | One sheet per round and table, two per A4 landscape page to cut: both teams with their places, then the deals of the content of the games, filled in during the play. |
 
-A late registration or a withdrawal? **Reopen the registration** (as long as no score is entered) deletes the schedule,
-which is computed again at the next closing. Print the documents again then.
+A late registration? After the closing, it goes to the waiting list.
+
+A withdrawal? Select the participant in **Registration**: **Replace by the first of the waiting list**, or type other
+players and choose **Replace**. The new participant takes the number and the places of the one who withdraws,
+without computing the schedule again; the replacement is possible as long as no result of its games is entered. The
+participant replaced leaves the edition, but stays in the directory; if its registration fee must be refunded, enter
+an expense in the accounting. Under **Documents of the participant**, **Export the score card** and **Export the
+score sheets** print only the documents that change: its card and the sheets of its games. The schedule and the
+places to post do not change their form; print them again whole when needed, for instance without a screen in the
+hall.
+
+To compute everything again, **Reopen the registration** (as long as no score is entered) deletes the schedule, which
+is computed again at the next closing. Print all the documents again then.
 
 <img src="images/en/schedule.png" alt="The schedule" width="800">
 
@@ -318,6 +346,7 @@ The editions and the directory are kept in the data folder of the application; n
 | No schedule was found in time. | Start the computation again. |
 | Reopen the registration before changing the participants or the games. | The schedule is computed: **Reopen the registration**. |
 | The drawing of lots has closed the match. | **Cancel the draw** in the ranking to correct a sheet. |
+| Unreadable edition files | A file is damaged, or comes from a newer version of the application: **Help › Check for updates…** and install the latest version. |
 | The update could not be downloaded. | Check the connection to the Internet: the update is offered again at the next start. |
 
 ## 15. Personal data
