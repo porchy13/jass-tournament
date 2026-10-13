@@ -255,13 +255,15 @@ final class ScoreSheetsDocumentTest {
     final byte[] pdf = Samples.pdf(out -> ScoreSheetsDocument.write(edition, Samples.OPTIONS, Set.of(Samples.TEAMS),
                                                                     out));
     final String text = Samples.text(pdf);
+    final Set<Integer> none = Set.of();
+    final ByteArrayOutputStream sink = new ByteArrayOutputStream();
     try (PDDocument document = Loader.loadPDF(pdf)) {
       assertAll(
           () -> assertEquals(1, document.getNumberOfPages()),
           () -> assertTrue(text.contains("Partie 2 – Table 1"), text),
           () -> assertFalse(text.contains("Partie 1 – Table"), text),
-          () -> assertThrows(IllegalArgumentException.class, () -> ScoreSheetsDocument.write(
-              edition, Samples.OPTIONS, Set.of(), new ByteArrayOutputStream())));
+          () -> assertThrows(IllegalArgumentException.class,
+                             () -> ScoreSheetsDocument.write(edition, Samples.OPTIONS, none, sink)));
     }
   }
 

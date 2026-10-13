@@ -414,6 +414,8 @@ final class EditionTest {
   void maxTeamsTest() {
     final Edition teams = Edition.create(NAME, DATE, TournamentMode.TEAM);
     final Edition players = Edition.create(NAME, DATE, TournamentMode.INDIVIDUAL);
+    final Edition one = teams.withMaxTeams(1);
+    final TeamRegistrations two = teams(2);
     assertAll(
         () -> assertEquals(Edition.DEFAULT_MAX_TEAMS, teams.maxTeams()),
         () -> assertEquals(Edition.DEFAULT_MAX_TEAMS, teams.capacity()),
@@ -423,7 +425,7 @@ final class EditionTest {
                            assertThrows(DomainException.class, () -> teams.withMaxTeams(0)).getError()),
         () -> assertEquals(ValidationError.TOO_MANY_REGISTRATIONS,
                            assertThrows(DomainException.class,
-                                        () -> teams.withMaxTeams(1).withRegistrations(teams(2))).getError()));
+                                        () -> one.withRegistrations(two)).getError()));
   }
 
   /**
@@ -503,6 +505,7 @@ final class EditionTest {
     final Edition edition = scheduledEdition().register(team(OTHER_GAMES)).register(team(OTHER_GAMES + 1));
     final Edition byWaiting = edition.replaceByFirstWaiting(2);
     final Edition byOther = edition.replace(2, team(OTHER_GAMES + 2));
+    final Edition unregistered = scheduledEdition();
     assertAll(
         () -> assertTrue(edition.canReplace(2)),
         () -> assertEquals(team(OTHER_GAMES), byWaiting.registrations().participant(2, false)),
@@ -512,7 +515,7 @@ final class EditionTest {
         () -> assertEquals(2, byOther.registrations().waitingSize()),
         () -> assertEquals(ValidationError.UNKNOWN_REGISTRATION,
                            assertThrows(DomainException.class,
-                                        () -> scheduledEdition().replaceByFirstWaiting(1)).getError()));
+                                        () -> unregistered.replaceByFirstWaiting(1)).getError()));
   }
 
   /**
@@ -526,6 +529,7 @@ final class EditionTest {
     final Edition sheet = edition.withResults(Results.EMPTY.withSheet(ScoreSheet.empty(1, 1, DealPlan.REGULATION)));
     final Edition excluded = edition.withResults(Results.EMPTY.withExclusion(THIRD, true));
     final Edition drawn = edition.withResults(Results.EMPTY.withTieBreak(new TieBreak(1L, List.of(1, 2))));
+    final List<Player> substitute = team(OTHER_GAMES + 1);
     assertAll(
         () -> assertFalse(sheet.canReplace(1)),
         () -> assertFalse(sheet.canReplace(2)),
@@ -536,7 +540,7 @@ final class EditionTest {
         () -> assertEquals(ValidationError.REPLACEMENT_REFUSED,
                            assertThrows(DomainException.class, () -> sheet.replaceByFirstWaiting(1)).getError()),
         () -> assertEquals(ValidationError.REPLACEMENT_REFUSED,
-                           assertThrows(DomainException.class, () -> sheet.replace(2, team(OTHER_GAMES + 1)))
+                           assertThrows(DomainException.class, () -> sheet.replace(2, substitute))
                                .getError()));
   }
 

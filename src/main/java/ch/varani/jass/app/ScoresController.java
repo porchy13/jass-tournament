@@ -307,7 +307,7 @@ final class ScoresController {
    * @return {@code true} if the result of the game is entered.
    */
   private boolean entered(final Pairing game) {
-    return scoring.result(game.round(), game.table()).filter(result -> result.forfeit() || edition.results()
+    return scoring.result(game.round(), game.table()).filter(gameResult -> gameResult.forfeit() || edition.results()
         .sheet(game.round(), game.table()).orElseThrow().deals().stream().allMatch(DealScore::isPlayed)).isPresent();
   }
 

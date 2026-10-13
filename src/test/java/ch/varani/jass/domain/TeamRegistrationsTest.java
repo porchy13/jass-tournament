@@ -144,6 +144,7 @@ final class TeamRegistrationsTest {
   void playersTest() {
     final TeamRegistrations registrations = TeamRegistrations.empty().enrol(TEAM_1.players(), false)
                                                              .enrol(TEAM_2.players(), true);
+    final List<Player> alone = List.of(new Player("Gaël", "Vuille"));
     assertAll(
         () -> assertEquals(List.of(TEAM_1), registrations.teams()),
         () -> assertEquals(List.of(TEAM_2), registrations.waiting()),
@@ -152,8 +153,7 @@ final class TeamRegistrationsTest {
         () -> assertEquals(List.of(TEAM_3), registrations.replaceWaiting(1, TEAM_3).waiting()),
         () -> assertEquals(ValidationError.WRONG_TEAM_SIZE,
                            assertThrows(DomainException.class,
-                                        () -> registrations.enrol(List.of(new Player("Gaël", "Vuille")), false))
-                               .getError()));
+                                        () -> registrations.enrol(alone, false)).getError()));
   }
 
   /**

@@ -23,25 +23,50 @@ enum Library {
   // *******************************************************************************************************************
 
   /** The solver of the schedule. */
-  OR_TOOLS("Google OR-Tools", "Apache-2.0", "https://developers.google.com/optimization"),
+  OR_TOOLS("Google OR-Tools", Licences.APACHE, "https://developers.google.com/optimization"),
   /** The serialization of the models of OR-Tools. */
   PROTOBUF("Protocol Buffers", "BSD-3-Clause", "https://protobuf.dev"),
   /** The native libraries of OR-Tools, with JNA Platform. */
   JNA("Java Native Access", "Apache-2.0 OR LGPL-2.1-or-later", "https://github.com/java-native-access/jna"),
   /** The user interface. */
-  JAVAFX("OpenJFX", "GPL-2.0-only WITH Classpath-exception-2.0", "https://openjfx.io"),
+  JAVAFX("OpenJFX", Licences.GPL_CLASSPATH, "https://openjfx.io"),
   /** The PDF documents, with FontBox and PDFBox-IO. */
-  PDFBOX("Apache PDFBox", "Apache-2.0", "https://pdfbox.apache.org"),
+  PDFBOX("Apache PDFBox", Licences.APACHE, "https://pdfbox.apache.org"),
   /** The log of PDFBox. */
-  COMMONS_LOGGING("Apache Commons Logging", "Apache-2.0", "https://commons.apache.org/proper/commons-logging/"),
+  COMMONS_LOGGING("Apache Commons Logging", Licences.APACHE, "https://commons.apache.org/proper/commons-logging/"),
   /** The phone numbers of the directory. */
-  LIBPHONENUMBER("libphonenumber", "Apache-2.0", "https://github.com/google/libphonenumber"),
+  LIBPHONENUMBER("libphonenumber", Licences.APACHE, "https://github.com/google/libphonenumber"),
   /** The notes of a release, in Markdown, shown by the offer of an update. */
   COMMONMARK("commonmark-java", "BSD-2-Clause", "https://github.com/commonmark/commonmark-java"),
   /** The font of the PDF documents. */
   DEJAVU("DejaVu Sans", "Bitstream-Vera", "https://dejavu-fonts.github.io"),
   /** The Java runtime of the installers, made by {@code jlink}. */
-  OPENJDK("OpenJDK", "GPL-2.0-only WITH Classpath-exception-2.0", "https://openjdk.org");
+  OPENJDK("OpenJDK", Licences.GPL_CLASSPATH, "https://openjdk.org");
+
+  // *******************************************************************************************************************
+  // Inner types
+  // *******************************************************************************************************************
+
+  /**
+   * The licences shared by several libraries, as SPDX expressions; a holder class, since the constants of an enum
+   * cannot refer to its own static fields.
+   *
+   * <p>Utility class without state, safe for concurrent use.</p>
+   */
+  private static final class Licences {
+
+    /** The Apache License 2.0. */
+    static final String APACHE = "Apache-2.0";
+    /** The GNU General Public License 2.0 with the Classpath Exception, of OpenJFX and OpenJDK. */
+    static final String GPL_CLASSPATH = "GPL-2.0-only WITH Classpath-exception-2.0";
+
+    /**
+     * Prevents the instantiation of this holder class.
+     */
+    private Licences() {
+    }
+
+  }
 
   // *******************************************************************************************************************
   // Attributes

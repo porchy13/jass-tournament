@@ -206,7 +206,7 @@ final class DisplayController {
     if (hidden > 0) {
       return messages.get("display.reveal", hidden);
     }
-    return rotating ? messages.get("display.reveal.done") : messages.get("display.rotate");
+    return messages.get(rotating ? "display.reveal.done" : "display.rotate");
   }
 
   // *******************************************************************************************************************

@@ -175,17 +175,21 @@ final class ScoreCardsDocumentTest {
     final byte[] pdf = Samples.pdf(out -> ScoreCardsDocument.write(edition, Samples.OPTIONS, Set.of(Samples.TEAMS, 2),
                                                                    out));
     final String text = Samples.text(pdf);
+    final Set<Integer> none = Set.of();
+    final Set<Integer> zero = Set.of(0);
+    final Set<Integer> unknown = Set.of(Samples.TEAMS + 1);
+    final ByteArrayOutputStream sink = new ByteArrayOutputStream();
     try (PDDocument document = Loader.loadPDF(pdf)) {
       assertAll(
           () -> assertEquals(1, document.getNumberOfPages()),
           () -> assertTrue(text.indexOf("Équipe 2") < text.indexOf("Équipe 5"), text),
           () -> assertFalse(text.contains("Équipe 1"), text),
-          () -> assertThrows(IllegalArgumentException.class, () -> ScoreCardsDocument.write(
-              edition, Samples.OPTIONS, Set.of(), new ByteArrayOutputStream())),
-          () -> assertThrows(IllegalArgumentException.class, () -> ScoreCardsDocument.write(
-              edition, Samples.OPTIONS, Set.of(0), new ByteArrayOutputStream())),
-          () -> assertThrows(IllegalArgumentException.class, () -> ScoreCardsDocument.write(
-              edition, Samples.OPTIONS, Set.of(Samples.TEAMS + 1), new ByteArrayOutputStream())));
+          () -> assertThrows(IllegalArgumentException.class,
+                             () -> ScoreCardsDocument.write(edition, Samples.OPTIONS, none, sink)),
+          () -> assertThrows(IllegalArgumentException.class,
+                             () -> ScoreCardsDocument.write(edition, Samples.OPTIONS, zero, sink)),
+          () -> assertThrows(IllegalArgumentException.class,
+                             () -> ScoreCardsDocument.write(edition, Samples.OPTIONS, unknown, sink)));
     }
   }
 

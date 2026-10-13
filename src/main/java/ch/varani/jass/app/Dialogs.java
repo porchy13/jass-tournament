@@ -45,6 +45,12 @@ final class Dialogs {
 
   /** The height of the frame showing the details of an offer, in pixels. */
   private static final double DETAIL_HEIGHT = 240;
+  /** The suffix of the key of the title of a message box, its header. */
+  private static final String TITLE = ".title";
+  /** The suffix of the key of the text of a message box. */
+  private static final String TEXT = ".text";
+  /** The suffix of the key of the name of the action of a message box. */
+  private static final String ACTION = ".action";
 
   // *******************************************************************************************************************
   // Inner types
@@ -250,9 +256,9 @@ final class Dialogs {
    * @return {@code true} if the user chose the action.
    */
   private boolean ask(final String key, final boolean destructive, final Object... arguments) {
-    final Alert alert = alert(Alert.AlertType.CONFIRMATION, messages.get(key + ".text", arguments));
-    alert.setHeaderText(messages.get(key + ".title", arguments));
-    final ButtonType action = new ButtonType(messages.get(key + ".action", arguments),
+    final Alert alert = alert(Alert.AlertType.CONFIRMATION, messages.get(key + TEXT, arguments));
+    alert.setHeaderText(messages.get(key + TITLE, arguments));
+    final ButtonType action = new ButtonType(messages.get(key + ACTION, arguments),
                                              ButtonBar.ButtonData.OK_DONE);
     alert.getButtonTypes().setAll(action, new ButtonType(messages.get("button.cancel"),
                                                          ButtonBar.ButtonData.CANCEL_CLOSE));
@@ -279,8 +285,8 @@ final class Dialogs {
    */
   boolean offer(final String key, final Node details, final Object... arguments) {
     final Alert alert = alert(Alert.AlertType.CONFIRMATION, null);
-    alert.setHeaderText(messages.get(key + ".title", arguments));
-    final Label text = new Label(messages.get(key + ".text", arguments));
+    alert.setHeaderText(messages.get(key + TITLE, arguments));
+    final Label text = new Label(messages.get(key + TEXT, arguments));
     text.setWrapText(true);
     text.getStyleClass().add("consequence");
     final ScrollPane frame = new ScrollPane(details);
@@ -295,7 +301,7 @@ final class Dialogs {
     final VBox content = new VBox(text, heading, frame);
     content.getStyleClass().addAll("panel-body", "offer");
     alert.getDialogPane().setContent(content);
-    final ButtonType action = new ButtonType(messages.get(key + ".action", arguments), ButtonBar.ButtonData.OK_DONE);
+    final ButtonType action = new ButtonType(messages.get(key + ACTION, arguments), ButtonBar.ButtonData.OK_DONE);
     alert.getButtonTypes().setAll(action, new ButtonType(messages.get(key + ".decline"),
                                                          ButtonBar.ButtonData.CANCEL_CLOSE));
     return natives.question().ask(alert).map(ButtonType::getButtonData)
@@ -329,8 +335,8 @@ final class Dialogs {
    * @param arguments the values inserted in the texts.
    */
   void information(final String key, final Object... arguments) {
-    final Alert alert = alert(Alert.AlertType.INFORMATION, messages.get(key + ".text", arguments));
-    alert.setHeaderText(messages.get(key + ".title", arguments));
+    final Alert alert = alert(Alert.AlertType.INFORMATION, messages.get(key + TEXT, arguments));
+    alert.setHeaderText(messages.get(key + TITLE, arguments));
     natives.notice().accept(alert);
   }
 

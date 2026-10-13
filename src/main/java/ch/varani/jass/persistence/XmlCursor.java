@@ -1,5 +1,6 @@
 package ch.varani.jass.persistence;
 
+import javax.xml.XMLConstants;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -10,10 +11,11 @@ import java.io.ByteArrayInputStream;
  * the directory), built on a StAX reader with secure settings, which turns
  * every unexpected event into a {@link FileFormatException}.
  *
- * <p><b>Security</b> ({@code AGENTS.md} §5): the reader is the one of the JDK, without DTD support and without
- * external entities, so that no file or network resource is ever loaded (XXE). A document type declaration is never
- * skipped: it is an unexpected event, rejected as {@link FormatError#INVALID_XML}. The content must be encoded in
- * UTF-8; a document declaring another encoding is rejected.</p>
+ * <p><b>Security</b> ({@code AGENTS.md} §5): the reader is the one of the JDK, without DTD support, without
+ * external entities and without access to an external DTD, so that no file or network resource is ever loaded (XXE).
+ * A document type declaration is never skipped: it is an unexpected event, rejected as
+ * {@link FormatError#INVALID_XML}. The content must be encoded in UTF-8; a document declaring another encoding is
+ * rejected.</p>
  *
  * <p>The cursor moves from element to element ({@link XMLStreamReader#nextTag()}), skipping white space, comments and
  * processing instructions. Every element must be in the namespace of the document, given at creation.</p>
@@ -21,13 +23,6 @@ import java.io.ByteArrayInputStream;
  * <p>Not thread-safe: an instance reads one document, from one thread.</p>
  */
 final class XmlCursor {
-
-  // *******************************************************************************************************************
-  // Constants
-  // *******************************************************************************************************************
-
-  /** The factory of the StAX readers, of the JDK, without DTD support nor external entities. */
-  private static final XMLInputFactory FACTORY = createFactory();
 
   // *******************************************************************************************************************
   // Attributes
@@ -68,7 +63,9 @@ final class XmlCursor {
   }
 
   /**
-   * Creates a cursor at the start of a document encoded in UTF-8.
+   * Creates a cursor at the start of a document encoded in UTF-8, read by a StAX reader of the JDK, namespace aware,
+   * without DTD support, without external entities and without access to an external DTD (XXE); the factory is
+   * configured here, next to the creation of the reader, so that the analysis of the code sees its settings.
    *
    * @param xml the bytes of the document.
    * @param namespace the XML namespace of every element of the document.
@@ -79,9 +76,14 @@ final class XmlCursor {
    *                             declares another encoding than UTF-8.
    */
   static XmlCursor of(final byte[] xml, final String namespace) throws FileFormatException {
+    final XMLInputFactory factory = XMLInputFactory.newDefaultFactory();
+    factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+    factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+    factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    factory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, true);
     final XMLStreamReader reader;
     try {
-      reader = FACTORY.createXMLStreamReader(new ByteArrayInputStream(xml), XmlOutput.ENCODING);
+      reader = factory.createXMLStreamReader(new ByteArrayInputStream(xml), XmlOutput.ENCODING);
     } catch (XMLStreamException _) {
       throw new FileFormatException(FormatError.INVALID_XML);
     }
@@ -90,20 +92,6 @@ final class XmlCursor {
       throw new FileFormatException(FormatError.INVALID_XML);
     }
     return new XmlCursor(reader, namespace);
-  }
-
-  /**
-   * Creates the factory of the StAX readers: the implementation of the JDK, namespace aware, without DTD support and
-   * without external entities.
-   *
-   * @return the factory.
-   */
-  private static XMLInputFactory createFactory() {
-    final XMLInputFactory factory = XMLInputFactory.newDefaultFactory();
-    factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-    factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
-    factory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, true);
-    return factory;
   }
 
   // *******************************************************************************************************************

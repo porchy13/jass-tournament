@@ -230,7 +230,7 @@ final class DisplayModel {
       return new Page<>(lines, 1, 1, false);
     }
     final int count = pages(lines, size);
-    final int index = (int) Math.floorMod(Math.floorDiv(elapsed(origin, now), PAGE_MILLIS), count);
+    final int index = Math.floorMod(Math.floorDiv(elapsed(origin, now), PAGE_MILLIS), count);
     return new Page<>(lines.subList(index * size, Math.min(lines.size(), (index + 1) * size)), index + 1, count,
                       true);
   }
