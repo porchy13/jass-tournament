@@ -294,7 +294,9 @@ damaged archives, unexpected entries (path traversal), entries larger than 8 MiB
 declarations (XXE), other encodings and newer format versions, with a `FileFormatException` whose `FormatError`
 the user interface translates. The files of format version 1 (application 1.0.0 to 1.0.5) are converted when read:
 their maximum of teams is the number of teams registered when the schedule is computed, otherwise 20 or the number
-of teams registered when it is greater; their waiting list is empty.
+of teams registered when it is greater; their waiting list is empty. The converse does not hold: the application 1.0.0
+to 1.0.5 rejects the files of format version 2 (`UNSUPPORTED_VERSION`), so that an edition saved by a newer version is
+opened only once the latest version is installed.
 
 ## Directory
 

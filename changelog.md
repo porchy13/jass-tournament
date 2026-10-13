@@ -40,7 +40,9 @@ All notable changes of the project are documented in this file.
   application is used, as they may come from a newer version.
 - **Edition files**: format version 2, with the maximum of teams and the waiting list. The files of the earlier
   versions are converted when opened: the maximum is the number of teams registered when the schedule is computed,
-  otherwise 20, or the number of teams registered when it is greater.
+  otherwise 20, or the number of teams registered when it is greater. The versions 1.0.0 to 1.0.5 of the application
+  do not open the files of format version 2: they report them as coming from a newer version, to update to the latest
+  version first.
 
 ### Fixed
 - **Registration**: choosing a proposal of the directory with the mouse no longer raises an error on the JavaFX

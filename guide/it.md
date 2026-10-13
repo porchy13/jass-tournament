@@ -349,7 +349,9 @@ scegliere.
 | Linux | `~/.local/share/jass-tournament` |
 
 - **File › Esporta l’edizione…** crea un file `.jass` completo (giustificativi compresi), da trasmettere a un altro
-  organizzatore, che lo apre con **Importa un’edizione…**.
+  organizzatore, che lo apre con **Importa un’edizione…**. Una versione più vecchia dell’applicazione non apre i file
+  di una versione più recente (per esempio la 1.0.5 quelli della 1.1.0): l’altro organizzatore installa prima l’ultima
+  versione. Una versione recente apre invece i file delle versioni più vecchie.
 - **File › Salva tutto…** crea un archivio ZIP di tutta la cartella: da fare prima e dopo il torneo, per esempio su
   una chiavetta USB.
 - **Sposta l’edizione nel cestino** la porta nel **Cestino**, da cui si può recuperare con **Ripristina**; **Svuota il

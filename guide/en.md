@@ -341,7 +341,9 @@ The editions and the directory are kept in the data folder of the application; n
 | Linux | `~/.local/share/jass-tournament` |
 
 - **File › Export the edition…** creates a complete `.jass` file (supporting documents included), to pass on to
-  another organiser, who opens it with **Import an edition…**.
+  another organiser, who opens it with **Import an edition…**. An older version of the application does not open the
+  files of a newer version (for instance 1.0.5 those of 1.1.0): the other organiser installs the latest version first.
+  A newer version, on the other hand, opens the files of the older versions.
 - **File › Back up everything…** creates a ZIP archive of the whole folder: do it before and after the tournament, on
   a USB stick for instance.
 - **Move the edition to the trash** moves it to the **Trash**, from which it can be restored (**Restore**); **Empty the

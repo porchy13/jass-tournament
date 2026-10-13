@@ -355,7 +355,9 @@ Die Ausgaben und das Verzeichnis werden im Datenordner der Anwendung aufbewahrt;
 | Linux | `~/.local/share/jass-tournament` |
 
 - **Datei › Ausgabe exportieren…** erstellt eine vollständige `.jass`-Datei (mit den Belegen), die an eine andere
-  organisierende Person weitergegeben werden kann; diese öffnet sie mit **Ausgabe importieren…**.
+  organisierende Person weitergegeben werden kann; diese öffnet sie mit **Ausgabe importieren…**. Eine ältere
+  Version der Anwendung öffnet die Dateien einer neueren Version nicht (zum Beispiel 1.0.5 jene von 1.1.0): Die andere
+  Person installiert zuerst die neueste Version. Eine neuere Version öffnet dagegen die Dateien der älteren Versionen.
 - **Datei › Alles sichern…** erstellt ein ZIP-Archiv des ganzen Ordners: vor und nach dem Turnier zu machen, zum
   Beispiel auf einen USB-Stick.
 - **Ausgabe in den Papierkorb** verschiebt sie in den **Papierkorb**, aus dem sie mit **Wiederherstellen**

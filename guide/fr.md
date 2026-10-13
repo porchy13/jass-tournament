@@ -351,7 +351,9 @@ Les éditions et l’annuaire sont gardés dans le dossier de l’application ; 
 | Linux | `~/.local/share/jass-tournament` |
 
 - **Fichier › Exporter l’édition…** crée un fichier `.jass` complet (pièces justificatives comprises), à transmettre
-  à un autre organisateur, qui l’ouvre par **Importer une édition…**.
+  à un autre organisateur, qui l’ouvre par **Importer une édition…**. Une version plus ancienne de l’application
+  n’ouvre pas les fichiers d’une version plus récente (par exemple la 1.0.5 ceux de la 1.1.0) : l’autre organisateur
+  installe d’abord la dernière version. Une version récente ouvre en revanche les fichiers des versions plus anciennes.
 - **Fichier › Tout sauvegarder…** crée une archive ZIP de tout le dossier : à faire avant et après le tournoi, sur une
   clé USB par exemple.
 - **Mettre l’édition à la corbeille** la déplace dans la **Corbeille**, d’où on peut la **Restaurer** ; **Vider la
