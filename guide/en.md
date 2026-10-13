@@ -177,6 +177,9 @@ marked _Person deceased in the directory_: to correct it, replace this person (i
 The number of registrations is shown, with the maximum and the minimum needed to compute the schedule (for instance
 5 teams for 4 games).
 
+The schedule is computed from the teams registered when the registration is closed: see
+[Compute the schedule](#7-compute-the-schedule-and-print-the-documents).
+
 ### Waiting list
 
 The **Maximum of teams** is changed above the list while the registration is open. Once the edition is full, the panel
@@ -193,6 +196,23 @@ list.
 <img src="images/en/registration-previous.png" alt="A person of the directory chosen, its previous team proposed" width="800">
 
 ## 7. Compute the schedule and print the documents
+
+### The schedule starts from the registrations
+
+The application does not fill in a schedule prepared in advance for a fixed number of teams: it computes the schedule
+from the **registered teams** when the registration is closed, each one with its number (column **No.**, in the order of
+the registrations). It sets up one table for two teams: 12 registered teams play at 6 tables, at places 1 to 12. In
+individual mode, it forms the teams among the registered players, one table for four players. The registrations on
+the waiting list get no place, and the maximum number of teams is only a limit: it does not reserve any place.
+
+So register every team that plays, and only them, before closing the registration:
+
+- a team registered after the closing goes to the waiting list, without a place: it can only replace a team that
+  withdraws (see below); otherwise, the registration must be reopened and everything computed again;
+- a registered team that does not come keeps its places: replace it, otherwise its opponents receive the points of a
+  forfeit (**Absent**, rule 19).
+
+### Close the registration
 
 Once everybody is registered, choose **Close the registration and compute the schedule**. The computation takes one
 minute at most; a bar shows its progress, and **Stop the computation** interrupts it.

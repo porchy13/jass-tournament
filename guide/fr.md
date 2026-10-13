@@ -183,6 +183,9 @@ l’annuaire_ : pour la corriger, remplacez cette personne (elle peut toujours �
 Le nombre d’inscrits est affiché, avec le maximum et le minimum nécessaire pour calculer les rencontres (par exemple
 5 équipes pour 4 parties).
 
+Les rencontres sont calculées sur les équipes inscrites au moment de la clôture : voir
+[Calculer les rencontres](#7-calculer-les-rencontres-et-imprimer-les-documents).
+
 ### Liste d’attente
 
 Le **Nombre maximum d’équipes** se change en haut de la liste tant que les inscriptions sont ouvertes. Une fois
@@ -198,6 +201,24 @@ premières en attente ; le diminuer remet les derniers inscrits en tête de la l
 <img src="images/fr/registration-previous.png" alt="Une personne de l’annuaire choisie, son équipe précédente proposée" width="800">
 
 ## 7. Calculer les rencontres et imprimer les documents
+
+### Le tableau part des inscriptions
+
+L’application ne remplit pas un tableau préparé à l’avance pour un nombre fixe d’équipes : elle calcule les rencontres
+à partir des **équipes inscrites** au moment de la clôture, chacune avec son numéro (colonne **N°**, dans l’ordre des
+inscriptions). Elle installe une table pour deux équipes : 12 équipes inscrites jouent à 6 tables, aux places 1 à 12.
+En mode individuel, elle forme les équipes parmi les joueurs inscrits, une table pour quatre joueurs. Les inscriptions
+en liste d’attente ne reçoivent aucune place, et le nombre maximum d’équipes n’est qu’une limite : il ne réserve pas de
+places.
+
+Inscrivez donc toutes les équipes qui jouent, et elles seules, avant de clore les inscriptions :
+
+- une équipe inscrite après la clôture va en liste d’attente, sans place : elle peut seulement remplacer une équipe
+  qui se désiste (voir plus bas) ; sinon, il faut rouvrir les inscriptions et tout recalculer ;
+- une équipe inscrite qui ne vient pas garde ses places : remplacez-la, sinon ses adversaires reçoivent les points
+  d’un forfait (**Absent**, règle 19).
+
+### Clore les inscriptions
 
 Quand tout le monde est inscrit, choisissez **Clore les inscriptions et calculer les rencontres**. Le calcul prend
 au plus une minute ; une barre indique sa progression, et **Arrêter le calcul** l’interrompt.

@@ -481,7 +481,8 @@ final class DirectoryScreenTest {
 
   /**
    * DESIGN.md §8: the tooltip of a tool appears when the pointer rests on it, and stays as long as the pointer does. On
-   * a slow runner the move of the pointer may be lost: the pointer leaves and comes back, a few times.
+   * a slow runner the move of the pointer may be lost: the pointer leaves and comes back, a few times. The duration is
+   * read on the JavaFX thread once its events are processed: the tooltip may be showing before its style sheet sets it.
    *
    * @param robot the TestFX robot.
    *
@@ -504,9 +505,12 @@ final class DirectoryScreenTest {
       }
     }
     final boolean appeared = shown;
+    WaitForAsyncUtils.waitForFxEvents();
+    final Duration[] duration = new Duration[1];
+    robot.interact(() -> duration[0] = export.getTooltip().getShowDuration());
     assertAll(
         () -> assertTrue(appeared),
-        () -> assertEquals(Duration.INDEFINITE, export.getTooltip().getShowDuration()));
+        () -> assertEquals(Duration.INDEFINITE, duration[0]));
   }
 
   /**

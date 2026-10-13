@@ -27,6 +27,10 @@ All notable changes of the project are documented in this file.
   glance; a sheet to check keeps its warning.
 - **User guide**: the entry of the scores advises typing column A (the team that deals), then checking each value of
   column B derived from it against the paper sheet, so that a typing error or a mistake of the players shows up.
+- **User guide**: the computation of the schedule explains that it starts from the teams registered when the
+  registration is closed (one table for two teams, numbered in the order of the registrations), not from a schedule
+  prepared for a fixed number of teams: every team that plays is registered before the closing, a late team goes to
+  the waiting list without a place, and a team that does not come is replaced or loses by forfeit.
 - **Editions**: the report of the unreadable edition files suggests checking that the latest version of the
   application is used, as they may come from a newer version.
 - **Edition files**: format version 2, with the maximum of teams and the waiting list. The files of the earlier

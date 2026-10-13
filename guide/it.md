@@ -183,6 +183,9 @@ tolta).
 È indicato il numero di iscritti, con il massimo e il minimo necessario per calcolare gli incontri (per esempio
 5 squadre per 4 partite).
 
+Gli incontri sono calcolati sulle squadre iscritte al momento della chiusura delle iscrizioni: vedere
+[Calcolare gli incontri](#7-calcolare-gli-incontri-e-stampare-i-documenti).
+
 ### Lista d’attesa
 
 Il **Numero massimo di squadre** si cambia sopra la lista finché le iscrizioni sono aperte. Quando l’edizione è
@@ -198,6 +201,23 @@ in attesa; diminuirlo rimette gli ultimi iscritti in testa alla lista d’attesa
 <img src="images/it/registration-previous.png" alt="Una persona dell’elenco scelta, la sua squadra precedente proposta" width="800">
 
 ## 7. Calcolare gli incontri e stampare i documenti
+
+### Il tabellone parte dalle iscrizioni
+
+L’applicazione non riempie un tabellone preparato in anticipo per un numero fisso di squadre: calcola gli incontri a
+partire dalle **squadre iscritte** al momento della chiusura, ognuna con il suo numero (colonna **N.**, nell’ordine
+delle iscrizioni). Prepara un tavolo per due squadre: 12 squadre iscritte giocano a 6 tavoli, ai posti da 1 a 12. In
+modalità individuale, forma le squadre tra i giocatori iscritti, un tavolo per quattro giocatori. Le iscrizioni in
+lista d’attesa non ricevono alcun posto, e il numero massimo di squadre è solo un limite: non riserva posti.
+
+Iscrivete quindi tutte le squadre che giocano, e soltanto quelle, prima di chiudere le iscrizioni:
+
+- una squadra iscritta dopo la chiusura va in lista d’attesa, senza posto: può soltanto sostituire una squadra che si
+  ritira (vedere più sotto); altrimenti, bisogna riaprire le iscrizioni e ricalcolare tutto;
+- una squadra iscritta che non si presenta conserva i suoi posti: sostituitela, altrimenti i suoi avversari ricevono
+  i punti di un forfait (**Assente**, regola 19).
+
+### Chiudere le iscrizioni
 
 Quando tutti sono iscritti, scegliete **Chiudere le iscrizioni e calcolare gli incontri**. Il calcolo dura al massimo
 un minuto; una barra ne mostra l’avanzamento, e **Interrompi il calcolo** lo ferma.

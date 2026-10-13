@@ -186,6 +186,9 @@ Person (sie kann jederzeit entfernt werden).
 Die Zahl der Anmeldungen wird angezeigt, mit der Höchstzahl und dem nötigen Minimum für den Spielplan (zum Beispiel
 5 Teams für 4 Partien).
 
+Der Spielplan wird aus den Teams berechnet, die beim Schliessen der Anmeldung angemeldet sind: siehe
+[Den Spielplan berechnen](#7-den-spielplan-berechnen-und-die-dokumente-drucken).
+
 ### Warteliste
 
 Die **Höchstzahl der Teams** wird oberhalb der Liste geändert, solange die Anmeldung offen ist. Ist die Ausgabe voll,
@@ -201,6 +204,25 @@ meldet die ersten Wartenden an; eine tiefere setzt die zuletzt Angemeldeten an d
 <img src="images/de/registration-previous.png" alt="Eine Person des Verzeichnisses gewählt, ihr vorheriges Team vorgeschlagen" width="800">
 
 ## 7. Den Spielplan berechnen und die Dokumente drucken
+
+### Der Spielplan geht von den Anmeldungen aus
+
+Die Anwendung füllt keinen im Voraus vorbereiteten Spielplan für eine feste Anzahl Teams aus: Sie berechnet den
+Spielplan aus den **angemeldeten Teams** beim Schliessen der Anmeldung, jedes mit seiner Nummer (Spalte **Nr.**, in der
+Reihenfolge der Anmeldungen). Sie stellt einen Tisch für zwei Teams auf: 12 angemeldete Teams spielen an 6 Tischen,
+auf den Plätzen 1 bis 12. Im Einzelmodus bildet sie die Teams aus den angemeldeten Spielern, ein Tisch für vier
+Spieler. Die Anmeldungen auf der Warteliste erhalten keinen Platz, und die Höchstzahl der Teams ist nur eine Grenze:
+Sie reserviert keine Plätze.
+
+Melden Sie deshalb alle Teams an, die spielen, und nur diese, bevor Sie die Anmeldung schliessen:
+
+- Ein Team, das sich nach dem Schliessen anmeldet, kommt auf die Warteliste, ohne Platz: Es kann nur ein Team
+  ersetzen, das sich zurückzieht (siehe unten); sonst muss die Anmeldung wieder geöffnet und alles neu berechnet
+  werden;
+- Ein angemeldetes Team, das nicht kommt, behält seine Plätze: Ersetzen Sie es, sonst erhalten seine Gegner die
+  Punkte eines Forfaits (**Abwesend**, Regel 19).
+
+### Die Anmeldung schliessen
 
 Sind alle angemeldet, wählen Sie **Anmeldung schliessen und Spielplan berechnen**. Die Berechnung dauert höchstens
 eine Minute; ein Balken zeigt den Fortschritt, und **Berechnung abbrechen** unterbricht sie.
