@@ -1,16 +1,12 @@
 package ch.varani.jass.app;
 
 import ch.varani.jass.domain.DealPlan;
-import ch.varani.jass.domain.DealType;
 import ch.varani.jass.domain.DomainException;
 import ch.varani.jass.domain.Edition;
 import ch.varani.jass.domain.Regulation;
 import ch.varani.jass.domain.TournamentMode;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -20,7 +16,7 @@ import java.util.Optional;
  * <p>A new form proposes the settings of the regulation (4 games, plan of rules 3 and 8 to 11) and
  * {@value Edition#DEFAULT_MAX_TEAMS} teams at most; a duplicate takes over the mode (fixed), the games, the maximum of
  * teams, the plan and the registration fee of the duplicated edition, with an empty name. The
- * plan is edited deal by deal, and by blocks of {@link Regulation#DEALS_PER_BLOCK} deals so that it stays valid.</p>
+ * plan is edited in a {@link DealPlanDraft}.</p>
  *
  * <p>{@link #problem()} tells why the values cannot make an edition yet: the key of the message of the user interface,
  * from the code of the domain ({@code error.validation.<code>}), or {@code form.date.missing}. The class holds no
@@ -43,8 +39,8 @@ final class EditionForm {
 
   /** The duplicated edition, or {@code null} for a new edition. */
   private final Edition source;
-  /** The deals of the plan, in their order. */
-  private final List<DealType> deals;
+  /** The plan of the deals. */
+  private final DealPlanDraft plan;
   /** The name of the edition. */
   private String name = "";
   /** The date of the edition, or {@code null} while not chosen. */
@@ -64,11 +60,11 @@ final class EditionForm {
    * Creates a form.
    *
    * @param source the duplicated edition, or {@code null} for a new edition.
-   * @param deals the initial deals of the plan.
+   * @param plan the initial plan of the deals.
    */
-  private EditionForm(final Edition source, final List<DealType> deals) {
+  private EditionForm(final Edition source, final DealPlan plan) {
     this.source = source;
-    this.deals = new ArrayList<>(deals);
+    this.plan = new DealPlanDraft(plan);
   }
 
   /**
@@ -79,7 +75,7 @@ final class EditionForm {
    * @return the form.
    */
   static EditionForm create(final LocalDate today) {
-    final EditionForm form = new EditionForm(null, DealPlan.REGULATION.deals());
+    final EditionForm form = new EditionForm(null, DealPlan.REGULATION);
     form.date = today;
     return form;
   }
@@ -93,7 +89,7 @@ final class EditionForm {
    * @return the form.
    */
   static EditionForm duplicate(final Edition edition) {
-    final EditionForm form = new EditionForm(edition, edition.deals().deals());
+    final EditionForm form = new EditionForm(edition, edition.deals());
     form.mode = edition.mode();
     form.games = edition.games();
     form.maxTeams = edition.maxTeams();
@@ -207,50 +203,12 @@ final class EditionForm {
   }
 
   /**
-   * Returns the deals of the plan.
+   * Returns the plan of the deals being edited.
    *
-   * @return an unmodifiable copy of the deals, in their order.
+   * @return the plan, changed in place.
    */
-  List<DealType> deals() {
-    return List.copyOf(deals);
-  }
-
-  // *******************************************************************************************************************
-  // Plan of the deals
-  // *******************************************************************************************************************
-
-  /**
-   * Changes the type of a deal.
-   *
-   * @param index the index of the deal, from 0.
-   * @param type the new type.
-   */
-  void setDeal(final int index, final DealType type) {
-    deals.set(index, type);
-  }
-
-  /**
-   * Replaces the plan by the plan of the regulation.
-   */
-  void useRegulation() {
-    deals.clear();
-    deals.addAll(DealPlan.REGULATION.deals());
-  }
-
-  /**
-   * Adds a block of {@link Regulation#DEALS_PER_BLOCK} deals of forced trump at the end of the plan.
-   */
-  void addBlock() {
-    deals.addAll(Collections.nCopies(Regulation.DEALS_PER_BLOCK, DealType.FORCED_TRUMP));
-  }
-
-  /**
-   * Removes the last block of {@link Regulation#DEALS_PER_BLOCK} deals, keeping at least one block.
-   */
-  void removeBlock() {
-    if (deals.size() > Regulation.DEALS_PER_BLOCK) {
-      deals.subList(deals.size() - Regulation.DEALS_PER_BLOCK, deals.size()).clear();
-    }
+  DealPlanDraft plan() {
+    return plan;
   }
 
   // *******************************************************************************************************************
@@ -286,7 +244,7 @@ final class EditionForm {
    */
   Edition build() {
     final Edition created = isDuplicate() ? source.duplicate(name, date) : Edition.create(name, date, mode);
-    return created.withGames(games).withMaxTeams(maxTeams).withDeals(new DealPlan(deals));
+    return created.withGames(games).withMaxTeams(maxTeams).withDeals(plan.plan());
   }
 
 }

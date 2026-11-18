@@ -8,6 +8,10 @@ All notable changes of the project are documented in this file.
 - **Registration**: the number of games per participant is changed in the registration while it is open, like the
   maximum of teams, e.g. to correct an edition created with a wrong number of games without typing its registrations
   again; the minimum of registrations needed by the schedule follows it.
+- **Content of the games**: a new part of the open edition, after Registration, shows the plan of the deals and
+  changes it while the registration is open, as in the form of a new edition (type of each deal, plan of the
+  regulation, blocks of 4 deals), without typing the registrations again; every change is saved at once. Once the
+  schedule is computed, the plan is shown read-only until the registration is reopened.
 
 ## [1.1.0] – 2026-10-13
 

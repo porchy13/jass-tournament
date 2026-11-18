@@ -329,7 +329,7 @@ final class ScoresController {
       final Label number = new Label(String.valueOf(deal));
       number.getStyleClass().add("field-label");
       final Label name = new Label(messages.get("deal." + type.name()));
-      Views.style(name, EditionFormController.RED, type == DealType.IMPOSED_HEARTS
+      Views.style(name, DealPlanEditor.RED, type == DealType.IMPOSED_HEARTS
                                                     || type == DealType.IMPOSED_DIAMONDS);
       fields[deal - 1] = new TextField[] {field(deal, ScoreEntry.Column.GIVER), field(deal,
                                                                                      ScoreEntry.Column.RECEIVER)};

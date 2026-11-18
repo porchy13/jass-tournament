@@ -65,8 +65,8 @@ already the latest one, or that the check failed (for instance without Internet)
 - **The menus** (at the top; on macOS, in the menu bar of the system): **File**, **View**, **Tools** (except on
   macOS) and **Help**.
 - **The side navigation** (on the left): **Editions**, **Directory** and **Trash**. While an edition is open, its name
-  appears with its parts: **Registration**, **Schedule**, **Scores**, **Ranking**, **Display** and **Accounting**. They
-  are used in this order during the tournament.
+  appears with its parts: **Registration**, **Content of the games**, **Schedule**, **Scores**, **Ranking**, **Display**
+  and **Accounting**. They are used in this order during the tournament.
 - **The list** (in the centre): the content of the chosen part.
 - **The detail panel** (on the right): the element selected in the list, ready to be changed. In a narrow window, it
   floats above the list.
@@ -203,6 +203,16 @@ list.
 <img src="images/en/registration.png" alt="The registration: the persons of the directory proposed while typing" width="800">
 
 <img src="images/en/registration-previous.png" alt="A person of the directory chosen, its previous team proposed" width="800">
+
+### Content of the games
+
+The part **Content of the games** shows the plan of the deals chosen when creating the edition: the type of each deal,
+**Plan of the regulation**, **Add 4 deals** and **Remove 4 deals**. It is changed while the registration is open, for
+instance to correct a mistake made when creating the edition, without typing the registrations again; every change is
+saved at once. Once the schedule is computed, the plan is only shown: first choose **Reopen the registration** in
+**Registration**.
+
+<img src="images/en/deals.png" alt="The content of the games of an edition" width="800">
 
 ## 7. Compute the schedule and print the documents
 

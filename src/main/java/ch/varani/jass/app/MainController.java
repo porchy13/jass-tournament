@@ -155,6 +155,8 @@ final class MainController {
     TRASH,
     /** The registration of the open edition. */
     REGISTRATION,
+    /** The content of the games of the open edition. */
+    DEALS,
     /** The schedule of the open edition. */
     SCHEDULE,
     /** The score sheets of the open edition. */
@@ -462,14 +464,15 @@ final class MainController {
                                  item(Place.DIRECTORY, Icon.PEOPLE, "nav.directory"),
                                  item(Place.TRASH, Icon.TRASH, "nav.trash"), edition,
                                  item(Place.REGISTRATION, Icon.LIST, "nav.registration"),
+                                 item(Place.DEALS, Icon.CARDS, "nav.deals"),
                                  item(Place.SCHEDULE, Icon.GRID, "nav.schedule"),
                                  item(Place.SCORES, Icon.PENCIL, "nav.scores"),
                                  item(Place.RANKING, Icon.PODIUM, "nav.ranking"),
                                  item(Place.DISPLAY, Icon.SCREEN, "nav.display"),
                                  item(Place.ACCOUNTING, Icon.WALLET, "nav.accounting"));
-    for (final Node node : List.of(edition, places.get(Place.REGISTRATION), places.get(Place.SCHEDULE),
-                                   places.get(Place.SCORES), places.get(Place.RANKING), places.get(Place.DISPLAY),
-                                   places.get(Place.ACCOUNTING))) {
+    for (final Node node : List.of(edition, places.get(Place.REGISTRATION), places.get(Place.DEALS),
+                                   places.get(Place.SCHEDULE), places.get(Place.SCORES), places.get(Place.RANKING),
+                                   places.get(Place.DISPLAY), places.get(Place.ACCOUNTING))) {
       node.visibleProperty().bind(current.isNotNull());
       node.managedProperty().bind(current.isNotNull());
     }
@@ -830,8 +833,8 @@ final class MainController {
   /**
    * Chooses the part of the open edition shown the next time it is shown.
    *
-   * @param place a part of the edition: {@link Place#REGISTRATION}, {@link Place#SCHEDULE}, {@link Place#SCORES},
-   *              {@link Place#RANKING}, {@link Place#DISPLAY} or {@link Place#ACCOUNTING}.
+   * @param place a part of the edition: {@link Place#REGISTRATION}, {@link Place#DEALS}, {@link Place#SCHEDULE},
+   *              {@link Place#SCORES}, {@link Place#RANKING}, {@link Place#DISPLAY} or {@link Place#ACCOUNTING}.
    */
   void setSection(final Place place) {
     section = place;
@@ -995,7 +998,7 @@ final class MainController {
       case EDITIONS -> this::showList;
       case DIRECTORY -> this::showDirectory;
       case TRASH -> this::showTrash;
-      case REGISTRATION, SCHEDULE, SCORES, RANKING, DISPLAY, ACCOUNTING -> () -> showPart(place);
+      case REGISTRATION, DEALS, SCHEDULE, SCORES, RANKING, DISPLAY, ACCOUNTING -> () -> showPart(place);
     };
     action.run();
   }
@@ -1003,8 +1006,8 @@ final class MainController {
   /**
    * Shows a part of the open edition.
    *
-   * @param place a part of the edition: {@link Place#REGISTRATION}, {@link Place#SCHEDULE}, {@link Place#SCORES},
-   *              {@link Place#RANKING}, {@link Place#DISPLAY} or {@link Place#ACCOUNTING}.
+   * @param place a part of the edition: {@link Place#REGISTRATION}, {@link Place#DEALS}, {@link Place#SCHEDULE},
+   *              {@link Place#SCORES}, {@link Place#RANKING}, {@link Place#DISPLAY} or {@link Place#ACCOUNTING}.
    */
   void showPart(final Place place) {
     section = place;
@@ -1095,6 +1098,8 @@ final class MainController {
    */
   private void showEdition(final OpenEdition edition) {
     switch (section) {
+      case DEALS -> show(load("deals.fxml", new DealsController(this, edition)), edition, Place.DEALS,
+                         new Creation(NEW_EDITION, this::newEdition));
       case SCHEDULE -> show(load("schedule.fxml", new ScheduleController(this, edition.edition())), edition,
                             Place.SCHEDULE, new Creation(NEW_EDITION, this::newEdition));
       case SCORES -> show(load("scores.fxml", new ScoresController(this, edition)), edition, Place.SCORES,

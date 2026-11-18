@@ -39,6 +39,8 @@ enum Icon {
   PODIUM("M1.5 13.5h13M5.5 13.5V6.5h5v7M1.5 13.5V9.5h4M10.5 13.5V9h4v4.5"),
   /** A screen on its foot: the external display. */
   SCREEN("M2 2.5h12v8.5H2zM5.5 14h5M8 11v3"),
+  /** Two playing cards: the content of the games. */
+  CARDS("M2.5 4.5h7v9h-7zM6 4.5v-2h7.5v9h-4"),
   /** A wallet: the accounting. */
   WALLET("M2 4.5h11.5v9H2zM2 4.5l9-2.5v2.5M10.5 8h3v2.5h-3z"),
   /** An open folder: open. */

@@ -233,7 +233,7 @@ final class GuideScreenshotsTest {
 
   /**
    * Captures the registration of the next edition: a name being typed with the proposals of the directory, then the
-   * person chosen with its previous team mate proposed.
+   * person chosen with its previous team mate proposed; then the content of its games.
    *
    * @param robot the TestFX robot.
    *
@@ -250,6 +250,9 @@ final class GuideScreenshotsTest {
         .filter(person -> CHOSEN.equals(person.lastName())).findFirst().orElseThrow()));
     await(() -> robot.lookup("#previousButton").query().isVisible());
     capture(robot, "registration-previous");
+    navigate(robot, "dealsNav");
+    await(() -> shown(robot, "dealList"));
+    capture(robot, "deals");
     navigate(robot, "editionsNav");
   }
 

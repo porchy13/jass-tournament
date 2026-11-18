@@ -69,8 +69,8 @@ dass sie bereits die neueste ist oder dass die Prüfung fehlgeschlagen ist (zum 
 - **Die Menüs** (oben; unter macOS in der Menüleiste des Systems): **Datei**, **Ansicht**, **Extras** (ausser unter
   macOS) und **Hilfe**.
 - **Die Seitennavigation** (links): **Ausgaben**, **Verzeichnis** und **Papierkorb**. Ist eine Ausgabe geöffnet,
-  erscheint ihr Name mit ihren Teilen: **Anmeldungen**, **Spielplan**, **Punkte**, **Rangliste**, **Anzeige** und
-  **Buchhaltung**. Sie werden im Lauf des Turniers in dieser Reihenfolge benutzt.
+  erscheint ihr Name mit ihren Teilen: **Anmeldungen**, **Inhalt der Partien**, **Spielplan**, **Punkte**,
+  **Rangliste**, **Anzeige** und **Buchhaltung**. Sie werden im Lauf des Turniers in dieser Reihenfolge benutzt.
 - **Die Liste** (in der Mitte): der Inhalt des gewählten Teils.
 - **Das Detailfeld** (rechts): das in der Liste gewählte Element, bereit zum Ändern. In einem schmalen Fenster
   schwebt es über der Liste.
@@ -211,6 +211,16 @@ meldet die ersten Wartenden an; eine tiefere setzt die zuletzt Angemeldeten an d
 <img src="images/de/registration.png" alt="Die Anmeldungen: die Personen des Verzeichnisses werden beim Tippen vorgeschlagen" width="800">
 
 <img src="images/de/registration-previous.png" alt="Eine Person des Verzeichnisses gewählt, ihr vorheriges Team vorgeschlagen" width="800">
+
+### Inhalt der Partien
+
+Der Teil **Inhalt der Partien** übernimmt den Plan der Spiele, der beim Erstellen der Ausgabe gewählt wurde: die Art
+jedes Spiels, **Plan des Reglements**, **4 Spiele hinzufügen** und **4 Spiele entfernen**. Er wird geändert, solange
+die Anmeldung offen ist, zum Beispiel um einen Fehler beim Erstellen der Ausgabe zu korrigieren, ohne die Anmeldungen
+erneut zu erfassen; jede Änderung wird sofort gespeichert. Ist der Spielplan berechnet, wird der Plan nur angezeigt:
+Wählen Sie zuerst **Anmeldung wieder öffnen** unter **Anmeldungen**.
+
+<img src="images/de/deals.png" alt="Der Inhalt der Partien einer Ausgabe" width="800">
 
 ## 7. Den Spielplan berechnen und die Dokumente drucken
 

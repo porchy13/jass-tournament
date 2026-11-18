@@ -287,9 +287,9 @@ final class JassApplicationTest {
     final Object read = robot.lookup("#modeBox").queryAs(ChoiceBox.class).getConverter().fromString("Équipes");
     final List<ComboBox<DealType>> types = robot.lookup("#dealList .combo-box").queryAllAs(ComboBox.class).stream()
         .map(combo -> (ComboBox<DealType>) combo).toList();
-    final boolean heartsRed = types.get(0).getButtonCell().getStyleClass().contains(EditionFormController.RED);
-    final boolean clubsRed = types.get(1).getButtonCell().getStyleClass().contains(EditionFormController.RED);
-    final boolean diamondsRed = types.get(2).getButtonCell().getStyleClass().contains(EditionFormController.RED);
+    final boolean heartsRed = types.get(0).getButtonCell().getStyleClass().contains(DealPlanEditor.RED);
+    final boolean clubsRed = types.get(1).getButtonCell().getStyleClass().contains(DealPlanEditor.RED);
+    final boolean diamondsRed = types.get(2).getButtonCell().getStyleClass().contains(DealPlanEditor.RED);
     robot.interact(() -> types.get(1).show());
     WaitForAsyncUtils.waitForFxEvents();
     robot.interact(() -> types.get(1).hide());

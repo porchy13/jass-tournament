@@ -45,7 +45,7 @@ final class EditionFormTest {
         () -> assertEquals(TournamentMode.TEAM, form.mode()),
         () -> assertEquals(Regulation.GAMES, form.games()),
         () -> assertEquals(Edition.DEFAULT_MAX_TEAMS, form.maxTeams()),
-        () -> assertEquals(DealPlan.REGULATION.deals(), form.deals()),
+        () -> assertEquals(DealPlan.REGULATION.deals(), form.plan().deals()),
         () -> assertEquals(Optional.of("error.validation.BLANK_EDITION_NAME"), form.problem()));
   }
 
@@ -61,7 +61,7 @@ final class EditionFormTest {
     form.setMode(TournamentMode.INDIVIDUAL);
     form.setGames(SIX);
     form.setMaxTeams(SIX);
-    form.setDeal(0, DealType.SCHIEBER);
+    form.plan().setDeal(0, DealType.SCHIEBER);
     final Edition edition = form.build();
     form.setGames(0);
     final Optional<String> games = form.problem();
@@ -80,27 +80,6 @@ final class EditionFormTest {
         () -> assertEquals(Optional.of("error.validation.INVALID_GAMES"), games),
         () -> assertEquals(Optional.of(EditionForm.MISSING_DATE), form.problem()),
         () -> assertThrows(NullPointerException.class, form::build));
-  }
-
-  /**
-   * The plan is edited by blocks of four deals, at least one block, and the plan of the regulation can be restored.
-   */
-  @Test
-  @DisplayName("The plan is edited by blocks of four deals")
-  void blocksTest() {
-    final EditionForm form = EditionForm.create(DATE);
-    form.addBlock();
-    final int added = form.deals().size();
-    for (int i = 0; i < Regulation.DEALS_PER_GAME; i++) {
-      form.removeBlock();
-    }
-    final int minimum = form.deals().size();
-    form.useRegulation();
-    assertAll(
-        () -> assertEquals(Regulation.DEALS_PER_GAME + Regulation.DEALS_PER_BLOCK, added),
-        () -> assertEquals(Regulation.DEALS_PER_BLOCK, minimum),
-        () -> assertEquals(DealPlan.REGULATION.deals(), form.deals()),
-        () -> assertThrows(UnsupportedOperationException.class, () -> form.deals().clear()));
   }
 
   /**

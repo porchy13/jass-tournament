@@ -69,8 +69,8 @@ version, ou indique qu’elle est déjà la plus récente, ou que la vérificati
 - **Les menus** (en haut ; sur macOS, dans la barre de menus du système) : **Fichier**, **Affichage**, **Outils** (hors
   macOS) et **Aide**.
 - **La navigation latérale** (à gauche) : **Éditions**, **Annuaire** et **Corbeille**. Quand une édition est ouverte,
-  son nom apparaît avec ses parties : **Inscriptions**, **Rencontres**, **Points**, **Classement**, **Affichage** et
-  **Comptabilité**. On les parcourt dans cet ordre au fil du tournoi.
+  son nom apparaît avec ses parties : **Inscriptions**, **Contenu des parties**, **Rencontres**, **Points**,
+  **Classement**, **Affichage** et **Comptabilité**. On les parcourt dans cet ordre au fil du tournoi.
 - **La liste** (au centre) : le contenu de la partie choisie.
 - **Le panneau de détail** (à droite) : l’élément sélectionné dans la liste, prêt à être modifié. Dans une fenêtre
   étroite, il flotte au-dessus de la liste.
@@ -208,6 +208,16 @@ premières en attente ; le diminuer remet les derniers inscrits en tête de la l
 <img src="images/fr/registration.png" alt="Les inscriptions : les personnes de l’annuaire proposées pendant la saisie" width="800">
 
 <img src="images/fr/registration-previous.png" alt="Une personne de l’annuaire choisie, son équipe précédente proposée" width="800">
+
+### Contenu des parties
+
+La partie **Contenu des parties** reprend le plan des donnes choisi en créant l’édition : le type de chaque donne,
+**Plan du règlement**, **Ajouter 4 donnes** et **Retirer 4 donnes**. Il se change tant que les inscriptions sont
+ouvertes, par exemple pour corriger une erreur faite en créant l’édition, sans ressaisir les inscriptions ; chaque
+changement est enregistré aussitôt. Une fois les rencontres calculées, le plan est seulement affiché : choisissez
+d’abord **Rouvrir les inscriptions** dans **Inscriptions**.
+
+<img src="images/fr/deals.png" alt="Le contenu des parties d’une édition" width="800">
 
 ## 7. Calculer les rencontres et imprimer les documents
 

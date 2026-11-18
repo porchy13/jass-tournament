@@ -68,8 +68,8 @@ oppure indica che è già la più recente o che la verifica non è riuscita (per
 - **I menu** (in alto; su macOS, nella barra dei menu del sistema): **File**, **Vista**, **Strumenti** (tranne su
   macOS) e **Aiuto**.
 - **La navigazione laterale** (a sinistra): **Edizioni**, **Elenco** e **Cestino**. Quando un’edizione è aperta,
-  appare il suo nome con le sue parti: **Iscrizioni**, **Incontri**, **Punti**, **Classifica**, **Schermo** e
-  **Contabilità**. Si usano in quest’ordine nel corso del torneo.
+  appare il suo nome con le sue parti: **Iscrizioni**, **Contenuto delle partite**, **Incontri**, **Punti**,
+  **Classifica**, **Schermo** e **Contabilità**. Si usano in quest’ordine nel corso del torneo.
 - **L’elenco** (al centro): il contenuto della parte scelta.
 - **Il pannello di dettaglio** (a destra): l’elemento selezionato nell’elenco, pronto per essere modificato. In una
   finestra stretta, galleggia sopra l’elenco.
@@ -208,6 +208,16 @@ in attesa; diminuirlo rimette gli ultimi iscritti in testa alla lista d’attesa
 <img src="images/it/registration.png" alt="Le iscrizioni: le persone dell’elenco proposte durante la digitazione" width="800">
 
 <img src="images/it/registration-previous.png" alt="Una persona dell’elenco scelta, la sua squadra precedente proposta" width="800">
+
+### Contenuto delle partite
+
+La parte **Contenuto delle partite** riprende il piano delle mani scelto creando l’edizione: il tipo di ogni mano,
+**Piano del regolamento**, **Aggiungi 4 mani** e **Togli 4 mani**. Si cambia finché le iscrizioni sono aperte, per
+esempio per correggere un errore fatto creando l’edizione, senza digitare di nuovo le iscrizioni; ogni cambiamento è
+salvato subito. Una volta calcolati gli incontri, il piano è solo mostrato: scegliete prima **Riaprire le iscrizioni**
+in **Iscrizioni**.
+
+<img src="images/it/deals.png" alt="Il contenuto delle partite di un’edizione" width="800">
 
 ## 7. Calcolare gli incontri e stampare i documenti
 
