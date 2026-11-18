@@ -188,6 +188,10 @@ l’annuaire_ : pour la corriger, remplacez cette personne (elle peut toujours �
 Le nombre d’inscrits est affiché, avec le maximum et le minimum nécessaire pour calculer les rencontres (par exemple
 5 équipes pour 4 parties).
 
+Les **Parties par participant** se changent en haut de la liste tant que les inscriptions sont ouvertes, par exemple
+pour corriger une erreur faite en créant l’édition : les inscriptions sont conservées et le minimum suit le nouveau
+nombre. Une fois les rencontres calculées, choisissez d’abord **Rouvrir les inscriptions**.
+
 Les rencontres sont calculées sur les équipes inscrites au moment de la clôture : voir
 [Calculer les rencontres](#7-calculer-les-rencontres-et-imprimer-les-documents).
 

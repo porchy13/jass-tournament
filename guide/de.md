@@ -191,6 +191,10 @@ Person (sie kann jederzeit entfernt werden).
 Die Zahl der Anmeldungen wird angezeigt, mit der Höchstzahl und dem nötigen Minimum für den Spielplan (zum Beispiel
 5 Teams für 4 Partien).
 
+Die **Partien pro Teilnehmende** werden oberhalb der Liste geändert, solange die Anmeldung offen ist, zum Beispiel um
+einen Fehler beim Erstellen der Ausgabe zu korrigieren: Die Anmeldungen bleiben erhalten, und das Minimum folgt der
+neuen Zahl. Ist der Spielplan berechnet, wählen Sie zuerst **Anmeldung wieder öffnen**.
+
 Der Spielplan wird aus den Teams berechnet, die beim Schliessen der Anmeldung angemeldet sind: siehe
 [Den Spielplan berechnen](#7-den-spielplan-berechnen-und-die-dokumente-drucken).
 

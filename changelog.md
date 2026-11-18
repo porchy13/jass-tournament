@@ -2,6 +2,13 @@
 
 All notable changes of the project are documented in this file.
 
+## [Unreleased]
+
+### Added
+- **Registration**: the number of games per participant is changed in the registration while it is open, like the
+  maximum of teams, e.g. to correct an edition created with a wrong number of games without typing its registrations
+  again; the minimum of registrations needed by the schedule follows it.
+
 ## [1.1.0] – 2026-10-13
 
 ### Added

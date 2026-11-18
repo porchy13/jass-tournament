@@ -26,19 +26,19 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jupiter.version>6.1.3</jupiter.version>
         <jupiter.platform.version>6.1.3</jupiter.platform.version>
-        <checkstyle.version>14.3.0</checkstyle.version>
-        <jacoco.version>0.8.15</jacoco.version>
+        <checkstyle.version>14.4.0</checkstyle.version>
+        <jacoco.version>0.8.16</jacoco.version>
         <test.excludedGroups>slow,screenshots</test.excludedGroups>
         <!-- Folder of the screenshots of the user guide, set by the profile guide-screenshots only. -->
         <guide.screenshots />
-        <javafx.version>25.0.4</javafx.version>
+        <javafx.version>25.0.5.1</javafx.version>
         <testfx.version>4.0.18</testfx.version>
         <monocle.version>21.0.2</monocle.version>
         <app.mainClass>ch.varani.jass.app.Launcher</app.mainClass>
         <ortools.version>9.15.6755</ortools.version>
-        <libphonenumber.version>9.0.41</libphonenumber.version>
+        <libphonenumber.version>9.0.43</libphonenumber.version>
         <pdfbox.version>3.0.8</pdfbox.version>
-        <commonmark.version>0.30.1</commonmark.version>
+        <commonmark.version>0.32.0</commonmark.version>
         <!-- JVM option pointing to unpacked OR-Tools native libraries; set by the OS profiles below. -->
         <test.libraryPath />
     </properties>

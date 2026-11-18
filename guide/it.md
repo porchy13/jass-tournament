@@ -188,6 +188,10 @@ tolta).
 È indicato il numero di iscritti, con il massimo e il minimo necessario per calcolare gli incontri (per esempio
 5 squadre per 4 partite).
 
+Le **Partite per partecipante** si cambiano sopra la lista finché le iscrizioni sono aperte, per esempio per
+correggere un errore fatto creando l’edizione: le iscrizioni sono conservate e il minimo segue il nuovo numero. Una
+volta calcolati gli incontri, scegliete prima **Riaprire le iscrizioni**.
+
 Gli incontri sono calcolati sulle squadre iscritte al momento della chiusura delle iscrizioni: vedere
 [Calcolare gli incontri](#7-calcolare-gli-incontri-e-stampare-i-documenti).
 

@@ -642,6 +642,7 @@ final class RegistrationTest {
         () -> assertTrue(disabled(robot, "reopenButton")),
         () -> assertTrue(robot.lookup("#full").query().isVisible()),
         () -> assertTrue(disabled(robot, "maxSpinner")),
+        () -> assertTrue(disabled(robot, "gamesSpinner")),
         () -> assertFalse(robot.lookup("#solveButton").query().isVisible()),
         () -> assertFalse(robot.lookup("#removeButton").query().isVisible()),
         () -> assertTrue(scored),
@@ -731,6 +732,32 @@ final class RegistrationTest {
         () -> assertEquals(List.of("Claire2 Dubois", "Claire3 Dubois"),
                            List.of(cell(robot, 0, 1), cell(robot, 1, 1))),
         () -> assertEquals(0, saved("Match prêt").registrations().waitingSize()));
+  }
+
+  /**
+   * Games: the number of games is changed in place while the registration is open, e.g. after a mistake in the form
+   * of the edition; the settings, the minimum of registrations and the closing of the registration follow it.
+   *
+   * @param robot the TestFX robot.
+   *
+   * @throws Exception never.
+   */
+  @Test
+  @DisplayName("Games: the number of games is changed during the registration, the registrations are kept")
+  void gamesTest(final FxRobot robot) throws Exception {
+    open(robot, "Match prêt");
+    final boolean ready = !disabled(robot, "solveButton");
+    @SuppressWarnings("unchecked")
+    final Spinner<Integer> games = robot.lookup("#gamesSpinner").queryAs(Spinner.class);
+    robot.interact(() -> games.getValueFactory().setValue(GAMES + 2));
+    await(() -> saved("Match prêt").games() == GAMES + 2);
+    assertAll(
+        () -> assertTrue(ready),
+        () -> assertTrue(disabled(robot, "solveButton")),
+        () -> assertTrue(text(robot, "settings").startsWith("Équipes, 4 parties, 16 donnes par partie")),
+        () -> assertEquals("3 équipes inscrites sur 20 au plus (au moins 5 pour calculer les rencontres)",
+                           text(robot, "count")),
+        () -> assertEquals(GAMES + 1, saved("Match prêt").registrations().size()));
   }
 
   /**

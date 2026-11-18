@@ -1,40 +1,16 @@
-<ruleset comparisonMethod="maven"
-         xmlns="http://mojo.codehaus.org/versions-maven-plugin/rule/2.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://mojo.codehaus.org/versions-maven-plugin/rule/2.0.0 http://mojo.codehaus.org/versions-maven-plugin/xsd/rule-2.0.0.xsd">
+<ruleset xmlns="https://www.mojohaus.org/VERSIONS/RULE/3.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://www.mojohaus.org/VERSIONS/RULE/3.0.0 https://www.mojohaus.org/versions/versions-model/xsd/rule-3.0.0.xsd">
+    <ignoreVersions>
+        <!-- Ignore the pre-releases of every dependency and plugin: alpha, beta, milestone (e.g. JUnit 6.2.0-M1),
+             release candidate, early access, preview -->
+        <ignoreVersion type="regex">(?i).*[-.](alpha|beta|m|rc|cr|ea|preview)([-.+]?\d.*)?</ignoreVersion>
+    </ignoreVersions>
     <rules>
-        <rule groupId="junit" comparisonMethod="maven">
+        <!-- JavaFX follows the JDK of the project (Java 25) -->
+        <rule groupId="org.openjfx">
             <ignoreVersions>
-                <!-- Ignore Pre-Releases -->
-                <ignoreVersion type="regex">.*-beta.*</ignoreVersion>
-            </ignoreVersions>
-        </rule>
-
-        <rule groupId="org.postgresql" comparisonMethod="maven">
-            <ignoreVersions>
-                <!-- Ignore Pre-Releases -->
-                <ignoreVersion type="regex">.*.jre.*</ignoreVersion>
-            </ignoreVersions>
-        </rule>
-
-        <rule groupId="com.fasterxml.jackson.core" comparisonMethod="maven">
-            <ignoreVersions>
-                <!-- Ignore Pre-Releases -->
-                <ignoreVersion type="regex">.*-rc.*</ignoreVersion>
-            </ignoreVersions>
-        </rule>
-
-        <rule groupId="org.apache.maven.plugins" comparisonMethod="maven">
-            <ignoreVersions>
-                <ignoreVersion type="regex">.*-beta.*</ignoreVersion>
-            </ignoreVersions>
-        </rule>
-
-        <rule groupId="org.openjfx" comparisonMethod="maven">
-            <ignoreVersions>
-                <ignoreVersion type="regex">.*-ea.*</ignoreVersion>
-                <ignoreVersion type="regex">27.*</ignoreVersion>
-                <ignoreVersion type="regex">26.*</ignoreVersion>
+                <ignoreVersion type="regex">2[6-9]\..*</ignoreVersion>
+                <ignoreVersion type="regex">2[6-9]</ignoreVersion>
             </ignoreVersions>
         </rule>
     </rules>

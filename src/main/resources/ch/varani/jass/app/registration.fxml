@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <!--
-  The registration of an edition (RegistrationController): the maximum of teams, the registered participants and the
+  The registration of an edition (RegistrationController): the number of games and the maximum of teams, the registered participants and the
   waiting list at the left, the entry of the players, its replacement and its documents in the detail panel, the
   closing of the registration in the toolbar.
 -->
@@ -37,9 +37,12 @@
         <Label fx:id="title" styleClass="title-view"/>
         <Label fx:id="settings" styleClass="caption"/>
         <GridPane styleClass="form">
-          <Label styleClass="field-label" text="%registration.max.teams" labelFor="$maxSpinner"
+          <Label styleClass="field-label" text="%registration.games" labelFor="$gamesSpinner"
                  GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-          <Spinner fx:id="maxSpinner" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+          <Spinner fx:id="gamesSpinner" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+          <Label styleClass="field-label" text="%registration.max.teams" labelFor="$maxSpinner"
+                 GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+          <Spinner fx:id="maxSpinner" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
         </GridPane>
         <Label fx:id="count" styleClass="section-head"/>
         <TableView fx:id="table" VBox.vgrow="ALWAYS">

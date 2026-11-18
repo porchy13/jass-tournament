@@ -64,6 +64,11 @@ import java.util.stream.Stream;
  * since is marked too: selecting it says so, and it cannot be corrected until the person is replaced (it can still be
  * removed). Shortcut+S registers the entry: it corrects the selected registration, or adds a new one.</p>
  *
+ * <p><b>Games</b>: the number of games of each participant is changed while the registration is open, in place, like
+ * the maximum of teams ({@link Edition#withGames(int)}), e.g. to correct an edition created with a wrong number,
+ * without typing its registrations again; the minimum of registrations needed by the schedule follows it. Once the
+ * schedule is computed, the registration must be reopened first.</p>
+ *
  * <p><b>Maximum and waiting list</b>: the maximum of teams of the edition is changed while the registration is open,
  * in place ({@link MainController#update(MainController.OpenEdition)}), so that the field keeps the focus; the
  * participants move between the registrations and the waiting list ({@link Edition#withMaxTeams(int)}). A new
@@ -110,7 +115,7 @@ final class RegistrationController {
 
   /** The main window. */
   private final MainController main;
-  /** The open edition; changed in place by the maximum of teams. */
+  /** The open edition; changed in place by the number of games and the maximum of teams. */
   private MainController.OpenEdition open;
   /** The players being registered: two in team mode, one in individual mode. */
   private final List<PlayerSlot> slots = new ArrayList<>();
@@ -136,6 +141,9 @@ final class RegistrationController {
   /** The registered teams or players, by number. */
   @FXML
   private TableView<Integer> table;
+  /** The number of games of each participant. */
+  @FXML
+  private Spinner<Integer> gamesSpinner;
   /** The maximum number of teams. */
   @FXML
   private Spinner<Integer> maxSpinner;
@@ -290,6 +298,10 @@ final class RegistrationController {
       }
       select(after, true);
     });
+    gamesSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, EditionFormController.MAX_GAMES,
+                                                                                    edition.games()));
+    gamesSpinner.setDisable(edition.isScheduled());
+    gamesSpinner.valueProperty().addListener((property, before, after) -> changeGames(after));
     maxSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, MAX_TEAMS, edition.maxTeams()));
     maxSpinner.setDisable(edition.isScheduled());
     maxSpinner.valueProperty().addListener((property, before, after) -> changeMax(after));
@@ -726,6 +738,19 @@ final class RegistrationController {
     final Set<Integer> selected = Set.of(table.getSelectionModel().getSelectedItem());
     main.exportDocument("document.sheets", open.edition(),
                         (edition, options, out) -> ScoreSheetsDocument.write(edition, options, selected, out));
+  }
+
+  /**
+   * Changes the number of games of each participant in place, while the registration is open: the settings and the
+   * minimum of registrations follow it, and the field keeps the focus.
+   *
+   * @param value the new number of games.
+   */
+  private void changeGames(final int value) {
+    open = new MainController.OpenEdition(open.id(), open.edition().withGames(value));
+    main.update(open);
+    settings.setText(main.describe(open.edition()));
+    showLists();
   }
 
   /**

@@ -182,6 +182,10 @@ marked _Person deceased in the directory_: to correct it, replace this person (i
 The number of registrations is shown, with the maximum and the minimum needed to compute the schedule (for instance
 5 teams for 4 games).
 
+The **Games per participant** are changed above the list while the registration is open, for instance to correct a
+mistake made when creating the edition: the registrations are kept and the minimum follows the new number. Once the
+schedule is computed, choose **Reopen the registration** first.
+
 The schedule is computed from the teams registered when the registration is closed: see
 [Compute the schedule](#7-compute-the-schedule-and-print-the-documents).
 
