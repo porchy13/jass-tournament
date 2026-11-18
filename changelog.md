@@ -2,7 +2,7 @@
 
 All notable changes of the project are documented in this file.
 
-## [Unreleased]
+## [1.2.0] – 2026-11-18
 
 ### Added
 - **Registration**: the number of games per participant is changed in the registration while it is open, like the
@@ -12,6 +12,10 @@ All notable changes of the project are documented in this file.
   changes it while the registration is open, as in the form of a new edition (type of each deal, plan of the
   regulation, blocks of 4 deals), without typing the registrations again; every change is saved at once. Once the
   schedule is computed, the plan is shown read-only until the registration is reopened.
+
+### Changed
+- **Dependencies**: JavaFX 25.0.5.1, libphonenumber 9.0.43 and commonmark 0.32.0; for the build, Checkstyle 14.4.0
+  and Jacoco 0.8.16. The pre-releases of every dependency are ignored by the check of the updates.
 
 ## [1.1.0] – 2026-10-13
 
