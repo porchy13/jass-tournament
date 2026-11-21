@@ -36,9 +36,9 @@
         <monocle.version>21.0.2</monocle.version>
         <app.mainClass>ch.varani.jass.app.Launcher</app.mainClass>
         <ortools.version>9.15.6755</ortools.version>
-        <libphonenumber.version>9.0.43</libphonenumber.version>
+        <libphonenumber.version>9.0.44</libphonenumber.version>
         <pdfbox.version>3.0.8</pdfbox.version>
-        <commonmark.version>0.32.0</commonmark.version>
+        <commonmark.version>0.33.0</commonmark.version>
         <!-- JVM option pointing to unpacked OR-Tools native libraries; set by the OS profiles below. -->
         <test.libraryPath />
     </properties>

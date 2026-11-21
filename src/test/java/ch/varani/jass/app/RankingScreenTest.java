@@ -65,6 +65,8 @@ final class RankingScreenTest {
   private static final int TOTAL = 5;
   /** The index of the column of the number of games in the ranking. */
   private static final int GAMES = 6;
+  /** The index of the column of the gap in the ranking. */
+  private static final int GAP = 7;
   /** The seed of the draw stored in the edition without tie. */
   private static final long SEED = 7;
 
@@ -156,6 +158,9 @@ final class RankingScreenTest {
                                        cell(robot, 0, FIRST_GAME + 1), cell(robot, 0, TOTAL),
                                        cell(robot, 0, GAMES));
     final String names = cell(robot, 0, 2);
+    final List<RankingEntry> entries = List.copyOf(ranking(robot).getItems());
+    final List<String> gaps = List.of(cell(robot, 0, GAP), cell(robot, entries.size() - 1, GAP));
+    final String expectedGap = messages.number(entries.get(0).points() - entries.get(1).points());
     final List<Boolean> numeric = ranking(robot).getColumns().stream()
         .map(column -> column.getStyleClass().contains(Views.NUMBER)).toList();
     final List<Pos> heads = robot.lookup(".column-header.number .label").queryAll().stream()
@@ -185,8 +190,9 @@ final class RankingScreenTest {
         () -> assertEquals(List.of("1", "1", messages.number(SHEET), "",
                                    messages.number(SHEET), "1"), first),
         () -> assertEquals("Emma1 Favre & Félix1 Girard", names),
+        () -> assertEquals(List.of(expectedGap, ""), gaps),
         () -> assertEquals("Emma1 Favre & Félix1 Girard", excludedNames),
-        () -> assertEquals(List.of(true, true, false, true, true, true, true), numeric),
+        () -> assertEquals(List.of(true, true, false, true, true, true, true, true), numeric),
         () -> assertEquals(List.of(Pos.CENTER_RIGHT), heads),
         () -> assertEquals(0, cancelled),
         () -> assertEquals("Équipe 1 : Emma1 Favre & Félix1 Girard a été exclu du classement.", excluded),
@@ -213,6 +219,7 @@ final class RankingScreenTest {
     final String state = text(robot, "state");
     final boolean warning = robot.lookup("#state").query().getStyleClass().contains("warning");
     final List<Integer> tied = ranking(robot).getItems().stream().map(RankingEntry::rank).toList();
+    final String tiedGap = cell(robot, 1, GAP);
     final boolean enabled = !disabled(robot, "drawButton");
     natives.answer(false);
     press(robot, "drawButton");
@@ -240,6 +247,7 @@ final class RankingScreenTest {
                            + "sort (règle 15).", state),
         () -> assertTrue(warning),
         () -> assertEquals(List.of(1, 2, 2, ScoreFixtures.TEAMS), tied),
+        () -> assertEquals("0", tiedGap),
         () -> assertTrue(enabled),
         () -> assertTrue(notDrawn),
         () -> assertEquals(List.of(2, ScoreFixtures.THIRD), order),

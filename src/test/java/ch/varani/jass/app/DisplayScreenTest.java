@@ -10,6 +10,8 @@ import ch.varani.jass.domain.Player;
 import ch.varani.jass.domain.TournamentMode;
 import ch.varani.jass.persistence.EditionStore;
 import ch.varani.jass.persistence.LogoStore;
+import ch.varani.jass.scoring.RankingEntry;
+import ch.varani.jass.scoring.Scoring;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -80,8 +82,8 @@ final class DisplayScreenTest {
   private static final double SHORT = 320;
   /** The cells of a line of the places: participant, names, place. */
   private static final int PLACE_CELLS = 3;
-  /** The cells of a line of the ranking of two rounds: rank, participant, names, two rounds, total. */
-  private static final int RANKING_CELLS = 6;
+  /** The cells of a line of the ranking of two rounds: rank, participant, names, two rounds, total, gap. */
+  private static final int RANKING_CELLS = 7;
   /** The players of the individual edition: one table, and one player sitting out. */
   private static final int PLAYERS = 5;
   /** The time left before the next page in the middle of a page. */
@@ -352,6 +354,8 @@ final class DisplayScreenTest {
     clock.advance(Duration.ofSeconds(DisplayModel.PAGE_SECONDS));
     press(robot, "revealButton");
     final List<String> all = cells(robot);
+    final List<RankingEntry> entries = new Scoring(ScoreFixtures.stored(folder, FINAL)).ranking().entries();
+    final String firstGap = new Messages(Languages.FRENCH).number(entries.get(0).points() - entries.get(1).points());
     final String allHeld = text(robot, "pageLabel");
     final String rotate = robot.lookup("#revealButton").queryAs(Button.class).getText();
     clock.advance(Duration.ofMillis(HALF_SECOND));
@@ -377,8 +381,8 @@ final class DisplayScreenTest {
         () -> assertEquals("Rangs révélés : 0 sur 4.", none),
         () -> assertEquals("Révéler le rang 4", firstReveal),
         () -> assertEquals("Classement final", heading),
-        () -> assertEquals(List.of("Rang", "", "", "Partie 1", "Partie 2", "Total", "4", "Équipe 2",
-                                   "Emma2 Favre & Félix2 Girard", "912", "1 120", "2 032"),
+        () -> assertEquals(List.of("Rang", "", "", "Partie 1", "Partie 2", "Total", "Écart", "4", "Équipe 2",
+                                   "Emma2 Favre & Félix2 Girard", "912", "1 120", "2 032", ""),
                            last.stream().map(cell -> cell.replace(' ', ' ')).toList()),
         () -> assertTrue(clockHidden),
         () -> assertTrue(rankingDisabled),
@@ -388,6 +392,7 @@ final class DisplayScreenTest {
         () -> assertFalse(heldBar),
         () -> assertEquals("1", all.get(RANKING_CELLS)),
         () -> assertEquals("Équipe 1", all.get(RANKING_CELLS + 1)),
+        () -> assertEquals(firstGap, all.get(2 * RANKING_CELLS - 1)),
         () -> assertEquals("Page 1 sur 4", allHeld),
         () -> assertEquals("Faire défiler les pages", rotate),
         () -> assertTrue(rotating),

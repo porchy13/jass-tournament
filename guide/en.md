@@ -294,7 +294,7 @@ At the end of the tournament, **Show the ranking**, then **Reveal rank** one by 
 During the reveal, the display stays on the first page: the rank revealed last is always at the top, and when there is
 no room left, the lower ranks leave the screen. Once everything is revealed, the same button becomes **Turn the
 pages**: click it when you wish, and the pages of the whole ranking alternate every 10 seconds. **Hide everything**
-starts the reveal again, on the first page.
+starts the reveal again, on the first page. Each line also gives the **Gap**, the points ahead of the next rank.
 
 <img src="images/en/display-control.png" alt="The control of the display" width="800">
 
@@ -327,7 +327,8 @@ sheet appears on the right, like the paper sheet.
 ## 10. Establish the ranking
 
 The **Ranking** is computed each time it is shown: provisional while some games have no result, then final. It gives
-the rank, the points of each game and the total.
+the rank, the points of each game, the total and, in the last column, the **Gap**: the points ahead of the participant
+ranked just below (empty for the last).
 
 - **Ties** (rule 15): once every game has a result, **Draw lots for the ties**. The draw closes the match: the sheets
   can no longer be changed. To correct a score afterwards, **Cancel the draw**, correct, then draw lots again.

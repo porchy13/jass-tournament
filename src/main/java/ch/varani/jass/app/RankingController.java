@@ -17,6 +17,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.function.Function;
 
 /**
@@ -25,7 +26,8 @@ import java.util.function.Function;
  *
  * <p><b>Layout</b> (DESIGN.md §6): the state of the ranking (provisional with the number of games with a result,
  * ties to break, final), then the ranking: rank, number, participant, its points in each game (empty while the game has
- * no result, or when the participant sits out), its total and its number of games with a result; then the
+ * no result, or when the participant sits out), its total, its number of games with a result and its gap, the points
+ * it has more than the participant ranked below it (empty for the last); then the
  * participants excluded for cheating, who can be readmitted. The drawing of lots is the primary action of the toolbar,
  * the exclusion of the selected participant a destructive tool.</p>
  *
@@ -156,6 +158,7 @@ final class RankingController {
     }
     column(table, messages.get("ranking.column.total"), entry -> messages.number(entry.points()), true);
     column(table, messages.get("ranking.column.games"), entry -> String.valueOf(entry.games()), true);
+    column(table, messages.get("ranking.column.gap"), this::gap, true);
     table.getItems().setAll(ranking.entries());
   }
 
@@ -218,6 +221,18 @@ final class RankingController {
    */
   private String points(final int participant, final int round) {
     return scoring.points(participant, round).map(main.messages()::number).orElse("");
+  }
+
+  /**
+   * Returns the gap of a line of the ranking: the points it has more than the line below it.
+   *
+   * @param entry the line, one of the ranking.
+   *
+   * @return the gap, formatted, or an empty text for the last line.
+   */
+  private String gap(final RankingEntry entry) {
+    final OptionalInt gap = ranking.gap(ranking.entries().indexOf(entry));
+    return gap.isPresent() ? main.messages().number(gap.getAsInt()) : "";
   }
 
   // *******************************************************************************************************************

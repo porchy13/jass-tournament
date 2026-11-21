@@ -1,6 +1,7 @@
 package ch.varani.jass.scoring;
 
 import java.util.List;
+import java.util.OptionalInt;
 
 /**
  * The ranking of an edition (rule 14), computed from its results, never stored.
@@ -35,6 +36,24 @@ public record Ranking(List<RankingEntry> entries, boolean complete) {
       }
     }
     return false;
+  }
+
+  /**
+   * Returns the gap between a line of the ranking and the line below it: the points that the participant has more
+   * than the next one (zero for tied participants).
+   *
+   * @param index the index of the line, from 0, less than the number of lines.
+   *
+   * @return the points of this line minus those of the next line, or empty for the last line.
+   *
+   * @throws IndexOutOfBoundsException if the index is negative or not less than the number of lines.
+   */
+  public OptionalInt gap(final int index) {
+    final RankingEntry entry = entries.get(index);
+    if (index == entries.size() - 1) {
+      return OptionalInt.empty();
+    }
+    return OptionalInt.of(entry.points() - entries.get(index + 1).points());
   }
 
 }

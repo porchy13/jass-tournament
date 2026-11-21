@@ -4,6 +4,13 @@ All notable changes of the project are documented in this file.
 
 ## [Unreleased]
 
+### Added
+- **Gap in the ranking**: a last column of the ranking, in the main window and on the external display, gives the
+  points that each participant has more than the one ranked below it (0 for tied participants, empty for the last).
+
+### Changed
+- **Dependencies**: libphonenumber 9.0.44 and commonmark 0.33.0.
+
 ## [1.2.0] – 2026-11-18
 
 ### Added

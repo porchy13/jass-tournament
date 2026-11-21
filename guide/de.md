@@ -305,7 +305,8 @@ Am Ende des Turniers **Rangliste anzeigen**, dann mit **Rang enthüllen** einen 
 ersten. Während der Enthüllung bleibt die Anzeige auf der ersten Seite: Der zuletzt enthüllte Rang steht immer oben,
 und fehlt der Platz, verschwinden die unteren Ränge vom Bildschirm. Ist alles enthüllt, wird dieselbe Schaltfläche zu
 **Seiten durchblättern**: Klicken Sie darauf, wenn Sie wollen, damit die Seiten der ganzen Rangliste alle 10 Sekunden
-wechseln. **Alles verbergen** beginnt die Enthüllung von vorn, auf der ersten Seite.
+wechseln. **Alles verbergen** beginnt die Enthüllung von vorn, auf der ersten Seite. Jede Zeile zeigt auch den
+**Vorsprung**, die Punkte mehr als der folgende Rang.
 
 <img src="images/de/display-control.png" alt="Die Steuerung der Anzeige" width="800">
 
@@ -338,7 +339,8 @@ Blatt erfassen**): Ihr Blatt erscheint rechts, wie das Papierblatt.
 ## 10. Die Rangliste erstellen
 
 Die **Rangliste** wird bei jeder Anzeige neu berechnet: provisorisch, solange Partien ohne Resultat sind, dann
-definitiv. Sie zeigt den Rang, die Punkte jeder Partie und das Total.
+definitiv. Sie zeigt den Rang, die Punkte jeder Partie, das Total und in der letzten Spalte den **Vorsprung**: die
+Punkte mehr als die Teilnehmenden direkt dahinter (leer für die letzten).
 
 - **Gleichstände** (Regel 15): Sobald alle Partien ein Resultat haben, **Gleichstände auslosen**. Die Auslosung
   schliesst den Match ab: Die Blätter können nicht mehr geändert werden. Um danach einen Punktestand zu korrigieren,

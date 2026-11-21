@@ -5,10 +5,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.OptionalInt;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -32,6 +34,23 @@ final class RankingTest {
         () -> assertTrue(new Ranking(List.of(first, new RankingEntry(1, 2, POINTS, 1)), true).hasTies()),
         () -> assertFalse(new Ranking(List.of(first, new RankingEntry(2, 2, POINTS, 1)), true).hasTies()),
         () -> assertFalse(new Ranking(List.of(), false).hasTies()));
+  }
+
+  /**
+   * The gap of a line is the points it has more than the line below it; the last line has none.
+   */
+  @Test
+  @DisplayName("The gap of a line is the points it has more than the next line, none for the last line")
+  void gapTest() {
+    final int behind = 12;
+    final Ranking ranking = new Ranking(List.of(new RankingEntry(1, 1, POINTS, 1),
+                                                new RankingEntry(2, 2, POINTS - behind, 1),
+                                                new RankingEntry(2, THREE, POINTS - behind, 1)), true);
+    assertAll(
+        () -> assertEquals(OptionalInt.of(behind), ranking.gap(0)),
+        () -> assertEquals(OptionalInt.of(0), ranking.gap(1)),
+        () -> assertEquals(OptionalInt.empty(), ranking.gap(2)),
+        () -> assertThrows(IndexOutOfBoundsException.class, () -> ranking.gap(THREE)));
   }
 
   /**

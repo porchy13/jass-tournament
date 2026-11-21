@@ -32,6 +32,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalInt;
 
 /**
  * The external display (F18): a window of its own, independent of the main window, to be moved to a projector or a
@@ -42,7 +43,8 @@ import java.util.List;
  * the place and table of every participant in the round, by number, those sitting out being marked.</p>
  *
  * <p><b>Final ranking</b>: the lines revealed from the main window, from the last to the first, shown the best first,
- * each with the rank, the participant, its points in every round and its total. While they are being revealed, the
+ * each with the rank, the participant, its points in every round, its total and its gap, the points it has more than
+ * the participant ranked below it (empty for the last). While they are being revealed, the
  * first page is held, so that the line revealed last always stays on the screen; its pages alternate once the user
  * starts their rotation.</p>
  *
@@ -315,11 +317,13 @@ final class DisplayWindow {
     final List<ColumnConstraints> columns = new ArrayList<>(List.of(numeric(), fixed(), growing()));
     rounds.forEach(number -> columns.add(numeric()));
     columns.add(numeric());
+    columns.add(numeric());
     grid.getColumnConstraints().setAll(columns);
     final List<Label> head = new ArrayList<>(List.of(cell(messages.get("ranking.column.rank")), cell(""),
                                                      cell("")));
     rounds.forEach(number -> head.add(cell(messages.get("ranking.column.game", number))));
     head.add(cell(messages.get("ranking.column.total")));
+    head.add(cell(messages.get("ranking.column.gap")));
     head.forEach(label -> label.getStyleClass().add("display-column"));
     grid.addRow(0, head.toArray(Label[]::new));
     final List<RankingEntry> revealed = DisplayModel.revealed(ranking, state.revealed().get());
@@ -334,6 +338,8 @@ final class DisplayWindow {
       rounds.forEach(number -> row.add(cell(scoring.points(entry.participant(), number)
                                                    .map(messages::number).orElse(""))));
       row.add(cell(messages.number(entry.points())));
+      final OptionalInt gap = ranking.gap(ranking.entries().indexOf(entry));
+      row.add(cell(gap.isPresent() ? messages.number(gap.getAsInt()) : ""));
       grid.addRow(grid.getRowCount(), row.toArray(Label[]::new));
     }
     showPage(page, rotation, now);

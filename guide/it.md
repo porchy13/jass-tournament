@@ -300,7 +300,8 @@ Alla fine del torneo, **Mostra la classifica**, poi **Rivela il rango** uno per 
 rivelazione, lo schermo resta sulla prima pagina: il rango rivelato per ultimo è sempre in alto e, se manca lo spazio,
 i ranghi in basso spariscono dallo schermo. Una volta rivelato tutto, lo stesso pulsante diventa **Far scorrere le
 pagine**: cliccatelo quando volete perché le pagine della classifica completa si alternino ogni 10 secondi.
-**Nascondi tutto** ricomincia la rivelazione, sulla prima pagina.
+**Nascondi tutto** ricomincia la rivelazione, sulla prima pagina. Ogni riga indica anche il **Distacco**, i punti
+di vantaggio sul rango seguente.
 
 <img src="images/it/display-control.png" alt="Il comando dello schermo" width="800">
 
@@ -333,7 +334,8 @@ successivo da inserire**): il suo foglio appare a destra, come il foglio di cart
 ## 10. Stabilire la classifica
 
 La **Classifica** è ricalcolata a ogni visualizzazione: provvisoria finché alcune partite non hanno un risultato, poi
-definitiva. Indica il rango, i punti di ogni partita e il totale.
+definitiva. Indica il rango, i punti di ogni partita, il totale e, nell’ultima colonna, il **Distacco**: i punti di
+vantaggio sul partecipante classificato subito sotto (vuoto per l’ultimo).
 
 - **Parità** (regola 15): quando tutte le partite hanno un risultato, **Sorteggia le parità**. Il sorteggio chiude il
   match: i fogli non sono più modificabili. Per correggere un punteggio in seguito, **Annulla il sorteggio**,

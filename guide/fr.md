@@ -301,7 +301,8 @@ en choisit une autre.
 révélation, l’affichage reste sur la première page : le rang révélé en dernier est toujours en haut, et si la place
 manque, les rangs du bas disparaissent de l’écran. Une fois tout révélé, le même bouton devient **Faire défiler les
 pages** : cliquez-le quand vous le souhaitez pour que les pages du classement complet défilent toutes les 10 secondes.
-**Tout masquer** recommence la révélation, sur la première page.
+**Tout masquer** recommence la révélation, sur la première page. Chaque ligne donne aussi l’**Écart**, les points
+d’avance sur le rang suivant.
 
 <img src="images/fr/display-control.png" alt="Le pilotage de l’affichage" width="800">
 
@@ -334,7 +335,8 @@ suivante à saisir**) : sa feuille apparaît à droite, comme la feuille papier.
 ## 10. Établir le classement
 
 Le **Classement** est recalculé à chaque affichage : provisoire tant que des parties n’ont pas de résultat, puis
-définitif. Il donne le rang, les points de chaque partie et le total.
+définitif. Il donne le rang, les points de chaque partie, le total et, dans la dernière colonne, l’**Écart** : les
+points d’avance sur le participant classé juste en dessous (vide pour le dernier).
 
 - **Égalités** (règle 15) : une fois toutes les parties saisies, **Tirer au sort les égalités**. Le tirage clôt le
   match : les feuilles ne sont plus modifiables. Pour corriger un score après coup, **Annuler le tirage**, corrigez,
