@@ -2,7 +2,7 @@
 
 All notable changes of the project are documented in this file.
 
-## [Unreleased]
+## [1.3.0] – 2026-11-22
 
 ### Added
 - **Gap in the ranking**: a last column of the ranking, in the main window and on the external display, gives the
