@@ -292,8 +292,9 @@ La partie **Affichage** pilote une seconde fenêtre, à placer sur un projecteur
 3. Au début de chaque partie, **Donner le départ** : l’affichage montre le temps restant, puis « Temps écoulé ».
    **Annuler le départ** en cas d’erreur.
 
-L’affichage montre le logo des documents, l’édition, la partie en cours et la place et la table de chaque participant ; les listes
-trop longues défilent par pages toutes les 10 secondes, une barre à côté du numéro de la page se vidant jusqu’à la
+L’affichage montre le logo des documents, l’édition, la partie en cours et ses tables, chacune dans un cadre avec ses
+participants et leur place, puis ceux qui sont au repos, ensemble dans un cadre sur toute la largeur ; les tables qui ne tiennent pas à l’écran défilent par pages
+toutes les 10 secondes, une barre à côté du numéro de la page se vidant jusqu’à la
 page suivante. La partie montrée est celle en cours ; **Afficher la partie**
 en choisit une autre.
 

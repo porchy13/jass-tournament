@@ -291,8 +291,9 @@ La parte **Schermo** comanda una seconda finestra, da portare su un proiettore o
 3. All’inizio di ogni partita, **Dai il via**: lo schermo mostra il tempo restante, poi «Tempo scaduto». **Annulla il
    via** in caso di errore.
 
-Lo schermo mostra il logo dei documenti, l’edizione, la partita in corso e il posto e il tavolo di ogni partecipante;
-gli elenchi troppo lunghi si alternano per pagine ogni 10 secondi, e una barra accanto al numero della pagina si
+Lo schermo mostra il logo dei documenti, l’edizione, la partita in corso e i suoi tavoli, ognuno in un riquadro con i
+suoi partecipanti e il loro posto, poi quelli a riposo, insieme in un riquadro su tutta la larghezza; i tavoli che non entrano nello schermo si alternano per pagine
+ogni 10 secondi, e una barra accanto al numero della pagina si
 svuota fino alla pagina successiva. La partita mostrata è quella in corso; **Mostra la
 partita** ne sceglie un’altra.
 

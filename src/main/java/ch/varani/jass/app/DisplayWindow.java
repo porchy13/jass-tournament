@@ -40,7 +40,11 @@ import java.util.OptionalInt;
  *
  * <p><b>Round in progress</b>: the logo of the documents (when one is chosen), the edition, the round, the countdown
  * of the game (the whole time of a game until the start signal, then the time remaining, "time is over" at zero) and
- * the place and table of every participant in the round, by number, those sitting out being marked.</p>
+ * the tables of the round ({@link DisplayModel#tables}), each in a box with its number and its participants by place,
+ * then the participants sitting out, in a single box across the whole width, their lines spread over as many columns
+ * as the tables ({@link DisplayModel#rows}). The boxes of the tables fill columns of at least {@value #TABLE_WIDTH}
+ * pixels; their height is that of the lines of a table; the box of the participants sitting out is as high as its
+ * longest column.</p>
  *
  * <p><b>Final ranking</b>: the lines revealed from the main window, from the last to the first, shown the best first,
  * each with the rank, the participant, its points in every round, its total and its gap, the points it has more than
@@ -49,8 +53,9 @@ import java.util.OptionalInt;
  * starts their rotation.</p>
  *
  * <p><b>Pages</b>: the number of lines that fit is computed from the height of the window ({@value #LINE_HEIGHT}
- * pixels a line); when more lines are needed, the pages alternate ({@link DisplayModel#page}) and a bar next to the
- * number of the page empties until the next page ({@link DisplayModel#left}), computed from the same clock.</p>
+ * pixels a line), the rows of tables from its width and packed by their heights ({@link DisplayModel#pages}); when
+ * more are needed, the pages alternate ({@link DisplayModel#page}) and a bar next to the number of the page empties
+ * until the next page ({@link DisplayModel#left}), computed from the same clock.</p>
  *
  * <p><b>Refresh</b>: every {@value #TICK_MILLIS} ms, the window is refreshed whole (countdown, pages, bar) as soon as
  * the second of the clock changes, so that the countdown and the pages change with the clock, on the second; the
@@ -77,6 +82,16 @@ final class DisplayWindow {
 
   /** The height of a line of the display, in pixels (components.css, {@code .display-grid .label}). */
   static final double LINE_HEIGHT = 56;
+  /** The height of a line of a table, in pixels (components.css, {@code .display-table .label}). */
+  static final double TABLE_LINE_HEIGHT = 48;
+  /** The inner margin of a table, in pixels (components.css, {@code .display-table}). */
+  private static final double TABLE_PADDING = 16;
+  /** The space between two tables, in pixels (components.css, {@code .display-tables}). */
+  private static final double TABLE_GAP = 24;
+  /** The whole width of the tables, in percent, shared by their columns. */
+  private static final double PERCENT = 100;
+  /** The minimum width of a table, in pixels. */
+  static final double TABLE_WIDTH = 560;
   /** The width of the window when it is not in full screen, in pixels. */
   static final double WIDTH = 1280;
   /** The height of the window when it is not in full screen, in pixels. */
@@ -130,6 +145,9 @@ final class DisplayWindow {
   /** The lines of the page shown. */
   @FXML
   private GridPane grid;
+  /** The tables of the page shown. */
+  @FXML
+  private GridPane tables;
   /** The number of the page shown. */
   @FXML
   private Label pageLabel;
@@ -167,6 +185,7 @@ final class DisplayWindow {
     state.revealed().addListener((property, before, after) -> refresh());
     state.rotation().addListener((property, before, after) -> refresh());
     area.heightProperty().addListener((property, before, after) -> refresh());
+    area.widthProperty().addListener((property, before, after) -> refresh());
   }
 
   /**
@@ -245,6 +264,8 @@ final class DisplayWindow {
     edition.setText(main.title(shown));
     grid.getChildren().clear();
     grid.getColumnConstraints().clear();
+    tables.getChildren().clear();
+    tables.getColumnConstraints().clear();
     pageLabel.setText("");
     pageBar.setVisible(false);
     origin = null;
@@ -263,7 +284,7 @@ final class DisplayWindow {
   }
 
   /**
-   * Shows the round: its countdown and the page of the places of the moment.
+   * Shows the round: its countdown and the page of the tables of the moment.
    *
    * @param shown the edition.
    * @param now the current instant.
@@ -276,16 +297,137 @@ final class DisplayWindow {
     final boolean over = state.start().get() != null && left.isZero();
     Views.style(timer, OVER, over);
     status.setText(messages.get(statusKey(over)));
-    final DisplayModel.Page<DisplayModel.PlaceLine> page =
-        DisplayModel.page(DisplayModel.places(shown, state.round().get()), fitting(0), Instant.EPOCH, now);
-    grid.getColumnConstraints().setAll(fixed(), growing(), fixed());
-    for (final DisplayModel.PlaceLine line : page.lines()) {
-      final String place = line.place() == 0 ? messages.get("display.sitting.out")
-                                             : messages.get("display.place", line.place(), line.table());
-      grid.addRow(grid.getRowCount(), cell(participant(shown, line.participant())),
-                  cell(MainController.names(shown, line.participant())), cell(place));
+    final List<DisplayModel.Table> all = DisplayModel.tables(shown, state.round().get());
+    final double height = boxHeight(all.getFirst().seats().size());
+    final int columns = Math.max(1, (int) ((area.getWidth() + TABLE_GAP) / (TABLE_WIDTH + TABLE_GAP)));
+    final int lines = Math.max(1, (int) ((area.getHeight() - 2 * TABLE_PADDING) / TABLE_LINE_HEIGHT) - 1);
+    final List<List<DisplayModel.Table>> rows = DisplayModel.rows(all, columns, lines);
+    final List<List<List<DisplayModel.Table>>> pages =
+        DisplayModel.pages(rows, row -> isSittingOut(row) ? boxHeight(longest(row, columns)) : height,
+                           area.getHeight(), TABLE_GAP);
+    final DisplayModel.Page<List<List<DisplayModel.Table>>> page = DisplayModel.page(pages, 1, Instant.EPOCH, now);
+    for (int column = 0; column < columns; column++) {
+      final ColumnConstraints constraints = new ColumnConstraints();
+      constraints.setPercentWidth(PERCENT / columns);
+      tables.getColumnConstraints().add(constraints);
+    }
+    final List<List<DisplayModel.Table>> shownRows = page.lines().getFirst();
+    for (int r = 0; r < shownRows.size(); r++) {
+      final List<DisplayModel.Table> row = shownRows.get(r);
+      if (isSittingOut(row)) {
+        tables.add(sittingOut(shown, row.getFirst(), columns), 0, r, columns, 1);
+      } else {
+        for (int i = 0; i < row.size(); i++) {
+          tables.add(table(shown, row.get(i), height), i, r);
+        }
+      }
     }
     showPage(page, Instant.EPOCH, now);
+  }
+
+  /**
+   * Tells whether a row of the display holds participants sitting out.
+   *
+   * @param row the row, from {@link DisplayModel#rows}.
+   *
+   * @return {@code true} if it holds the table 0.
+   */
+  private static boolean isSittingOut(final List<DisplayModel.Table> row) {
+    return row.getFirst().table() == 0;
+  }
+
+  /**
+   * Counts the lines of the longest column of a row of participants sitting out, spread over the columns.
+   *
+   * @param row the row, holding the table 0.
+   * @param columns the number of columns, at least 1.
+   *
+   * @return the number of lines, rounded up.
+   */
+  private static int longest(final List<DisplayModel.Table> row, final int columns) {
+    return (row.getFirst().seats().size() + columns - 1) / columns;
+  }
+
+  /**
+   * Computes the height of a box: its head, its lines and its inner margins.
+   *
+   * @param lines the number of lines of the box.
+   *
+   * @return the height, in pixels.
+   */
+  private static double boxHeight(final int lines) {
+    return (lines + 1) * TABLE_LINE_HEIGHT + 2 * TABLE_PADDING;
+  }
+
+  /**
+   * Creates the box of the participants sitting out: its head, then their numbers and names, spread over columns,
+   * from top to bottom, then from left to right.
+   *
+   * @param shown the edition.
+   * @param out the participants sitting out (table 0).
+   * @param columns the number of columns, at least 1.
+   *
+   * @return the box, as high as its longest column.
+   */
+  private VBox sittingOut(final Edition shown, final DisplayModel.Table out, final int columns) {
+    final Label head = cell(main.messages().get("display.sitting.out"));
+    head.getStyleClass().add("display-table-head");
+    final List<DisplayModel.Seat> seats = out.seats();
+    final int longest = longest(List.of(out), columns);
+    final GridPane lines = new GridPane();
+    lines.getStyleClass().add("display-table-columns");
+    for (int column = 0; column < columns; column++) {
+      final ColumnConstraints constraints = new ColumnConstraints();
+      constraints.setPercentWidth(PERCENT / columns);
+      lines.getColumnConstraints().add(constraints);
+    }
+    for (int from = 0; from < seats.size(); from += longest) {
+      final GridPane column = new GridPane();
+      column.getStyleClass().add("display-table-lines");
+      column.getColumnConstraints().setAll(fixed(), growing());
+      for (final DisplayModel.Seat seat : seats.subList(from, Math.min(seats.size(), from + longest))) {
+        column.addRow(column.getRowCount(), cell(participant(shown, seat.participant())),
+                      cell(MainController.names(shown, seat.participant())));
+      }
+      lines.add(column, from / longest, 0);
+    }
+    final VBox box = new VBox(head, lines);
+    box.getStyleClass().add("display-table");
+    final double height = boxHeight(longest);
+    box.setMinHeight(height);
+    box.setPrefHeight(height);
+    box.setMaxHeight(height);
+    return box;
+  }
+
+  /**
+   * Creates the box of a table: its number, then a line per participant with its place, its number and its names.
+   *
+   * @param shown the edition.
+   * @param table the table.
+   * @param height the height of the box, the same for every table.
+   *
+   * @return the box.
+   */
+  private VBox table(final Edition shown, final DisplayModel.Table table, final double height) {
+    final Messages messages = main.messages();
+    final Label head = cell(messages.get("display.table", table.table()));
+    head.getStyleClass().add("display-table-head");
+    final GridPane lines = new GridPane();
+    lines.getStyleClass().add("display-table-lines");
+    lines.getColumnConstraints().setAll(fixed(), fixed(), growing());
+    for (final DisplayModel.Seat seat : table.seats()) {
+      final Label place = cell(messages.get("display.seat", seat.place()));
+      place.getStyleClass().add("display-seat");
+      lines.addRow(lines.getRowCount(), place, cell(participant(shown, seat.participant())),
+                   cell(MainController.names(shown, seat.participant())));
+    }
+    final VBox box = new VBox(head, lines);
+    box.getStyleClass().add("display-table");
+    box.setMinHeight(height);
+    box.setPrefHeight(height);
+    box.setMaxHeight(height);
+    return box;
   }
 
   /**

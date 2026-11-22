@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Tests of the content of the external display without the toolkit: rounds, places, round in progress, countdown,
+ * Tests of the content of the external display without the toolkit: rounds, tables, round in progress, countdown,
  * pages and final ranking revealed.
  */
 final class DisplayModelTest {
@@ -40,6 +40,8 @@ final class DisplayModelTest {
   private static final int MINUTES = 75;
   /** The players of the individual edition: one table, plus one sitting out. */
   private static final int PLAYERS = 5;
+  /** The players of the crowded individual edition: one table, plus five sitting out, more than a table seats. */
+  private static final int CROWDED = 9;
   /** The number of lines of the pages in the tests. */
   private static final int PAGE = 3;
   /** The number of lines of the paged list in the tests. */
@@ -52,41 +54,121 @@ final class DisplayModelTest {
   private static final int HALF_MINUTE = 30;
 
   /**
-   * The places follow rule 6 (giver at the odd place) and the participants sitting out have none.
+   * The tables of a round follow rule 6 (giver at the odd place, first), in the order of the tables.
    */
   @Test
-  @DisplayName("Rule 6: the giver sits at place 2k − 1 and the receiver at place 2k of table k")
-  void placesTest() {
+  @DisplayName("Rule 6: at table k, the giver sits at place 2k − 1 and the receiver at place 2k")
+  void tablesTest() {
     final Edition edition = ScoreFixtures.scheduled("Places");
     assertAll(
         () -> assertEquals(List.of(1, 2), DisplayModel.rounds(edition)),
-        () -> assertEquals(List.of(new DisplayModel.PlaceLine(1, 1, 1),
-                                   new DisplayModel.PlaceLine(2, 2, ScoreFixtures.THIRD),
-                                   new DisplayModel.PlaceLine(ScoreFixtures.THIRD, 1, 2),
-                                   new DisplayModel.PlaceLine(ScoreFixtures.TEAMS, 2, ScoreFixtures.TEAMS)),
-                           DisplayModel.places(edition, 2)),
+        () -> assertEquals(List.of(
+                               new DisplayModel.Table(1, List.of(new DisplayModel.Seat(1, 1),
+                                                                 new DisplayModel.Seat(ScoreFixtures.THIRD, 2))),
+                               new DisplayModel.Table(2, List.of(
+                                   new DisplayModel.Seat(2, ScoreFixtures.THIRD),
+                                   new DisplayModel.Seat(ScoreFixtures.TEAMS, ScoreFixtures.TEAMS)))),
+                           DisplayModel.tables(edition, 2)),
         () -> assertEquals(List.of(), DisplayModel.rounds(ScoreFixtures.registered("Open"))));
   }
 
   /**
-   * In individual mode, each player has the place of its side; a player without game sits out.
+   * In individual mode, each player has the place of its side; the players without game sit out, all together.
    */
   @Test
-  @DisplayName("F12: each player has the place of its side, the surplus players sit out")
-  void individualPlacesTest() {
+  @DisplayName("F12: each player has the place of its side, the surplus players sit out together")
+  void individualTablesTest() {
+    final Edition edition = individual(PLAYERS);
+    final Edition crowded = individual(CROWDED);
+    final List<DisplayModel.Seat> table = List.of(new DisplayModel.Seat(1, 1), new DisplayModel.Seat(2, 1),
+                                                  new DisplayModel.Seat(ScoreFixtures.THIRD, 2),
+                                                  new DisplayModel.Seat(ScoreFixtures.TEAMS, 2));
+    final List<DisplayModel.Seat> out = IntStream.rangeClosed(PLAYERS, CROWDED)
+                                                 .mapToObj(player -> new DisplayModel.Seat(player, 0)).toList();
+    assertAll(
+        () -> assertEquals(List.of(new DisplayModel.Table(1, table),
+                                   new DisplayModel.Table(0, List.of(new DisplayModel.Seat(PLAYERS, 0)))),
+                           DisplayModel.tables(edition, 1)),
+        () -> assertEquals(List.of(new DisplayModel.Table(1, table), new DisplayModel.Table(0, out)),
+                           DisplayModel.tables(crowded, 1)),
+        () -> assertEquals(List.of(new DisplayModel.Table(1, table)),
+                           DisplayModel.tables(individual(ScoreFixtures.TEAMS), 1)));
+  }
+
+  /**
+   * The tables are shown by rows of as many as fit, then the participants sitting out in rows of their own, each
+   * holding as many of them as fit in its columns and lines.
+   */
+  @Test
+  @DisplayName("F18: the tables fill rows, the participants sitting out follow in rows across the whole width")
+  void rowsTest() {
+    final List<DisplayModel.Table> tables = List.of(table(1), table(2), table(ScoreFixtures.THIRD),
+                                                    new DisplayModel.Table(0, seats(LINES)));
+    assertAll(
+        () -> assertEquals(List.of(List.of(table(1), table(2)), List.of(table(ScoreFixtures.THIRD)),
+                                   List.of(new DisplayModel.Table(0, seats(LINES)))),
+                           DisplayModel.rows(tables, 2, ScoreFixtures.TEAMS)),
+        () -> assertEquals(List.of(List.of(table(1)), List.of(table(2)), List.of(table(ScoreFixtures.THIRD)),
+                                   List.of(new DisplayModel.Table(0, seats(LINES).subList(0, PAGE))),
+                                   List.of(new DisplayModel.Table(0, seats(LINES).subList(PAGE, 2 * PAGE))),
+                                   List.of(new DisplayModel.Table(0, seats(LINES).subList(2 * PAGE, LINES)))),
+                           DisplayModel.rows(tables, 1, PAGE)));
+  }
+
+  /**
+   * The rows are packed into pages by their heights, a row higher than a page taking a page of its own.
+   */
+  @Test
+  @DisplayName("Q22: the rows are packed into pages by their heights")
+  void packTest() {
+    final List<Integer> rows = List.of(2, 2, 1, LINES, 1);
+    assertAll(
+        () -> assertEquals(List.of(List.of(2, 2), List.of(1), List.of(LINES), List.of(1)),
+                           DisplayModel.pages(rows, row -> row, PAGE + 2, 1)),
+        () -> assertEquals(List.of(rows), DisplayModel.pages(rows, row -> row, LINES * LINES, 0)),
+        () -> assertEquals(List.of(), DisplayModel.pages(List.<Integer>of(), row -> row, PAGE, 1)));
+  }
+
+  /**
+   * Creates a table of two teams, the giver at place 2k − 1 and the receiver at place 2k.
+   *
+   * @param number the number of the table, from 1.
+   *
+   * @return the table.
+   */
+  private static DisplayModel.Table table(final int number) {
+    return new DisplayModel.Table(number, List.of(new DisplayModel.Seat(2 * number - 1, 2 * number - 1),
+                                                  new DisplayModel.Seat(2 * number, 2 * number)));
+  }
+
+  /**
+   * Creates participants sitting out.
+   *
+   * @param count the number of participants, numbered from 1.
+   *
+   * @return the seats, at place 0.
+   */
+  private static List<DisplayModel.Seat> seats(final int count) {
+    return IntStream.rangeClosed(1, count).mapToObj(participant -> new DisplayModel.Seat(participant, 0)).toList();
+  }
+
+  /**
+   * Creates an individual edition of one round with a single table: players 1 and 2 against 3 and 4, the others
+   * sitting out.
+   *
+   * @param count the number of players, at least 4.
+   *
+   * @return the edition.
+   */
+  private static Edition individual(final int count) {
     final List<Player> players = new ArrayList<>();
-    for (int i = 1; i <= PLAYERS; i++) {
+    for (int i = 1; i <= count; i++) {
       players.add(new Player("Joueur" + i, "Test"));
     }
-    final Edition edition = Edition.create("Individuel", UiSupport.TODAY, TournamentMode.INDIVIDUAL).withGames(1)
+    return Edition.create("Individuel", UiSupport.TODAY, TournamentMode.INDIVIDUAL).withGames(1)
         .withRegistrations(new IndividualRegistrations(players))
-        .withSchedule(new IndividualSchedule(PLAYERS, 1, List.of(new IndividualRound(1, List.of(
+        .withSchedule(new IndividualSchedule(count, 1, List.of(new IndividualRound(1, List.of(
             new IndividualGame(1, new Partners(1, 2), new Partners(ScoreFixtures.THIRD, ScoreFixtures.TEAMS)))))));
-    assertEquals(List.of(new DisplayModel.PlaceLine(1, 1, 1), new DisplayModel.PlaceLine(2, 1, 1),
-                         new DisplayModel.PlaceLine(ScoreFixtures.THIRD, 1, 2),
-                         new DisplayModel.PlaceLine(ScoreFixtures.TEAMS, 1, 2),
-                         new DisplayModel.PlaceLine(PLAYERS, 0, 0)),
-                 DisplayModel.places(edition, 1));
   }
 
   /**

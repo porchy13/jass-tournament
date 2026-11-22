@@ -9,17 +9,27 @@ import ch.varani.jass.scoring.Scoring;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.function.ToDoubleFunction;
 
 /**
- * The content of the external display (F18), without the toolkit: the rounds and the places of the participants in a
- * round, the countdown of a game, the pages that alternate when the lines do not fit, and the lines of the final
- * ranking revealed so far.
+ * The content of the external display (F18), without the toolkit: the rounds and the tables of a round with the places
+ * of their participants, the countdown of a game, the pages that alternate when the lines do not fit, and the lines of
+ * the final ranking revealed so far.
  *
- * <p><b>Places</b>: at table {@code k}, the giver side sits at place {@code 2k − 1} and the receiver side at place
- * {@code 2k} (rule 6); in individual mode each player has the place of its side; a participant without game in the
- * round sits out (place 0).</p>
+ * <p><b>Tables</b>: one per game of the round, in the order of the tables; at table {@code k}, the giver side sits at
+ * place {@code 2k − 1} and the receiver side at place {@code 2k} (rule 6), the giver first; in individual mode each
+ * player has the place of its side. The participants without game in the round sit out (table and place 0), by
+ * number, all together.</p>
+ *
+ * <p><b>Rows</b>: the tables are shown by rows of as many tables as fit in the width; the participants sitting out
+ * come after, in rows of their own across the whole width, each holding as many of them as fit in its columns and in
+ * the height of the window. The rows are packed into pages by their heights: a row goes to the next page when it no
+ * longer fits.</p>
  *
  * <p><b>Countdown</b>: before the start signal, the whole time of a game remains; afterwards, the time of a game minus
  * the time elapsed since the signal, never below zero.</p>
@@ -55,13 +65,32 @@ final class DisplayModel {
   // *******************************************************************************************************************
 
   /**
-   * The place of a participant in a round.
+   * The place of a participant at a table.
    *
    * @param participant the number of the team, or of the player in individual mode.
-   * @param table the number of its table, 0 when it sits out.
    * @param place its place, 0 when it sits out.
    */
-  record PlaceLine(int participant, int table, int place) {
+  record Seat(int participant, int place) {
+  }
+
+  /**
+   * A table of a round with its participants, or a group of participants sitting out.
+   *
+   * @param table the number of the table, 0 for participants sitting out.
+   * @param seats the participants, by place.
+   */
+  record Table(int table, List<Seat> seats) {
+
+    /**
+     * Creates a table, copying its seats.
+     *
+     * @param table the number of the table.
+     * @param seats the participants.
+     */
+    Table {
+      seats = List.copyOf(seats);
+    }
+
   }
 
   /**
@@ -139,41 +168,93 @@ final class DisplayModel {
   }
 
   /**
-   * Returns the place of every participant in a round, by number.
+   * Returns the tables of a round with their participants, then the participants sitting out, all together.
    *
    * @param edition the scheduled edition.
-   * @param round the number of the round.
+   * @param round the number of a round of its schedule.
    *
-   * @return one line per registered participant.
+   * @return the tables, in their order, then the participants sitting out (table 0), if any.
    */
-  static List<PlaceLine> places(final Edition edition, final int round) {
+  static List<Table> tables(final Edition edition, final int round) {
     final List<Pairing> games = edition.schedule().pairings().stream().filter(game -> game.round() == round)
-                                       .toList();
-    final List<PlaceLine> lines = new ArrayList<>();
-    for (int participant = 1; participant <= edition.registrations().size(); participant++) {
-      lines.add(placeOf(games, participant));
+                                       .sorted(Comparator.comparingInt(Pairing::table)).toList();
+    final List<Table> tables = new ArrayList<>();
+    final Set<Integer> playing = new HashSet<>();
+    for (final Pairing game : games) {
+      final List<Seat> seats = new ArrayList<>();
+      game.giver().forEach(participant -> seats.add(new Seat(participant, 2 * game.table() - 1)));
+      game.receiver().forEach(participant -> seats.add(new Seat(participant, 2 * game.table())));
+      seats.forEach(seat -> playing.add(seat.participant()));
+      tables.add(new Table(game.table(), seats));
     }
-    return lines;
+    final List<Seat> out = new ArrayList<>();
+    for (int participant = 1; participant <= edition.registrations().size(); participant++) {
+      if (!playing.contains(participant)) {
+        out.add(new Seat(participant, 0));
+      }
+    }
+    if (!out.isEmpty()) {
+      tables.add(new Table(0, out));
+    }
+    return tables;
   }
 
   /**
-   * Finds the place of a participant among the games of a round.
+   * Arranges the tables in rows of the display: the tables of the round by as many as fit in a row, then the
+   * participants sitting out in rows of their own, each holding at most {@code columns × lines} of them.
    *
-   * @param games the games of the round.
-   * @param participant the number of the participant.
+   * @param tables the tables of a round, then the participants sitting out ({@link #tables}).
+   * @param columns the number of tables that fit in a row, at least 1.
+   * @param lines the number of participants sitting out that fit in a column of their row, at least 1.
    *
-   * @return its line: table and place, or zeros when it sits out.
+   * @return the rows, in their order; a row of participants sitting out holds a single table 0.
    */
-  private static PlaceLine placeOf(final List<Pairing> games, final int participant) {
-    for (final Pairing game : games) {
-      if (game.giver().contains(participant)) {
-        return new PlaceLine(participant, game.table(), 2 * game.table() - 1);
-      }
-      if (game.receiver().contains(participant)) {
-        return new PlaceLine(participant, game.table(), 2 * game.table());
+  static List<List<Table>> rows(final List<Table> tables, final int columns, final int lines) {
+    final List<Table> playing = tables.stream().filter(table -> table.table() != 0).toList();
+    final List<List<Table>> rows = new ArrayList<>();
+    for (int from = 0; from < playing.size(); from += columns) {
+      rows.add(playing.subList(from, Math.min(playing.size(), from + columns)));
+    }
+    final int size = columns * lines;
+    for (final Table out : tables.stream().filter(table -> table.table() == 0).toList()) {
+      final List<Seat> seats = out.seats();
+      for (int from = 0; from < seats.size(); from += size) {
+        rows.add(List.of(new Table(0, seats.subList(from, Math.min(seats.size(), from + size)))));
       }
     }
-    return new PlaceLine(participant, 0, 0);
+    return rows;
+  }
+
+  /**
+   * Packs rows into pages by their heights: the rows go on the current page while they fit, separated by a gap; a row
+   * that no longer fits starts the next page, and a row higher than the whole height takes a page of its own.
+   *
+   * @param <T> the type of the rows.
+   * @param rows the rows, in their order.
+   * @param height the height of a row.
+   * @param available the height of a page.
+   * @param gap the space between two rows.
+   *
+   * @return the pages, each with its rows in their order; none without row.
+   */
+  static <T> List<List<T>> pages(final List<T> rows, final ToDoubleFunction<T> height, final double available,
+                                 final double gap) {
+    final List<List<T>> pages = new ArrayList<>();
+    final List<T> page = new ArrayList<>();
+    double used = 0;
+    for (final T row : rows) {
+      final double needed = height.applyAsDouble(row);
+      if (!page.isEmpty() && used + gap + needed > available) {
+        pages.add(List.copyOf(page));
+        page.clear();
+      }
+      used = page.isEmpty() ? needed : used + gap + needed;
+      page.add(row);
+    }
+    if (!page.isEmpty()) {
+      pages.add(List.copyOf(page));
+    }
+    return pages;
   }
 
   // *******************************************************************************************************************

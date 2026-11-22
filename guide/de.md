@@ -296,8 +296,9 @@ Der Teil **Anzeige** steuert ein zweites Fenster für einen Projektor oder einen
 3. Zu Beginn jeder Partie **Startsignal geben**: Die Anzeige zeigt die verbleibende Zeit, dann «Zeit abgelaufen».
    **Startsignal aufheben** nach einem Irrtum.
 
-Die Anzeige zeigt das Logo der Dokumente, die Ausgabe, die laufende Partie und Platz und Tisch jeder teilnehmenden
-Person oder jedes Teams; zu lange Listen wechseln alle 10 Sekunden die Seite, und ein Balken neben der Seitennummer
+Die Anzeige zeigt das Logo der Dokumente, die Ausgabe, die laufende Partie und ihre Tische, jeder in einem Rahmen mit
+seinen Teilnehmenden und ihrem Platz, dann die pausierenden, zusammen in einem Rahmen über die ganze Breite; Tische, die nicht auf den Bildschirm passen, wechseln alle
+10 Sekunden die Seite, und ein Balken neben der Seitennummer
 leert sich bis zur nächsten Seite. Gezeigt wird die laufende Partie;
 **Partie anzeigen** wählt eine andere.
 

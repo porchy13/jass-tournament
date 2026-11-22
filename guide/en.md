@@ -285,8 +285,9 @@ The part **Display** controls a second window, to move to a projector or a telev
 3. At the start of each round, **Give the start signal**: the display shows the time remaining, then "Time is over".
    **Cancel the start signal** after a mistake.
 
-The display shows the logo of the documents, the edition, the round in progress and the place and table of every
-participant; the lists that do not fit alternate by pages every 10 seconds, a bar next to the number of the page
+The display shows the logo of the documents, the edition, the round in progress and its tables, each in a frame with
+its participants and their places, then those sitting out, together in a frame across the width; the tables that do not fit alternate by pages every 10
+seconds, a bar next to the number of the page
 emptying until the next page. The round shown is the one in progress;
 **Show the round** chooses another one.
 

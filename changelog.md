@@ -9,6 +9,9 @@ All notable changes of the project are documented in this file.
   points that each participant has more than the one ranked below it (0 for tied participants, empty for the last).
 
 ### Changed
+- **Tables on the external display**: during a round, the external display groups the participants by table, each
+  table in a box with its number and its participants by place, then the participants sitting out, together in a
+  single box across the width; the boxes fill as many columns as the width of the window allows.
 - **Dependencies**: libphonenumber 9.0.44 and commonmark 0.33.0.
 
 ## [1.2.0] – 2026-11-18

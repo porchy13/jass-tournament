@@ -13,6 +13,7 @@ import ch.varani.jass.persistence.LogoStore;
 import ch.varani.jass.scoring.RankingEntry;
 import ch.varani.jass.scoring.Scoring;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -57,7 +58,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Scenarios of the external display (phase 11b, F18): the window opened, moved to full screen and closed; the round
- * with its countdown started by the user, its places by pages; the time of a game saved; the final ranking revealed
+ * with its countdown started by the user, its tables by pages; the time of a game saved; the final ranking revealed
  * from the last line; the display following the open edition and closed with the main window; in French, with a
  * clock moved by the test and fictitious teams ({@link ScoreFixtures}).
  */
@@ -80,8 +81,12 @@ final class DisplayScreenTest {
   private static final int ELAPSED = 30;
   /** The height of the display window that leaves room for one line only, in pixels. */
   private static final double SHORT = 320;
-  /** The cells of a line of the places: participant, names, place. */
-  private static final int PLACE_CELLS = 3;
+  /** The texts of the head and the first participant of a table: table, place, participant, names. */
+  private static final int TABLE_HEAD = 4;
+  /** The texts of a table of two teams: its number, then place, participant and names of each team. */
+  private static final int TEAM_TABLE = 7;
+  /** The width of the narrow window, where a single column of tables fits. */
+  private static final double NARROW = 640;
   /** The cells of a line of the ranking of two rounds: rank, participant, names, two rounds, total, gap. */
   private static final int RANKING_CELLS = 7;
   /** The players of the individual edition: one table, and one player sitting out. */
@@ -161,6 +166,39 @@ final class DisplayScreenTest {
   }
 
   /**
+   * Returns the texts of the tables of the display, box by box, in the order of the scene graph, read on the JavaFX
+   * thread.
+   *
+   * @param robot the TestFX robot.
+   *
+   * @return the texts.
+   *
+   * @throws Exception if the texts cannot be read.
+   */
+  private static List<String> tables(final FxRobot robot) throws Exception {
+    final Parent tables = robot.lookup("#tables").queryAs(Parent.class);
+    return WaitForAsyncUtils.asyncFx(() -> {
+      final List<String> texts = new ArrayList<>();
+      collect(tables, texts);
+      return texts;
+    }).get();
+  }
+
+  /**
+   * Adds the texts of the labels of a node and of its descendants, depth first.
+   *
+   * @param node the node.
+   * @param texts the texts, completed.
+   */
+  private static void collect(final Node node, final List<String> texts) {
+    if (node instanceof final Label label) {
+      texts.add(label.getText());
+    } else if (node instanceof final Parent parent) {
+      parent.getChildrenUnmodifiable().forEach(child -> collect(child, texts));
+    }
+  }
+
+  /**
    * Opens the control of the display of an edition.
    *
    * @param robot the TestFX robot.
@@ -200,7 +238,7 @@ final class DisplayScreenTest {
   /**
    * Q21: the countdown shows the time of a game until the start signal, then the time remaining, and says when the
    * time is over; the signal can be cancelled; another round waits for its own signal; the time of a game is saved;
-   * the places alternate by pages when they do not fit; the window goes to full screen and is closed.
+   * the tables alternate by pages when they do not fit; the window goes to full screen and is closed.
    *
    * @param robot the TestFX robot.
    *
@@ -214,7 +252,7 @@ final class DisplayScreenTest {
     await(() -> display() != null && display().isShowing());
     final String heading = text(robot, "heading");
     final String waiting = text(robot, "status");
-    final List<String> places = cells(robot);
+    final List<String> places = tables(robot);
     final boolean onePage = text(robot, "pageLabel").isEmpty() && !visible(robot, "pageBar");
     final boolean logo = robot.lookup("#logo").queryAs(ImageView.class).getImage() != null;
     press(robot, "startButton");
@@ -243,9 +281,12 @@ final class DisplayScreenTest {
     assertAll(
         () -> assertEquals("Partie 1", heading),
         () -> assertEquals("En attente du départ", waiting),
-        () -> assertEquals(List.of("Équipe 1", "Emma1 Favre & Félix1 Girard", "Place 1 · table 1"),
-                           places.subList(0, PLACE_CELLS)),
-        () -> assertEquals("Place 4 · table 2", places.getLast()),
+        () -> assertEquals(List.of("Table 1", "Place 1", "Équipe 1", "Emma1 Favre & Félix1 Girard"),
+                           places.subList(0, TABLE_HEAD)),
+        () -> assertEquals(List.of("Place 2", "Équipe 2", "Emma2 Favre & Félix2 Girard", "Table 2"),
+                           places.subList(TABLE_HEAD, TEAM_TABLE + 1)),
+        () -> assertEquals(2 * TEAM_TABLE, places.size()),
+        () -> assertEquals("Emma4 Favre & Félix4 Girard", places.getLast()),
         () -> assertTrue(onePage),
         () -> assertTrue(logo),
         () -> assertEquals("Départ donné à 14:00:00.", started),
@@ -260,7 +301,7 @@ final class DisplayScreenTest {
   }
 
   /**
-   * Q22: the places that do not fit alternate by pages, a bar showing the time left before the next page, by steps
+   * Q22: the tables that do not fit alternate by pages, a bar showing the time left before the next page, by steps
    * once the animations are reduced; the window goes to the screen chosen, in full screen or not, and is closed and
    * opened again with the same state.
    *
@@ -269,7 +310,7 @@ final class DisplayScreenTest {
    * @throws Exception never.
    */
   @Test
-  @DisplayName("Q22: the places alternate by pages, the window goes to full screen and back")
+  @DisplayName("Q22: the tables alternate by pages, the window goes to full screen and back")
   void windowTest(final FxRobot robot) throws Exception {
     open(robot, ROUND);
     final CheckBox full = robot.lookup("#fullScreen").queryAs(CheckBox.class);
@@ -278,7 +319,10 @@ final class DisplayScreenTest {
     await(() -> display() != null && display().isShowing() && display().isFullScreen());
     robot.interact(full::fire);
     await(() -> !display().isFullScreen());
-    robot.interact(() -> display().setHeight(SHORT));
+    robot.interact(() -> {
+      display().setWidth(NARROW);
+      display().setHeight(SHORT);
+    });
     await(() -> text(robot, "pageLabel").startsWith("Page"));
     final String first = text(robot, "pageLabel");
     final boolean bar = visible(robot, "pageBar");
@@ -431,7 +475,7 @@ final class DisplayScreenTest {
     await(() -> display() != null && display().isShowing());
     final boolean navigated = robot.lookup("#displayNav").queryAs(ToggleButton.class).isSelected();
     final String waiting = text(robot, "status");
-    final List<String> players = cells(robot);
+    final List<String> players = tables(robot);
     menu(robot, "listItem");
     ScoreFixtures.open(robot, OPEN, "displayNav");
     await(() -> visible(robot, "empty"));
@@ -448,8 +492,9 @@ final class DisplayScreenTest {
         () -> assertTrue(revealDisabled),
         () -> assertTrue(navigated),
         () -> assertEquals("En attente du départ", waiting),
-        () -> assertEquals(List.of("Joueur 1", "Joueur1 Test", "Place 1 · table 1"), players.subList(0, PLACE_CELLS)),
-        () -> assertEquals("Au repos", players.getLast()),
+        () -> assertEquals(List.of("Table 1", "Place 1", "Joueur 1", "Joueur1 Test"), players.subList(0, TABLE_HEAD)),
+        () -> assertEquals(List.of("Au repos", "Joueur 5", "Joueur5 Test"),
+                           players.subList(players.size() - TABLE_HEAD + 1, players.size())),
         () -> assertEquals("Les rencontres ne sont pas encore calculées.", unscheduled),
         () -> assertTrue(clockHidden),
         () -> assertFalse(shownDisplay.isShowing()));
